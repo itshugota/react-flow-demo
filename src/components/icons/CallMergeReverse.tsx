@@ -1,0 +1,6 @@
+import React from 'react';
+import { createSvgIcon } from '@material-ui/core';
+
+export default createSvgIcon(
+  <path d="M6.82861 3.60373L5.44766 5.04219L8.9265 8.38194L10.3074 6.94347L6.82861 3.60373ZM16.5797 15.8174L13.0805 15.8888L12.9665 10.2999L18.265 4.78073L16.8265 3.39978L10.9501 9.5209L11.0809 15.9296L7.58161 16.0009L12.1724 20.4082L16.5797 15.8174Z" fill="white"/>
+, 'CallMergeReverse');
