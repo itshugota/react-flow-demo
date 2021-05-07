@@ -8,6 +8,7 @@ import {
 import './App.css'
 import StressFlow from './components/StressFlow';
 import Workflow from './components/Workflow'
+import WorkflowWithWaypoints from './components/WorkflowWithWaypoints';
 
 function App() {
   return (
@@ -16,8 +17,12 @@ function App() {
         <div style={{ position: 'fixed', zIndex: 1000, right: 64, bottom: 64, display: 'flex', flexDirection: 'column', alignItems: 'flex-start' }}>
           <a href="/">1. Workflow</a>
           <a href="/stress">2. Stress test</a>
+          <a href="/waypoints">3. Workflow with Waypoints</a>
         </div>
         <Switch>
+          <Route path="/waypoints">
+            <WorkflowWithWaypoints />
+          </Route>
           <Route path="/stress">
             <StressFlow />
           </Route>
