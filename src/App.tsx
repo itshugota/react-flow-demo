@@ -15,11 +15,11 @@ function App() {
   return (
     <Router>
       <div className="App">
-        <div style={{ position: 'fixed', zIndex: 1000, right: 64, bottom: 64, display: 'flex', flexDirection: 'column', alignItems: 'flex-start' }}>
-          <a href="/anchors">1. Workflow with editable anchors</a>
-        </div>
+        {/* <div style={{ position: 'fixed', zIndex: 1000, right: 64, bottom: 64, display: 'flex', flexDirection: 'column', alignItems: 'flex-start' }}>
+          <a href="/">1. Workflow with editable anchors</a>
+        </div> */}
         <Switch>
-          <Route path="/anchors">
+          <Route path="/">
             <WorkflowWithEditableAnchors />
           </Route>
           <Route path="/waypoints">
@@ -28,7 +28,7 @@ function App() {
           <Route path="/stress">
             <StressFlow />
           </Route>
-          <Route path="/">
+          <Route path="/default">
             <Workflow />
           </Route>
         </Switch>
