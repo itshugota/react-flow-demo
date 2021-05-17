@@ -14,7 +14,7 @@ export interface IntentNodeProps {
   }
 }
 
-const useStyles = makeStyles(theme => ({
+const useStyles = makeStyles(() => ({
   container: {},
 }));
 

@@ -4,12 +4,8 @@ import { ConnectionLineComponentProps } from 'react-flow-renderer';
 const ConnectionLine: React.FC<ConnectionLineComponentProps> = ({
   sourceX,
   sourceY,
-  sourcePosition,
   targetX,
   targetY,
-  targetPosition,
-  connectionLineType,
-  connectionLineStyle,
 }) => {
   return (
     <g>

@@ -1,3 +1,4 @@
+// @ts-nocheck
 import React, { useState } from 'react';
 import ReactFlow, { addEdge, ReactFlowProps, Background } from 'react-flowy';
 

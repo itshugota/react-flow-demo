@@ -1,4 +1,4 @@
-
+// @ts-nocheck
 import { arePointsAligned } from '../utils/geometry';
 import { getOrientation, getMidPoint } from '../layout/utils';
 import Rectangle from '../types/Rectangle';
