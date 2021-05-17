@@ -15,7 +15,7 @@
     "react": "^17.0.0",
     "react-dom": "^17.0.0",
     "react-flow-renderer": "^9.5.1",
-    "react-flowy": "github:huy-ta/react-flowy#main",
+    "react-flowy": "^0.0.3",
     "react-router": "^5.2.0",
     "react-router-dom": "^5.2.0"
   },
