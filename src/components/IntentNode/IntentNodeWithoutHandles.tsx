@@ -1,7 +1,7 @@
 import React, { ChangeEvent } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import Paper from '@material-ui/core/Paper';
-import { Handle, Position } from 'react-flow-renderer';
+import { Handle, Position } from 'react-flowy';
 import IntentNodeHeader from './IntentNodeHeader';
 import IntentNodeBody from './IntentNodeBody';
 
@@ -17,6 +17,8 @@ const useStyles = makeStyles(theme => ({
 
 const IntentNodeWithoutHandles: React.FC<IntentNodeProps> = ({ data }) => {
   const classes = useStyles();
+
+  console.log('WHY IS IT UPDATED', data);
 
   return (
     <Paper className={classes.container} elevation={4}>

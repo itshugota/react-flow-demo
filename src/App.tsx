@@ -9,17 +9,19 @@ import './App.css'
 import StressFlow from './components/StressFlow';
 import Workflow from './components/Workflow'
 import WorkflowWithWaypoints from './components/WorkflowWithWaypoints';
+import WorkflowWithEditableAnchors from './components/WorkflowWithEditableAnchors';
 
 function App() {
   return (
     <Router>
       <div className="App">
         <div style={{ position: 'fixed', zIndex: 1000, right: 64, bottom: 64, display: 'flex', flexDirection: 'column', alignItems: 'flex-start' }}>
-          <a href="/">1. Workflow</a>
-          <a href="/stress">2. Stress test</a>
-          <a href="/waypoints">3. Workflow with Waypoints</a>
+          <a href="/anchors">1. Workflow with editable anchors</a>
         </div>
         <Switch>
+          <Route path="/anchors">
+            <WorkflowWithEditableAnchors />
+          </Route>
           <Route path="/waypoints">
             <WorkflowWithWaypoints />
           </Route>

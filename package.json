@@ -9,9 +9,13 @@
   "dependencies": {
     "@material-ui/core": "^4.11.3",
     "@material-ui/icons": "^4.11.2",
+    "immer": "^9.0.2",
+    "min-dash": "^3.7.0",
+    "path-intersection": "^2.2.1",
     "react": "^17.0.0",
     "react-dom": "^17.0.0",
     "react-flow-renderer": "^9.5.1",
+    "react-flowy": "github:huy-ta/react-flowy#main",
     "react-router": "^5.2.0",
     "react-router-dom": "^5.2.0"
   },

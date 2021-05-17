@@ -1,7 +1,7 @@
 import React, { ChangeEvent } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import Paper from '@material-ui/core/Paper';
-import { Handle, Position } from 'react-flow-renderer';
+import { Handle, Position } from 'react-flowy';
 import ConditionNodeHeader from './ConditionNodeHeader';
 import ConditionNodeBody from './ConditionNodeBody';
 import { Condition } from './Condition.interface';

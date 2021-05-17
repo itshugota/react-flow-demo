@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import ReactFlow, { addEdge, ReactFlowProps, Background } from 'react-flow-renderer';
+import ReactFlow, { addEdge, ReactFlowProps, Background } from 'react-flowy';
 
 import EdgeWithWayPoints from './EdgeWithWaypoints/EdgeWithWayPoints';
 import IntentNodeWithoutHandles from './IntentNode/IntentNodeWithoutHandles';
@@ -49,8 +49,8 @@ const graphElements = [
     data: {
       waypoints: [
         { x: 120, y: 100 },
-        { x: 200, y: 100 },
-        { x: 200, y: 400 },
+        { x: 140, y: 100 },
+        { x: 140, y: 400 },
       ],
     }
   },
@@ -107,6 +107,7 @@ const graphElements = [
     data: {
       waypoints: [
         { x: 980, y: 240 },
+        { x: 1050, y: 240 },
         { x: 1120, y: 240 },
       ],
     }
@@ -136,10 +137,165 @@ const graphElements = [
   },
 ];
 
+interface Waypoint {
+  x: number;
+  y: number;
+}
+
+// TODO: Embed this inside the library
+const getNodeElementById = (id: string) => {
+  return document.querySelector(`.react-flow__node[data-id="${id}"`);
+}
+
+const getNodeById = (elements: typeof graphElements) => (id: string) => {
+  return elements.find(element => element.id === id);
+}
+
 const WorkflowWithWaypoints = () => {
   const [elements, setElements] = useState(graphElements);
   // @ts-ignore
   const onConnect: ReactFlowProps['onConnect'] = (edgeParams) => setElements((els) => addEdge({ ...edgeParams, type: 'smoothstep' }, els));
+
+  const handleNodeDrag: ReactFlowProps['onNodeDrag'] = (event, node, draggableData) => {
+    const newElements = elements.map(element => {
+      if (element.target !== node.id && element.source !== node.id) return element;
+
+      const nodeElement = getNodeElementById(node.id) as HTMLElement;
+      const otherNode = element.target === node.id ? getNodeById(elements)(element.source) : getNodeById(elements)(element.target);
+      const otherNodeElement = getNodeElementById(otherNode!.id) as HTMLElement;
+
+      const edge = { ...element };
+      const numOfWaypoints = edge.data?.waypoints?.length as number;
+
+      let firstWaypointIndex: number;
+      let secondWaypointIndex: number;
+      let lastWaypointIndex: number;
+      let secondLastWaypointIndex: number;
+      let thirdLastWaypointIndex: number;
+
+      if (element.target === node.id) {
+        firstWaypointIndex = 0;
+        secondWaypointIndex = 1;
+        lastWaypointIndex = numOfWaypoints - 1;
+        secondLastWaypointIndex = numOfWaypoints - 2;
+        thirdLastWaypointIndex = numOfWaypoints - 3;
+      } else {
+        firstWaypointIndex = numOfWaypoints - 1;
+        secondWaypointIndex = numOfWaypoints - 2;
+        lastWaypointIndex = 0;
+        secondLastWaypointIndex = 1;
+        thirdLastWaypointIndex = 2;
+      }
+
+      const firstWaypoint = { ...edge.data?.waypoints![firstWaypointIndex] } as Waypoint;
+      const secondWaypoint = { ...edge.data?.waypoints![secondWaypointIndex] } as Waypoint;
+      const lastWaypoint = { ...edge.data?.waypoints![lastWaypointIndex] } as Waypoint;
+      const secondLastWaypoint = { ...edge.data?.waypoints![secondLastWaypointIndex] } as Waypoint;
+      const thirdLastWaypoint = { ...edge.data?.waypoints![thirdLastWaypointIndex] } as Waypoint;
+      const waypointIndicesToDelete: number[] = [];
+      const waypointsToAdd = [];
+
+      if (lastWaypoint.y === secondLastWaypoint.y) {
+        lastWaypoint.x += draggableData.deltaX;
+        lastWaypoint.y += draggableData.deltaY;
+        secondLastWaypoint.y += draggableData.deltaY;
+
+        if (numOfWaypoints === 3) {
+          thirdLastWaypoint.y += draggableData.deltaY;
+        }
+
+        if (numOfWaypoints > 3 && Math.abs(secondLastWaypoint.x - lastWaypoint.x) <= 8 && Math.abs(secondLastWaypoint.y - lastWaypoint.y) <= 8) {
+          waypointIndicesToDelete.push(secondLastWaypointIndex);
+
+          const nodeWidth = nodeElement.offsetWidth;
+
+          lastWaypoint.x = node.position.x + nodeWidth / 2;
+          lastWaypoint.y = node.position.y;
+          
+          if (thirdLastWaypoint) {
+            thirdLastWaypoint.x = lastWaypoint.x;
+          }
+        }
+
+        console.log('otherNode', otherNode);
+        console.log('firstWaypoint.x', firstWaypoint.x);
+        console.log('firstWaypoint.y', firstWaypoint.y);
+
+        if (Math.abs(otherNode!.position!.x - firstWaypoint.x) <= 8 && Math.abs(otherNode!.position!.y - firstWaypoint.y) <= 8) {
+          console.log('hihi?')
+          if (numOfWaypoints > 3) {
+            // firstWaypoint.x = otherNode!.position!.x;
+            // firstWaypoint.y = otherNode!.position!.y + Math.floor(otherNodeElement.offsetHeight / 2);
+
+            // waypointsToAdd.push({
+            //   waypoint: { x: secondWaypoint.x, y: firstWaypoint.y },
+            //   index: firstWaypointIndex,
+            // });
+          } else {
+            thirdLastWaypoint.x = otherNode!.position!.x;
+            thirdLastWaypoint.y = otherNode!.position!.y + Math.floor(otherNodeElement.offsetHeight / 2);
+
+            waypointsToAdd.push({
+              waypoint: { x: secondLastWaypoint.x, y: thirdLastWaypoint.y },
+              index: thirdLastWaypointIndex,
+            });
+          }
+
+          // secondLastWaypoint.y = otherNode!.position!.y + Math.floor(otherNodeElement.offsetHeight / 2);
+        }
+      } else if (lastWaypoint.x === secondLastWaypoint.x) {
+        lastWaypoint.x += draggableData.deltaX;
+        lastWaypoint.y += draggableData.deltaY;
+        secondLastWaypoint.x += draggableData.deltaX;
+
+        if (numOfWaypoints > 3 && Math.abs(secondLastWaypoint.x - lastWaypoint.x) <= 8 && Math.abs(secondLastWaypoint.y - lastWaypoint.y) <= 8) {
+          waypointIndicesToDelete.push(secondLastWaypointIndex);
+
+          const nodeHeight = nodeElement.offsetHeight;
+
+          lastWaypoint.x = node.position.x;
+          lastWaypoint.y = node.position.y + nodeHeight / 2;
+
+          if (thirdLastWaypoint) {
+            thirdLastWaypoint.y = lastWaypoint.y;
+          }
+        }
+      }
+
+      console.log('firstWaypointIndex', firstWaypointIndex);
+      console.log('lastWaypointIndex', lastWaypointIndex);
+      console.log('secondLastWaypointIndex', secondLastWaypointIndex);
+      console.log('thirdLastWaypointIndex', thirdLastWaypointIndex);
+
+      edge.data.waypoints = edge.data.waypoints.map((waypoint, index) => {
+        if (waypointIndicesToDelete.includes(index)) return;
+
+        console.log('index', index);
+
+        if (index === lastWaypointIndex) return lastWaypoint;
+
+        if (index === secondLastWaypointIndex) return secondLastWaypoint;
+
+        if (index === thirdLastWaypointIndex) return thirdLastWaypoint;
+
+        if (index === firstWaypointIndex) return firstWaypoint;
+
+        return waypoint;
+      }).filter(Boolean);
+
+      waypointsToAdd.forEach(waypointToAdd => {
+        edge.data.waypoints.splice(waypointToAdd.index, 0, waypointToAdd.waypoint);
+      });
+
+      return edge;
+    });
+
+    setElements(newElements);
+  };
+
+  const handleNodeDragStart: ReactFlowProps['onNodeDragStart'] = (event, node) => {
+    (node as any).previousPosition = { x: node.position.x, y: node.position.y };
+  }
 
   return <ReactFlow
     // @ts-ignore
@@ -150,7 +306,8 @@ const WorkflowWithWaypoints = () => {
     snapToGrid={true}
     snapGrid={[8, 8]}
     onlyRenderVisibleElements={false}
-    nodesDraggable={false}
+    onNodeDrag={handleNodeDrag}
+    onNodeDragStart={handleNodeDragStart}
   >
     <Background color="#aaa" gap={16} />
   </ReactFlow>;
