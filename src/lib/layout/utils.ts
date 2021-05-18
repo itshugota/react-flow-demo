@@ -1,5 +1,6 @@
 import { isObject, sortBy } from 'min-dash';
 import findPathIntersections from 'path-intersection';
+import Connection from '../types/Connection';
 import Intersection from '../types/Intersection';
 import Orientation from '../types/Orientation';
 import { Path } from '../types/Path';
@@ -10,6 +11,7 @@ import {
   getPointDistance,
   arePointsOnLine
 } from '../utils/geometry';
+import { componentsToPath } from '../utils/render';
 
 export function roundRectangle(bounds: Rectangle) {
   return {
@@ -118,13 +120,13 @@ export function getOrientation(source: Rectangle | Point, reference: Rectangle |
 /**
  * Get intersection between an element and a line path.
  *
- * @param {PathDef} elementPath
- * @param {PathDef} linePath
- * @param {boolean} isCropFromStart crop from start or end
+ * @param {Path} elementPath
+ * @param {Path} linePath
+ * @param {boolean} shouldCropFromStart crop from start or end
  *
  * @return {Point}
  */
-export function getElementLineIntersection(elementPath: any, linePath: any, isCropFromStart: boolean) {
+export function getElementLineIntersection(elementPath: Path, linePath: Path, shouldCropFromStart: boolean) {
   let intersections = getIntersections(elementPath, linePath);
 
   // recognize intersections
@@ -154,7 +156,7 @@ export function getElementLineIntersection(elementPath: any, linePath: any, isCr
       return intersection.segment2 + '#' + distance;
     });
 
-    return roundPoint(intersections[isCropFromStart ? 0 : intersections.length - 1]);
+    return roundPoint(intersections[shouldCropFromStart ? 0 : intersections.length - 1]);
   }
 
   return null;
@@ -164,30 +166,60 @@ export function getIntersections(pathA: Path, pathB: Path): Intersection[] {
   return findPathIntersections(pathA, pathB);
 }
 
-export function filterRedundantWaypoints(waypoints: Point[]) {
+export function filterRedundantWaypoints(waypoints: Point[], accuracy = 5) {
   // alter copy of waypoints, not original
   waypoints = waypoints.slice();
 
-  var idx = 0,
-      point,
-      previousPoint,
-      nextPoint;
+  let index = 0;
+  let point;
+  let previousPoint;
+  let nextPoint;
 
-  while (waypoints[idx]) {
-    point = waypoints[idx];
-    previousPoint = waypoints[idx - 1];
-    nextPoint = waypoints[idx + 1];
+  while (waypoints[index]) {
+    point = waypoints[index];
+    previousPoint = waypoints[index - 1];
+    nextPoint = waypoints[index + 1];
 
     if (getPointDistance(point, nextPoint) === 0 ||
-        arePointsOnLine(previousPoint, nextPoint, point)) {
+        arePointsOnLine(previousPoint, nextPoint, point, accuracy)) {
+      if (Math.abs(previousPoint.x - nextPoint.x) <= accuracy) {
+        nextPoint.x = Math.round(nextPoint.x);
+        previousPoint.x = nextPoint.x;
+      } else if (Math.abs(previousPoint.y - nextPoint.y) <= accuracy) {
+        nextPoint.y = Math.round(nextPoint.y);
+        previousPoint.y = nextPoint.y;
+      }
 
       // remove point, if overlapping with {nextPoint}
       // or on line with {previousPoint} -> {point} -> {nextPoint}
-      waypoints.splice(idx, 1);
+      waypoints.splice(index, 1);
     } else {
-      idx++;
+      index++;
     }
   }
 
   return waypoints;
+}
+
+export function getShapePath(shape: Rectangle): Path {
+  const { x, y, width, height } = shape;
+  const shapePath = [
+    ['M', x, y],
+    ['l', width, 0],
+    ['l', 0, height],
+    ['l', -width, 0],
+    ['z']
+  ];
+
+  return componentsToPath(shapePath);
+}
+
+export function getConnectionPath(connection: Omit<Connection, 'source' | 'target'>): Path {
+  const { waypoints } = connection;
+
+  const connectionPath = waypoints.map((waypoint, index) =>
+    [index === 0 ? 'M' : 'L', waypoint.x, waypoint.y]
+  );
+
+  return componentsToPath(connectionPath);
 }

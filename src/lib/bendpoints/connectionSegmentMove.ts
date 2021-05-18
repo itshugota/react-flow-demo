@@ -1,5 +1,4 @@
-// @ts-nocheck
-import { arePointsAligned } from '../utils/geometry';
+import { arePointsAligned, arePointsOnLine } from '../utils/geometry';
 import { getOrientation, getMidPoint } from '../layout/utils';
 import Rectangle from '../types/Rectangle';
 import Point from '../types/Point';
@@ -7,6 +6,7 @@ import Axis from '../types/Axis';
 import Connection from '../types/Connection';
 import ApproxIntersection from '../types/ApproxIntersection';
 import Orientation from '../types/Orientation';
+import { getCroppedWaypoints } from '../layout/croppingConnectionDocking';
 
 function axisAdd(point: Point, axis: Axis, delta: number): Point {
   return axisSet(point, axis, point[axis] + delta);
@@ -26,12 +26,14 @@ function flipAxis(axis: Axis): Axis {
 export interface Context {
   connection: Connection;
   segmentStartIndex: number;
+  newSegmentStartIndex: number;
   segmentEndIndex: number;
   segmentStart: Point;
   segmentEnd: Point;
   axis: Axis;
   dragPosition: Point;
   originalWaypoints: Point[];
+  newWaypoints: Point[];
 }
 
 /**
@@ -92,12 +94,14 @@ export const activateBendpointMove = (connection: Connection, intersection: Appr
   const context: Context = {
     connection,
     segmentStartIndex,
+    newSegmentStartIndex: segmentStartIndex,
     segmentEndIndex,
     segmentStart,
     segmentEnd,
     axis,
     dragPosition,
     originalWaypoints: connection.waypoints,
+    newWaypoints: connection.waypoints,
   };
 
   return context;
@@ -117,8 +121,7 @@ function cropConnection(connection: Connection, newWaypoints: Point[]) {
   // temporary set new waypoints
   connection.waypoints = newWaypoints;
 
-  // croppedWaypoints = connectionDocking.getCroppedWaypoints(connection);
-  const croppedWaypoints = oldWaypoints;
+  const croppedWaypoints = getCroppedWaypoints(connection);
 
   // restore old waypoints
   connection.waypoints = oldWaypoints;
@@ -126,11 +129,51 @@ function cropConnection(connection: Connection, newWaypoints: Point[]) {
   return croppedWaypoints;
 }
 
+/**
+ * Filter waypoints for redundant ones (i.e. on the same axis).
+ * Returns the filtered waypoints and the offset related to the segment move.
+ *
+ * @param {Point[]} waypoints
+ * @param {number} segmentStartIndex of moved segment start
+ *
+ * @return {Object} { filteredWaypoints, segmentOffset }
+ */
+function filterRedundantWaypoints(waypoints: Point[], segmentStartIndex: number, accuracy = 5) {
+  let segmentOffset = 0;
+
+  const filteredWaypoints = waypoints.filter(function(waypoint, index) {
+    if (arePointsOnLine(waypoints[index - 1], waypoints[index + 1], waypoint)) {
+      // remove point and increment offset
+      segmentOffset = index <= segmentStartIndex ? segmentOffset - 1 : segmentOffset;
+
+      if (Math.abs(waypoints[index - 1].x - waypoints[index + 1].x) <= accuracy) {
+        waypoints[index + 1].x = Math.round(waypoints[index + 1].x);
+        waypoints[index - 1].x = waypoints[index + 1].x;
+      } else if (Math.abs(waypoints[index - 1].y - waypoints[index + 1].y) <= accuracy) {
+        waypoints[index + 1].y = Math.round(waypoints[index + 1].y);
+        waypoints[index - 1].y = waypoints[index + 1].y;
+      }
+
+      return false;
+    }
+
+    // dont remove point
+    return true;
+  });
+
+  return {
+    waypoints: filteredWaypoints,
+    newSegmentOffset: segmentOffset
+  };
+}
+
 export const handleMouseMoveWithContext = (event: MouseEvent) => (context: Context) => {
+  const getMouseEventDelta = (axis: Axis): 'movementX' | 'movementY' => axis === Axis.X ? 'movementX' : 'movementY';
+
   const { connection, segmentStartIndex, segmentEndIndex, segmentStart, segmentEnd, axis, originalWaypoints } = context;
   const newWaypoints = originalWaypoints.slice();
-  const newSegmentStart = axisAdd(segmentStart, axis, event[`movement${axis.toUpperCase()}`]);
-  const newSegmentEnd = axisAdd(segmentEnd, axis, event[`movement${axis.toUpperCase()}`]);
+  const newSegmentStart = axisAdd(segmentStart, axis, event[getMouseEventDelta(axis)]);
+  const newSegmentEnd = axisAdd(segmentEnd, axis, event[getMouseEventDelta(axis)]);
   // original waypoint count and added / removed
   // from start waypoint delta. We use the later
   // to retrieve the updated segmentStartIndex / segmentEndIndex
@@ -189,12 +232,37 @@ export const handleMouseMoveWithContext = (event: MouseEvent) => (context: Conte
   }
 
   // update connection waypoints
-  const newConnection = { ...connection, waypoints: [...connection.waypoints] };
-  // newConnection.waypoints = cropConnection(connection, newWaypoints);
-  newConnection.waypoints = newWaypoints;
+  const newSegmentStartIndex = segmentStartIndex + segmentOffset;
+  const newConnection = { ...connection, waypoints: [...newWaypoints] };
+  const croppedWaypoints = cropConnection(connection, newWaypoints);
 
-  // save segmentOffset in context
-  // context.newSegmentStartIndex = segmentStartIndex + segmentOffset;
+  newConnection.waypoints = croppedWaypoints;
 
-  return newConnection;
+  const newContext = { ...context, newSegmentStartIndex, newWaypoints: croppedWaypoints };
+
+  return { newConnection, newContext };
 };
+
+export const handleMouseMoveEndWithContext = (context: Context) => {
+  let { connection, newWaypoints, newSegmentStartIndex } = context;
+
+// ensure we have actual pixel values bendpoint
+// coordinates (important when zoom level was > 1 during move)
+  newWaypoints = newWaypoints.map(waypoint => {
+    return {
+      original: waypoint.original,
+      x: Math.round(waypoint.x),
+      y: Math.round(waypoint.y)
+    };
+  });
+
+  // apply filter redunant waypoints
+  const { waypoints: filteredWaypoints, newSegmentOffset } = filterRedundantWaypoints(newWaypoints, newSegmentStartIndex);
+
+  const croppedWaypoints = cropConnection(connection, filteredWaypoints);
+  const newConnection = { ...connection, waypoints: [...croppedWaypoints] };
+
+  const newContext = { ...context, newSegmentStartIndex: context.newSegmentStartIndex + newSegmentOffset };
+
+  return { newConnection, newContext };
+}

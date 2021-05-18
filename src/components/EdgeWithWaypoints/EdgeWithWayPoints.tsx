@@ -1,7 +1,7 @@
 import React, { useState, useEffect, memo } from 'react';
 
 import { EdgeProps, getMarkerEnd, useStoreState, useStoreActions } from 'react-flowy';
-import { activateBendpointMove, Context, handleMouseMoveWithContext } from '../../lib/bendpoints/connectionSegmentMove';
+import { activateBendpointMove, Context, handleMouseMoveEndWithContext, handleMouseMoveWithContext } from '../../lib/bendpoints/connectionSegmentMove';
 import { getApproxIntersection } from '../../lib/utils/lineIntersection';
 import { isPrimaryButton } from '../../lib/utils/mouse';
 import Connection from '../../lib/types/Connection';
@@ -10,6 +10,7 @@ import { eventPointToCanvasCoordinates } from '../../lib/utils/coordinates';
 import Canvas from '../../lib/types/Canvas';
 import ApproxIntersection from '../../lib/types/ApproxIntersection';
 import Axis from '../../lib/types/Axis';
+import { getConnectionPath } from '../../lib/layout/utils';
 
 export interface EdgeWaypoint {
   x: number;
@@ -51,6 +52,23 @@ export default memo(
     const edges = useStoreState(state => state.edges);
     const setElements = useStoreActions(actions => actions.setElements);
     const [context, setContext] = useState<Context>();
+    const [isBendpointMoveActive, setIsBendpointMoveActive] = useState(false);
+
+    useEffect(() => {
+      if (!isBendpointMoveActive) return;
+
+      document.addEventListener('mouseup', handleMouseUp);
+
+      return () => document.removeEventListener('mouseup', handleMouseUp);
+    }, [context, isBendpointMoveActive]);
+
+    useEffect(() => {
+      if (!isBendpointMoveActive) return;
+
+      document.addEventListener('mousemove', handleMouseMove);
+
+      return () => document.removeEventListener('mousemove', handleMouseMove);
+    }, [context, nodes, edges, canvasTransform, isBendpointMoveActive]);
 
     const handleMouseDown = (e: React.MouseEvent) => {
       if (!isPrimaryButton(e.nativeEvent)) return;
@@ -69,45 +87,14 @@ export default memo(
       };
       const intersection = getApproxIntersection(data.waypoints, eventPointToCanvasCoordinates(e.nativeEvent)(canvas)) as ApproxIntersection;
       const newContext = activateBendpointMove(connection, intersection);
+
       eventDelta = { x: 0, y: 0 };
-      console.log('newContext', newContext);
+
       setContext(newContext);
+      setIsBendpointMoveActive(true);
     }
 
-    useEffect(() => {
-      document.addEventListener('mouseup', handleMouseUp);
-
-      return () => document.removeEventListener('mouseup', handleMouseUp);
-    }, []);
-
-    const handleMouseUp = () => {
-      setContext(undefined);
-    }
-
-    useEffect(() => {
-      document.addEventListener('mousemove', handleMouseMove);
-
-      return () => document.removeEventListener('mousemove', handleMouseMove);
-    }, [context, nodes, edges, canvasTransform]);
-
-    const handleMouseMove = (event: MouseEvent) => {
-      if (!context) return;
-
-      if (mousemoveTimeout) clearTimeout(mousemoveTimeout);
-
-      if (context.axis === Axis.X) {
-        eventDelta.x += event.movementX / canvasTransform[2];
-      } else if (context.axis === Axis.Y) {
-        eventDelta.y += event.movementY / canvasTransform[2];
-      }
-
-      const modifiedEvent = { ...event };
-
-      modifiedEvent.movementX = eventDelta.x;
-      modifiedEvent.movementY = eventDelta.y;
-
-      const newConnection = handleMouseMoveWithContext(modifiedEvent)(context as Context);
-
+    const updateElementsAndContext = (newConnection: Connection, newContext: Context) => {
       const newEdges = edges.map(edge => {
         if (edge.id !== id) return edge;
 
@@ -117,26 +104,55 @@ export default memo(
       });
 
       setElements([...nodes, ...newEdges]);
+      setContext(newContext);
+    }
+
+    const handleMouseUp = () => {
+      if (!isBendpointMoveActive) return;
+
+      setIsBendpointMoveActive(false);
+
+      const { newConnection, newContext } = handleMouseMoveEndWithContext(context!);
+
+      updateElementsAndContext(newConnection, newContext);
+    }
+
+    const handleMouseMove = (event: MouseEvent) => {
+      if (!context || !isBendpointMoveActive) return;
+
+      if (mousemoveTimeout) clearTimeout(mousemoveTimeout);
+
+      if (context.axis === Axis.X) {
+        eventDelta.x += Math.round(event.movementX / canvasTransform[2]);
+      } else if (context.axis === Axis.Y) {
+        eventDelta.y += Math.round(event.movementY / canvasTransform[2]);
+      }
+
+      const modifiedEvent = { ...event };
+
+      modifiedEvent.movementX = eventDelta.x;
+      modifiedEvent.movementY = eventDelta.y;
+
+      const { newConnection, newContext } = handleMouseMoveWithContext(modifiedEvent)(context as Context);
+
+      updateElementsAndContext(newConnection, newContext);
     }
 
     return (
       <>
-        {segments.map((segment, index) => (
-          <React.Fragment 
+        <path
+          style={style}
+          className="react-flow__edge-path"
+          d={getConnectionPath({ waypoints: data.waypoints }) as string}
+          markerEnd={markerEnd}
+        />
+        {segments.map(segment => (
+          <polyline
             key={JSON.stringify(segment)}
-          >
-            <path
-              style={style}
-              className="react-flow__edge-path"
-              d={`M ${segment.sourceX},${segment.sourceY}L ${segment.targetX},${segment.targetY}`}
-              markerEnd={index === segments.length - 1 ? markerEnd : undefined}
-            />
-            <path
-              style={{ fill: 'none', strokeOpacity: 0, stroke: 'white', strokeWidth: 15, cursor: segment.sourceX === segment.targetX ? 'ew-resize' : 'ns-resize' }}
-              d={`M ${segment.sourceX},${segment.sourceY}L ${segment.targetX},${segment.targetY}`}
-              onMouseDown={handleMouseDown}
-            />
-          </React.Fragment>
+            style={{ fill: 'none', strokeOpacity: 0, stroke: 'white', strokeWidth: 15, cursor: segment.sourceX === segment.targetX ? 'ew-resize' : 'ns-resize' }}
+            points={`${segment.sourceX} ${segment.sourceY}, ${segment.targetX} ${segment.targetY}`}
+            onMouseDown={handleMouseDown}
+          />
         ))}
       </>
     );
