@@ -26,7 +26,7 @@ export const getCroppedWaypoints = function(connection: Connection, source?: Rec
   return croppedWaypoints;
 };
 
-const getDockingPoint = function(connection: Connection, shape: Rectangle, dockStart: boolean = false): Docking {
+export const getDockingPoint = function(connection: Connection, shape: Rectangle, dockStart: boolean = false): Docking {
   const waypoints = connection.waypoints;
   const dockingIdx = dockStart ? 0 : waypoints.length - 1;
   const dockingPoint = waypoints[dockingIdx];

@@ -1,5 +1,5 @@
-import { getOrientation, getMidPoint } from './utils';
-import { isPointInRect, getPointDistance, arePointsAligned, arePointsOnLine } from '../utils/geometry';
+import { getOrientation, getMidPoint, filterRedundantWaypoints } from './utils';
+import { isPointInRect, getPointDistance, arePointsAligned } from '../utils/geometry';
 import Segment from '../types/Segment';
 import Point from '../types/Point';
 import Rectangle from '../types/Rectangle';
@@ -249,7 +249,7 @@ export function connectPoints(sourcePoint: Point, targetPoint: Point, directions
   points.unshift(sourcePoint);
   points.push(targetPoint);
 
-  return withoutRedundantPoints(points);
+  return filterRedundantWaypoints(points);
 }
 
 /**
@@ -289,6 +289,39 @@ export function connectRectangles(sourceRectangle: Rectangle, targetRectangle: R
   return connectPoints(startDocking, endDocking, directions);
 }
 
+/**
+ * Connect a rectangle to a point using a manhattan layouted connection.
+ *
+ * @param {Rectangle} sourceRectangle source rectangle
+ * @param {Rectangle} targetPoint target point
+ * @param {Point} [startPoint] source docking
+ *
+ * @param {Hints} [hints]
+ * @param {string} [hints.preserveDocking=source] preserve docking on selected side
+ * @param {LayoutType[]} [hints.preferredLayouts]
+ * @param {Point|boolean} [hints.connectionStart] whether the start changed
+ * @param {Point|boolean} [hints.connectionEnd] whether the end changed
+ *
+ * @return {Point[]} connection points
+ */
+export function connectRectangleToPoint(sourceRectangle: Rectangle, targetPoint: Point, startPoint?: Point, hints?: Hints) {
+  const preferredLayouts = hints && hints.preferredLayouts || [];
+  const preferredLayout = preferredLayouts.filter(layout => layout !== LayoutType.STRAIGHT)[0] || LayoutType.HORIZONTAL_HORIZONTAL;
+  const threshold = ORIENTATION_THRESHOLD[preferredLayout] || 0;
+  const orientation = getOrientation(sourceRectangle, targetPoint, threshold);
+  const directions = getDirections(orientation, preferredLayout);
+
+  startPoint = startPoint || getMidPoint(sourceRectangle);
+
+  const directionSplit = directions.split(':');
+
+  // compute actual docking points for start / end
+  // this ensures we properly layout only parts of the
+  // connection that lies in between the two rectangles
+  const startDocking = getDockingPoint(startPoint, sourceRectangle, directionSplit[0], invertOrientation(orientation));
+
+  return connectPoints(startDocking, targetPoint, directions);
+}
 
 /**
  * Repair the connection between two rectangles, of which one has been updated.
@@ -302,7 +335,7 @@ export function connectRectangles(sourceRectangle: Rectangle, targetRectangle: R
  *
  * @return {Point[]} repaired waypoints
  */
-export function repairConnection(sourceRectangle: Rectangle, targetRectangle: Rectangle, startPoint?: Point, endPoint?: Point, waypoints?: Point[], hints?: Hints) {
+export function repairConnection(sourceRectangle: Rectangle, targetRectangle: Rectangle, startPoint?: Point, endPoint?: Point, waypoints: Point[] = [], hints?: Hints) {
   if (Array.isArray(startPoint)) {
     waypoints = startPoint;
     startPoint = getMidPoint(sourceRectangle);
@@ -310,7 +343,6 @@ export function repairConnection(sourceRectangle: Rectangle, targetRectangle: Re
   }
 
   hints = { preferredLayouts: [], ...hints };
-  waypoints = waypoints || [];
 
   const { preferredLayouts } = hints;
   const isStraightPreferred = preferredLayouts?.includes(LayoutType.STRAIGHT);
@@ -503,18 +535,15 @@ function _tryRepairConnectionSide(movedRectangle: Rectangle, otherRectangle: Rec
         return { x: candidate.x, y: newPeer.y };
     }
 
-    return { x: candidate.x, y: candidate. y };
+    return { x: candidate.x, y: candidate.y };
   }
 
   function removeOverlapping(points: Point[], rectangleA: Rectangle, rectangleB: Rectangle) {
-    for (let index = points.length - 2; index !== 0; index--) {
-      // intersects (?) break, remove all bendpoints up to this one and relayout
-      if (isPointInRect(points[index], rectangleA, INTERSECTION_THRESHOLD) ||
-          isPointInRect(points[index], rectangleB, INTERSECTION_THRESHOLD)) {
-
-        // return sliced old connection
-        return points.slice(index);
-      }
+    // intersects (?) break, remove all bendpoints up to this one and relayout
+    if (isPointInRect(points[1], rectangleA, INTERSECTION_THRESHOLD) ||
+        isPointInRect(points[1], rectangleB, INTERSECTION_THRESHOLD)) {
+      // return sliced old connection
+      return points.slice(1);
     }
 
     return points;
@@ -542,7 +571,7 @@ function _tryRepairConnectionSide(movedRectangle: Rectangle, otherRectangle: Rec
   slicedPoints = removeOverlapping(newPoints, movedRectangle, otherRectangle);
 
   if (slicedPoints !== newPoints) {
-    newPoints = _tryRepairConnectionSide(movedRectangle, otherRectangle, newDockingPoint, slicedPoints) as Point[];
+    newPoints = connectRectangles(movedRectangle, otherRectangle) as Point[];
   }
 
   // (4) do NOT repair if repaired bendpoints are aligned
@@ -653,39 +682,4 @@ function getDockingPoint(point: Point, rectangle: Rectangle, dockingDirection: s
   }
 
   throw new Error('unexpected dockingDirection: <' + dockingDirection + '>');
-}
-
-
-/**
- * Return list of waypoints with redundant ones filtered out.
- *
- * @example
- *
- * Original points:
- *
- *   [x] ----- [x] ------ [x]
- *                         |
- *                        [x] ----- [x] - [x]
- *
- * Filtered:
- *
- *   [x] ---------------- [x]
- *                         |
- *                        [x] ----------- [x]
- *
- * @param  {Point[]} waypoints
- *
- * @return {Point[]}
- */
-export function withoutRedundantPoints(waypoints: Point[]) {
-  return waypoints.reduce(function(points, p, idx) {
-    let previous = points[points.length - 1],
-        next = waypoints[idx + 1];
-
-    if (!arePointsOnLine(previous, next, p, 0)) {
-      points.push(p);
-    }
-
-    return points;
-  }, [] as Point[]);
 }

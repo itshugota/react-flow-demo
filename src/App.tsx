@@ -4,6 +4,7 @@ import {
   Switch,
   Route
 } from 'react-router-dom';
+import { ReactFlowProvider } from 'react-flowy';
 
 import './App.css'
 import StressFlow from './components/StressFlow';
@@ -20,7 +21,9 @@ function App() {
         </div> */}
         <Switch>
           <Route path="/">
-            <WorkflowWithEditableAnchors />
+            <ReactFlowProvider>
+              <WorkflowWithEditableAnchors />
+            </ReactFlowProvider>
           </Route>
           <Route path="/waypoints">
             <WorkflowWithWaypoints />

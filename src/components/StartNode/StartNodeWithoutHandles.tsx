@@ -1,8 +1,8 @@
 import React from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import Paper from '@material-ui/core/Paper';
-import { Handle, Position } from 'react-flowy';
 import CallSplitReverse from '../icons/CallSplitReverse';
+import NodeWithFourSideHandles from '../FourSideHandles/NodeWithFourSideHandles';
 
 const useStyles = makeStyles(theme => ({
   container: {
@@ -16,18 +16,26 @@ const useStyles = makeStyles(theme => ({
   },
 }));
 
-const StartNodeWithoutHandles: React.FC = () => {
+export interface StartNodeWithoutHandlesProps {
+  id: string;
+  xPos: number;
+  yPos: number;
+}
+
+const StartNodeWithoutHandles: React.FC<StartNodeWithoutHandlesProps> = ({ id, xPos, yPos }) => {
   const classes = useStyles();
 
+  const node = {
+    id,
+    position: { x: xPos, y: yPos }
+  };
+
   return (
-    <Paper className={classes.container} elevation={4}>
-      <Handle
-        type="source"
-        position={Position.Left}
-        style={{ display: 'none' }}
-      />
-      <CallSplitReverse />
-    </Paper>
+    <NodeWithFourSideHandles node={node}>
+      <Paper className={classes.container} elevation={4}>
+        <CallSplitReverse />
+      </Paper>
+    </NodeWithFourSideHandles>
   );
 };
 

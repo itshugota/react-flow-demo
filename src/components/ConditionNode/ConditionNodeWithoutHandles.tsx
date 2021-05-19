@@ -1,41 +1,41 @@
 import React, { ChangeEvent } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import Paper from '@material-ui/core/Paper';
-import { Handle, Position } from 'react-flowy';
 import ConditionNodeHeader from './ConditionNodeHeader';
 import ConditionNodeBody from './ConditionNodeBody';
 import { Condition } from './Condition.interface';
+import NodeWithFourSideHandles from '../FourSideHandles/NodeWithFourSideHandles';
 
 export interface IntentNodeProps {
   data: {
     color: string;
     onChange: (event: ChangeEvent) => void;
     conditions: Condition[];
-  }
+  },
+  id: string;
+  xPos: number;
+  yPos: number;
 }
 
 const useStyles = makeStyles(() => ({
   container: {},
 }));
 
-const ConditionNodeWithoutHandles: React.FC<IntentNodeProps> = ({ data }) => {
+const ConditionNodeWithoutHandles: React.FC<IntentNodeProps> = ({ data, id, xPos, yPos }) => {
   const classes = useStyles();
 
+  const node = {
+    id,
+    position: { x: xPos, y: yPos }
+  };
+
   return (
-    <Paper className={classes.container} elevation={4}>
-      <Handle
-        type="source"
-        position={Position.Left}
-        style={{ display: 'none' }}
-      />
-      <Handle
-        type="target"
-        position={Position.Right}
-        style={{ display: 'none' }}
-      />
-      <ConditionNodeHeader />
-      <ConditionNodeBody conditions={data.conditions} />
-    </Paper>
+    <NodeWithFourSideHandles node={node}>
+      <Paper className={classes.container} elevation={4}>
+        <ConditionNodeHeader />
+        <ConditionNodeBody conditions={data.conditions} />
+      </Paper>
+    </NodeWithFourSideHandles>
   );
 };
 

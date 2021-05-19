@@ -48,7 +48,7 @@ export function arePointsOnLine(p: Point, q: Point, r: Point, accuracy: number =
 }
 
 
-const ALIGNED_THRESHOLD = 2;
+const ALIGNED_THRESHOLD = 0;
 
 /**
  * Check whether two points are horizontally or vertically aligned.

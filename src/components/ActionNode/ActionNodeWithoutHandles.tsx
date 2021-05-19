@@ -1,38 +1,38 @@
 import React from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import Paper from '@material-ui/core/Paper';
-import { Handle, Position } from 'react-flowy';
 import ActionNodeHeader from './ActionNodeHeader';
 import ActionNodeBody from './ActionNodeBody';
+import NodeWithFourSideHandles from '../FourSideHandles/NodeWithFourSideHandles';
 
 export interface IntentNodeProps {
   data: {
     action: string;
-  }
+  },
+  id: string;
+  xPos: number;
+  yPos: number;
 }
 
 const useStyles = makeStyles(() => ({
   container: {},
 }));
 
-const ActionNodeWithoutHandles: React.FC<IntentNodeProps> = ({ data }) => {
+const ActionNodeWithoutHandles: React.FC<IntentNodeProps> = ({ data, id, xPos, yPos }) => {
   const classes = useStyles();
 
+  const node = {
+    id,
+    position: { x: xPos, y: yPos }
+  };
+
   return (
-    <Paper className={classes.container} elevation={4}>
-      <Handle
-        type="source"
-        position={Position.Left}
-        style={{ display: 'none' }}
-      />
-      <Handle
-        type="target"
-        position={Position.Right}
-        style={{ display: 'none' }}
-      />
-      <ActionNodeHeader />
-      <ActionNodeBody action={data.action} />
-    </Paper>
+    <NodeWithFourSideHandles node={node}>
+      <Paper className={classes.container} elevation={4}>
+        <ActionNodeHeader />
+        <ActionNodeBody action={data.action} />
+      </Paper>
+    </NodeWithFourSideHandles>
   );
 };
 

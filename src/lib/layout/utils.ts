@@ -64,15 +64,15 @@ export function asRectangle(trbl: TRBL) {
 /**
  * Get the mid of the given bounds or point.
  *
- * @param {Rectangle|Point} bounds
+ * @param {Rectangle|Point} boundsOrPoint or point
  *
  * @return {Point}
  */
-export function getMidPoint(bounds: Rectangle | Point) {
-  return roundPoint({
-    x: bounds.x + ((bounds as Rectangle).width || 0) / 2,
-    y: bounds.y + ((bounds as Rectangle).height || 0) / 2
-  });
+export function getMidPoint(boundsOrPoint: Rectangle | Point) {
+  return {
+    x: Math.round(boundsOrPoint.x + ((boundsOrPoint as Rectangle).width || 0) / 2),
+    y: Math.round(boundsOrPoint.y + ((boundsOrPoint as Rectangle).height || 0) / 2),
+  };
 }
 
 // orientation utils //////////////////////

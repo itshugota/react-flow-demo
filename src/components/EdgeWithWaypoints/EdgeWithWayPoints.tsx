@@ -7,10 +7,10 @@ import { isPrimaryButton } from '../../lib/utils/mouse';
 import Connection from '../../lib/types/Connection';
 import { getRectangleByNodeId } from '../../utils/node';
 import { eventPointToCanvasCoordinates } from '../../lib/utils/coordinates';
-import Canvas from '../../lib/types/Canvas';
 import ApproxIntersection from '../../lib/types/ApproxIntersection';
 import Axis from '../../lib/types/Axis';
 import { getConnectionPath } from '../../lib/layout/utils';
+import { getCanvasFromTransform } from '../../utils/canvas';
 
 export interface EdgeWaypoint {
   x: number;
@@ -73,13 +73,7 @@ export default memo(
     const handleMouseDown = (e: React.MouseEvent) => {
       if (!isPrimaryButton(e.nativeEvent)) return;
 
-      const canvas: Canvas = {
-        position: {
-          x: canvasTransform[0],
-          y: canvasTransform[1],
-        },
-        scale: canvasTransform[2],
-      };
+      const canvas = getCanvasFromTransform(canvasTransform);
       const connection: Connection = {
         waypoints: data.waypoints,
         source: getRectangleByNodeId(nodes)(source),
