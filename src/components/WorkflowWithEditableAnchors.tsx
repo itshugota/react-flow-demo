@@ -93,7 +93,7 @@ const WorkflowWithEditableAnchors = () => {
     console.log(reactFlowInstance.toObject());
   };
 
-  const handleNodeDrag: ReactFlowProps['onNodeDrag'] = (event, node, draggableData) => {
+  const handleNodeDrag: ReactFlowProps['onNodeDrag'] = (event, node, dragDelta) => {
     const elements = [...reactFlowyState.nodes, ...reactFlowyState.edges];
 
     reactFlowyState.edges.forEach(edge => {
@@ -104,19 +104,19 @@ const WorkflowWithEditableAnchors = () => {
         getNodeById(elements)(edge.target);
 
       const nodeRectangle = getRectangleByNodeId(elements)(node.id);
-      nodeRectangle.x += draggableData.deltaX;
-      nodeRectangle.y += draggableData.deltaY;
+      nodeRectangle.x += dragDelta.deltaX;
+      nodeRectangle.y += dragDelta.deltaY;
 
       const otherNodeRectangle = getRectangleByNodeId(elements)(otherNode!.id);
 
       const newStart = {
-        x: edge.waypoints[0].x + draggableData.deltaX,
-        y: edge.waypoints[0].y + draggableData.deltaY,
+        x: edge.waypoints[0].x + dragDelta.deltaX,
+        y: edge.waypoints[0].y + dragDelta.deltaY,
       }
 
       const newEnd = {
-        x: edge.waypoints[edge.waypoints.length - 1].x + draggableData.deltaX,
-        y: edge.waypoints[edge.waypoints.length - 1].y + draggableData.deltaY,
+        x: edge.waypoints[edge.waypoints.length - 1].x + dragDelta.deltaX,
+        y: edge.waypoints[edge.waypoints.length - 1].y + dragDelta.deltaY,
       }
 
       edge.waypoints = edge.source === node.id ?
