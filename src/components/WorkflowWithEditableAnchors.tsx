@@ -1,38 +1,39 @@
-// @ts-nocheck
+import React from 'react';
 
-import React, { useState, useEffect, useCallback } from 'react';
-import ReactFlow, { addEdges, ReactFlowProps, Background, BackgroundVariant, useStoreState, useStoreActions } from 'react-flowy';
+import IntentNode from './nodes/IntentNode/IntentNode';
+import StartNode from './nodes/StartNode/StartNode';
+import ConditionNode from './nodes/ConditionNode/ConditionNode';
+import ActionNode from './nodes/ActionNode/ActionNode';
+import TerminateNode from './nodes/TerminateNode/TerminateNode';
 
-import EdgeWithWayPoints from './EdgeWithWaypoints/EdgeWithWayPoints';
-import IntentNodeWithoutHandles from './IntentNode/IntentNodeWithoutHandles';
-import StartNodeWithoutHandles from './StartNode/StartNodeWithoutHandles';
-import ConditionNodeWithoutHandles from './ConditionNode/ConditionNodeWithoutHandles';
-import ActionNodeWithoutHandles from './ActionNode/ActionNodeWithoutHandles';
-import TerminateNodeWithoutHandles from './TerminateNode/TerminateNodeWithoutHandles';
-
-import { connectPoints, connectRectangles, connectRectangleToPoint, repairConnection } from '../lib/layout/manhattanLayout';
-import { getNodeById, getRectangleByNodeId } from '../utils/node';
-import { eventPointToCanvasCoordinates } from '../lib/utils/coordinates';
-import { getCanvasFromTransform } from '../utils/canvas';
-import { getCroppedWaypoints, getDockingPoint } from '../lib/layout/croppingConnectionDocking';
-import Rectangle from '../lib/types/Rectangle';
+import ReactFlow, {
+  ReactFlowProps,
+  BackgroundVariant,
+  Background,
+  reactFlowyState,
+  getRectangleByNodeId,
+  getNodeById,
+  repairConnection,
+  StandardEdge,
+  Elements,
+} from 'react-flowy/lib';
 
 const nodeTypes = {
-  startNodeWithoutHandles: StartNodeWithoutHandles,
-  intentNodeWithoutHandles: IntentNodeWithoutHandles,
-  conditionNodeWithoutHandles: ConditionNodeWithoutHandles,
-  actionNodeWithoutHandles: ActionNodeWithoutHandles,
-  terminateNodeWithoutHandles: TerminateNodeWithoutHandles,
+  startNode: StartNode,
+  intentNode: IntentNode,
+  conditionNode: ConditionNode,
+  actionNode: ActionNode,
+  terminateNode: TerminateNode,
 };
 
 const edgeTypes = {
-  edgeWithWaypoints: EdgeWithWayPoints,
+  standardEdge: StandardEdge,
 };
 
-const graphElements = [
+const graphElements: Elements = [
   {
     id: '0',
-    type: 'startNodeWithoutHandles',
+    type: 'startNode',
     position: {
       x: 80,
       y: 80,
@@ -40,7 +41,7 @@ const graphElements = [
   },
   {
     id: '1',
-    type: 'intentNodeWithoutHandles',
+    type: 'intentNode',
     data: {
       intent: 'ATM Locations',
     },
@@ -51,7 +52,7 @@ const graphElements = [
   },
   {
     id: '2',
-    type: 'conditionNodeWithoutHandles',
+    type: 'conditionNode',
     data: {
       conditions: [
         {
@@ -68,7 +69,7 @@ const graphElements = [
   },
   {
     id: '3',
-    type: 'actionNodeWithoutHandles',
+    type: 'actionNode',
     data: {
       action: 'ATM Locations',
     },
@@ -79,7 +80,7 @@ const graphElements = [
   },
   {
     id: '4',
-    type: 'terminateNodeWithoutHandles',
+    type: 'terminateNode',
     position: {
       x: 640,
       y: 600,
@@ -88,100 +89,46 @@ const graphElements = [
 ];
 
 const WorkflowWithEditableAnchors = () => {
-  const [isInitialized, setIsInitialized] = useState(false);
-  const canvasTransform = useStoreState(state => state.transform);
-  const nodes = useStoreState(state => state.nodes);
-  const edges = useStoreState(state => state.edges);
-  const setElements = useStoreActions(actions => actions.setElements);
-  
   const handleLoad: ReactFlowProps['onLoad'] = (reactFlowInstance) => {
     console.log(reactFlowInstance.toObject());
-
-    // if (isInitialized) return;
-
-    // const initialElements = [
-    //   ...nodes,
-    //   ...edges,
-    //   ...graphElements
-    // ];
-
-    // setIsInitialized(true);
-    // setElements(initialElements);
   };
 
-  useEffect(() => {
-    // if (!edges.find(edge => edge.id === 'e1-2')) return;
+  const handleNodeDrag: ReactFlowProps['onNodeDrag'] = (event, node, draggableData) => {
+    const elements = [...reactFlowyState.nodes, ...reactFlowyState.edges];
 
-    // const node1Rectangle = getRectangleByNodeId(elements)('1');
-    // const node2Rectangle = getRectangleByNodeId(elements)('2');
-
-    // const waypoints = connectRectangles(node1Rectangle, node2Rectangle);
-
-    // const edgeParams = {
-    //   id: 'e1-2',
-    //   type: 'edgeWithWaypoints',
-    //   source: '1',
-    //   target: '2',
-    //   arrowHeadType: 'arrowclosed',
-    //   data: {
-    //     waypoints,
-    //   },
-    // };
-
-    // setElements(addEdges([edgeParams], elements));
-  }, [nodes, edges]);
-
-  // @ts-ignore
-  const onConnect: ReactFlowProps['onConnect'] = (edgeParams) => setElements((els) => addEdge({ ...edgeParams, type: 'smoothstep' }, els));
-
-  const handleNodeDrag: ReactFlowProps['onNodeDrag'] = useCallback((event, node, draggableData) => {
-    const elements = [...nodes, ...edges];
-
-    const newElements = elements.map(element => {
-      if (element.target !== node.id && element.source !== node.id) return element;
-
-      const edge = { ...element };
+    reactFlowyState.edges.forEach(edge => {
+      if (edge.target !== node.id && edge.source !== node.id) return;
 
       const otherNode = edge.target === node.id ?
         getNodeById(elements)(edge.source) :
         getNodeById(elements)(edge.target);
 
-      const nodeRectangle = getRectangleByNodeId(elements)(node.id, { x: draggableData.deltaX, y: draggableData.deltaY });
+      const nodeRectangle = getRectangleByNodeId(elements)(node.id);
+      nodeRectangle.x += draggableData.deltaX;
+      nodeRectangle.y += draggableData.deltaY;
+
       const otherNodeRectangle = getRectangleByNodeId(elements)(otherNode!.id);
 
-      console.log('nodeAferMove', JSON.stringify(node));
-
       const newStart = {
-        x: edge.data.waypoints[0].x + draggableData.deltaX,
-        y: edge.data.waypoints[0].y + draggableData.deltaY,
+        x: edge.waypoints[0].x + draggableData.deltaX,
+        y: edge.waypoints[0].y + draggableData.deltaY,
       }
 
       const newEnd = {
-        x: edge.data.waypoints[edge.data.waypoints.length - 1].x + draggableData.deltaX,
-        y: edge.data.waypoints[edge.data.waypoints.length - 1].y + draggableData.deltaY,
+        x: edge.waypoints[edge.waypoints.length - 1].x + draggableData.deltaX,
+        y: edge.waypoints[edge.waypoints.length - 1].y + draggableData.deltaY,
       }
 
-      edge.data.waypoints = edge.source === node.id ?
-        repairConnection(nodeRectangle, otherNodeRectangle, newStart, undefined, edge.data.waypoints, { connectionStart: true }) :
-        repairConnection(otherNodeRectangle, nodeRectangle, undefined, newEnd, edge.data.waypoints, { connectionEnd: true });
-
-      // edge.data.waypoints = getCroppedWaypoints({ waypoints: edge.data.waypoints, source: nodeRectangle, target: otherNodeRectangle }, nodeRectangle, otherNodeRectangle);
-
-      return edge;
+      edge.waypoints = edge.source === node.id ?
+        repairConnection(nodeRectangle, otherNodeRectangle, newStart, undefined, edge.waypoints, { connectionStart: true }) :
+        repairConnection(otherNodeRectangle, nodeRectangle, undefined, newEnd, edge.waypoints, { connectionEnd: true });
     });
-
-    setElements(newElements);
-  }, [nodes, edges]);
-
-  function getConnectionDocking(point: Point, shape: Rectangle) {
-    return point ? (point.original || point) : getMid(shape);
-  }
+  };
 
   return <ReactFlow
     elements={graphElements}
     edgeTypes={edgeTypes}
     nodeTypes={nodeTypes}
-    onConnect={onConnect}
     onLoad={handleLoad}
     snapToGrid={true}
     snapGrid={[8, 8]}

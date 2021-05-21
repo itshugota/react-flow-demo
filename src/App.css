@@ -4,17 +4,17 @@
   height: 100vh;
 }
 
-.App .react-flow__edge-path {
+.App .react-flowy__edge-path {
   stroke: black;
   stroke-width: 2;
 }
 
-.App .react-flow__arrowhead polyline {
+.App .react-flowy__arrowhead polyline {
   stroke: black;
   fill: black;
 }
 
-.App .react-flow__handle {
+.App .react-flowy__handle {
   background: black;
 }
 
