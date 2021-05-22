@@ -14,11 +14,12 @@
     "path-intersection": "^2.2.1",
     "react": "^17.0.0",
     "react-dom": "^17.0.0",
-    "react-flowy": "^0.0.16",
+    "react-flowy": "^0.0.17",
     "react-router": "^5.2.0",
     "react-router-dom": "^5.2.0"
   },
   "devDependencies": {
+    "@types/node": "^15.6.0",
     "@types/react": "^17.0.3",
     "@types/react-dom": "^17.0.3",
     "@types/react-router-dom": "^5.1.7",

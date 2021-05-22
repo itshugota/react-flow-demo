@@ -20,6 +20,9 @@ const SIDEBAR_WIDTH = 280;
 const useStyles = makeStyles(theme => ({
   drawer: {
     width: SIDEBAR_WIDTH,
+    [theme.breakpoints.down('md')]: {
+      display: 'none',
+    }
   },
   drawerPaper: {
     width: SIDEBAR_WIDTH,

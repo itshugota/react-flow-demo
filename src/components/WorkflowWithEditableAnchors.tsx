@@ -197,7 +197,7 @@ const WorkflowWithEditableAnchors = () => {
     snapGrid={[8, 8]}
     onlyRenderVisibleElements={false}
     onLoad={handleLoad}
-    onNodeDrag={handleNodeDrag}
+    // onNodeDrag={handleNodeDrag}
     onBackgroundClick={handleBackgroundClick}
   >
     <Background color="#aaa" gap={32} variant={BackgroundVariant.Lines} />

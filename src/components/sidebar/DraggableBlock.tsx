@@ -3,7 +3,7 @@ import { makeStyles } from '@material-ui/core/styles';
 import Typography from '@material-ui/core/Typography';
 
 import GrabIcon from '../icons/GrabIcon';
-import { eventPointToCanvasCoordinates, getCanvas, getReactFlowyElement, isPointInRect, reactFlowyState, Node, upsertNode } from 'react-flowy/lib';
+import { useSnapshot, eventPointToCanvasCoordinates, getCanvas, getReactFlowyElement, isPointInRect, reactFlowyState, Node, upsertNode } from 'react-flowy/lib';
 
 const useStyles = makeStyles(theme => ({
   root: {
@@ -57,6 +57,7 @@ export interface DraggableBlockProps {
 }
 
 const DraggableBlock: React.FC<DraggableBlockProps> = ({ Icon, DragShell, name, description, nodeType }) => {
+  const snap = useSnapshot(reactFlowyState);
   const classes = useStyles();
   const [isGrabbing, setIsGrabbing] = useState(false);
   const [dragX, setDragX] = useState(0);
@@ -125,7 +126,14 @@ const DraggableBlock: React.FC<DraggableBlockProps> = ({ Icon, DragShell, name, 
         <Typography className={classes.description} variant="body2" align="left">{description}</Typography>
       </div>
       {isGrabbing &&
-        <div style={{ position: 'fixed', top: dragY, left: dragX, opacity: 0.7 }}>
+        <div style={{
+          position: 'fixed',
+          top: dragY,
+          left: dragX,
+          opacity: 0.7,
+          transform: `scale(${snap.transform[2]})`,
+          transformOrigin: 'top left'
+        }}>
           <DragShell />
         </div>
       }
