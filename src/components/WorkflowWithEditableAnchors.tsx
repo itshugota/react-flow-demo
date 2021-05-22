@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 
 import IntentNode from './nodes/IntentNode/IntentNode';
 import StartNode from './nodes/StartNode/StartNode';
@@ -6,7 +6,7 @@ import ConditionNode from './nodes/ConditionNode/ConditionNode';
 import ActionNode from './nodes/ActionNode/ActionNode';
 import TerminateNode from './nodes/TerminateNode/TerminateNode';
 
-import ReactFlow, {
+import ReactFlowy, {
   ReactFlowProps,
   BackgroundVariant,
   Background,
@@ -16,6 +16,11 @@ import ReactFlow, {
   repairConnection,
   StandardEdge,
   Elements,
+  unselectAllElements,
+  getSelectedElement,
+  deleteElementById,
+  registerNodeValidator,
+  getOutEdges,
 } from 'react-flowy/lib';
 
 const nodeTypes = {
@@ -89,8 +94,63 @@ const graphElements: Elements = [
 ];
 
 const WorkflowWithEditableAnchors = () => {
+  useEffect(() => {
+    document.addEventListener('keyup', handleKeyUp);
+
+    return () => document.removeEventListener('keyup', handleKeyUp);
+  }, []);
+
+  const handleKeyUp = (e: KeyboardEvent) => {
+    if (e.key === 'Escape') return unselectAllElements();
+
+    if (e.key === 'Delete') {
+      const selectedElement = getSelectedElement();
+
+      if (selectedElement) {
+        deleteElementById(selectedElement.id);
+      }
+    }
+  }
+
   const handleLoad: ReactFlowProps['onLoad'] = (reactFlowInstance) => {
     console.log(reactFlowInstance.toObject());
+
+    registerNodeValidator('intentNode')((sourceNode, targetNode) => {
+      if (targetNode.type === 'terminateNode' || targetNode.type === 'startNode')
+        return { isValid: false, reason: 'Invalid target node' };
+
+      if (getOutEdges(sourceNode).length > 1)
+        return { isValid: false, reason: 'There is already a connected edge' };
+
+      return { isValid: true };
+    });
+
+    registerNodeValidator('conditionNode')((sourceNode, targetNode) => {
+      if (targetNode.type === 'terminateNode' || targetNode.type === 'startNode' || targetNode.type === 'intentNode')
+        return { isValid: false, reason: 'Invalid target node' };
+
+      return { isValid: true };
+    });
+
+    registerNodeValidator('actionNode')((sourceNode, targetNode) => {
+      if (targetNode.type === 'startNode' || targetNode.type === 'conditionNode')
+        return { isValid: false, reason: 'Invalid target node' };
+
+      if (getOutEdges(sourceNode).length > 1)
+        return { isValid: false, reason: 'There is already a connected edge' };
+
+      return { isValid: true };
+    });
+
+    registerNodeValidator('startNode')((sourceNode, targetNode) => {
+      if (targetNode.type === 'terminateNode' || targetNode.type === 'conditionNode')
+        return { isValid: false, reason: 'Invalid target node' };
+
+      if (getOutEdges(sourceNode).length > 1)
+        return { isValid: false, reason: 'There is already a connected edge' };
+
+      return { isValid: true };
+    });
   };
 
   const handleNodeDrag: ReactFlowProps['onNodeDrag'] = (event, node, dragDelta) => {
@@ -125,18 +185,23 @@ const WorkflowWithEditableAnchors = () => {
     });
   };
 
-  return <ReactFlow
+  const handleBackgroundClick = (e: React.MouseEvent) => {
+    unselectAllElements();
+  }
+
+  return <ReactFlowy
     elements={graphElements}
     edgeTypes={edgeTypes}
     nodeTypes={nodeTypes}
-    onLoad={handleLoad}
     snapToGrid={true}
     snapGrid={[8, 8]}
     onlyRenderVisibleElements={false}
+    onLoad={handleLoad}
     onNodeDrag={handleNodeDrag}
+    onBackgroundClick={handleBackgroundClick}
   >
     <Background color="#aaa" gap={32} variant={BackgroundVariant.Lines} />
-  </ReactFlow>;
+  </ReactFlowy>;
 }
 
 export default WorkflowWithEditableAnchors;

@@ -2,20 +2,7 @@
   font-family: 'Roboto';
   text-align: center;
   height: 100vh;
-}
-
-.App .react-flowy__edge-path {
-  stroke: black;
-  stroke-width: 2;
-}
-
-.App .react-flowy__arrowhead polyline {
-  stroke: black;
-  fill: black;
-}
-
-.App .react-flowy__handle {
-  background: black;
+  display: flex;
 }
 
 .App input, .App button {

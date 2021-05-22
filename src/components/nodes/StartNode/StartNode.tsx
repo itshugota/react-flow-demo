@@ -2,7 +2,8 @@ import React from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import Paper from '@material-ui/core/Paper';
 import CallSplitReverse from '../../icons/CallSplitReverse';
-import NodeContainer from '../NodeContainer/NodeContainer';
+import ExtendedNodeContainer from '../NodeContainer/NodeContainer';
+import { NodeComponentProps } from 'react-flowy/lib/components/Nodes/wrapNode';
 
 const useStyles = makeStyles(theme => ({
   container: {
@@ -14,28 +15,23 @@ const useStyles = makeStyles(theme => ({
     padding: theme.spacing(1),
     color: '#fff',
   },
+  selected: {
+    boxShadow: '0px 0px 4px var(--selected-color)',
+    borderRadius: '50%',
+  }
 }));
 
-export interface StartNodeProps {
-  id: string;
-  xPos: number;
-  yPos: number;
-}
-
-const StartNode: React.FC<StartNodeProps> = ({ id, xPos, yPos }) => {
+const StartNode: React.FC<NodeComponentProps> = ({ children, ...node }) => {
   const classes = useStyles();
 
-  const node = {
-    id,
-    position: { x: xPos, y: yPos }
-  };
-
   return (
-    <NodeContainer node={node}>
-      <Paper className={classes.container} elevation={4}>
-        <CallSplitReverse />
-      </Paper>
-    </NodeContainer>
+    <ExtendedNodeContainer node={node}>
+      <div className={node.isSelected ? classes.selected : ''}>
+        <Paper className={classes.container} elevation={4}>
+          <CallSplitReverse />
+        </Paper>
+      </div>
+    </ExtendedNodeContainer>
   );
 };
 

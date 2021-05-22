@@ -3,38 +3,30 @@ import { makeStyles } from '@material-ui/core/styles';
 import Paper from '@material-ui/core/Paper';
 import IntentNodeHeader from './IntentNodeHeader';
 import IntentNodeBody from './IntentNodeBody';
-import NodeContainer from '../NodeContainer/NodeContainer';
-
-export interface IntentNodeProps {
-  data: {
-    intent: string;
-  },
-  id: string;
-  xPos: number;
-  yPos: number;
-}
+import ExtendedNodeContainer from '../NodeContainer/NodeContainer';
+import { NodeComponentProps } from 'react-flowy/lib/components/Nodes/wrapNode';
 
 const useStyles = makeStyles(() => ({
   container: {
     position: 'relative'
   },
+  selected: {
+    boxShadow: '0px 0px 4px var(--selected-color)'
+  }
 }));
 
-const IntentNode: React.FC<IntentNodeProps> = ({ data, id, xPos, yPos }) => {
+const IntentNode: React.FC<NodeComponentProps> = ({ children, ...node }) => {
   const classes = useStyles();
 
-  const node = {
-    id,
-    position: { x: xPos, y: yPos }
-  };
-
   return (
-    <NodeContainer node={node}>
+    <ExtendedNodeContainer node={node}>
       <Paper className={classes.container} elevation={4}>
-        <IntentNodeHeader />
-        <IntentNodeBody intent={data.intent} />
+        <div className={node.isSelected ? classes.selected : ''}>
+          <IntentNodeHeader />
+          <IntentNodeBody intent={node.data?.intent || ''} />
+        </div>
       </Paper>
-    </NodeContainer>
+    </ExtendedNodeContainer>
   );
 };
 

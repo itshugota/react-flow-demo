@@ -2,6 +2,8 @@ import React from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import Paper from '@material-ui/core/Paper';
 import CallMergeReverse from '../../icons/CallMergeReverse';
+import { NodeComponentProps } from 'react-flowy/lib/components/Nodes/wrapNode';
+import ExtendedNodeContainer from '../NodeContainer/NodeContainer';
 
 const useStyles = makeStyles(theme => ({
   container: {
@@ -13,15 +15,23 @@ const useStyles = makeStyles(theme => ({
     padding: theme.spacing(1),
     color: '#fff',
   },
+  selected: {
+    boxShadow: '0px 0px 4px var(--selected-color)',
+    borderRadius: '50%',
+  }
 }));
 
-const TerminateNode = () => {
+const TerminateNode: React.FC<NodeComponentProps> = ({ children, ...node }) => {
   const classes = useStyles();
 
   return (
-    <Paper className={classes.container} elevation={4}>
-      <CallMergeReverse />
-    </Paper>
+    <ExtendedNodeContainer node={node} isHandleDisabled>
+      <div className={node.isSelected ? classes.selected : ''}>
+        <Paper className={classes.container} elevation={4}>
+          <CallMergeReverse />
+        </Paper>
+      </div>
+    </ExtendedNodeContainer>
   );
 };
 

@@ -1,41 +1,30 @@
-import React, { ChangeEvent } from 'react';
+import React from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import Paper from '@material-ui/core/Paper';
 import ConditionNodeHeader from './ConditionNodeHeader';
 import ConditionNodeBody from './ConditionNodeBody';
-import { Condition } from './Condition.interface';
-import NodeContainer from '../NodeContainer/NodeContainer';
-
-export interface ConditionNodeProrps {
-  data: {
-    color: string;
-    onChange: (event: ChangeEvent) => void;
-    conditions: Condition[];
-  },
-  id: string;
-  xPos: number;
-  yPos: number;
-}
+import ExtendedNodeContainer from '../NodeContainer/NodeContainer';
+import { NodeComponentProps } from 'react-flowy/lib/components/Nodes/wrapNode';
 
 const useStyles = makeStyles(() => ({
   container: {},
+  selected: {
+    boxShadow: '0px 0px 4px var(--selected-color)'
+  }
 }));
 
-const ConditionNode: React.FC<ConditionNodeProrps> = ({ data, id, xPos, yPos }) => {
+const ConditionNode: React.FC<NodeComponentProps> = ({ children, ...node }) => {
   const classes = useStyles();
 
-  const node = {
-    id,
-    position: { x: xPos, y: yPos }
-  };
-
   return (
-    <NodeContainer node={node}>
+    <ExtendedNodeContainer node={node}>
       <Paper className={classes.container} elevation={4}>
-        <ConditionNodeHeader />
-        <ConditionNodeBody conditions={data.conditions} />
+        <div className={node.isSelected ? classes.selected : ''}>
+          <ConditionNodeHeader />
+          <ConditionNodeBody conditions={node.data?.conditions || []} />
+        </div>
       </Paper>
-    </NodeContainer>
+    </ExtendedNodeContainer>
   );
 };
 

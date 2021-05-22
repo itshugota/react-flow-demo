@@ -6,6 +6,7 @@ import {
 } from 'react-router-dom';
 
 import './App.css'
+import Sidebar from './components/sidebar/Sidebar';
 import WorkflowWithEditableAnchors from './components/WorkflowWithEditableAnchors';
 
 function App() {
@@ -17,7 +18,7 @@ function App() {
         </div> */}
         <Switch>
           <Route path="/">
-            {/* <Counter /> */}
+            <Sidebar />
             <WorkflowWithEditableAnchors />
           </Route>
         </Switch>
