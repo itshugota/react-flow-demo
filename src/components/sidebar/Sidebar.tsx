@@ -4,7 +4,6 @@ import Typography from '@material-ui/core/Typography';
 import InputIcon from '@material-ui/icons/Input';
 import FlashOnIcon from '@material-ui/icons/FlashOn';
 import { makeStyles } from '@material-ui/core/styles';
-import WorkflowLogo from './WorkflowLogo';
 import CallMergeReverseIcon from '../icons/CallMergeReverse';
 import CallSplitReverseIcon from '../icons/CallSplitReverse';
 import FilterAltIcon from '../icons/FilterAlt';
@@ -25,8 +24,9 @@ const useStyles = makeStyles(theme => ({
     }
   },
   drawerPaper: {
-    width: SIDEBAR_WIDTH,
-    boxShadow: theme.shadows[4],
+    width: SIDEBAR_WIDTH - theme.spacing(2) * 2,
+    border: 'none',
+    boxShadow: theme.shadows[6],
     padding: theme.spacing(2)
   },
   blockTitle: {
@@ -84,7 +84,7 @@ const Sidebar = () => {
   return (
     <>
       <Drawer className={classes.drawer} variant="permanent" anchor="left" classes={{ paper: classes.drawerPaper }}>
-        <WorkflowLogo />
+        <img src="/assets/WorkflowLogo.png" width="193" height="auto" style={{ userSelect: 'none', pointerEvents: 'none' }} />
         <Typography className={classes.blockTitle} variant="h5" align="left">
           Blocks
         </Typography>
@@ -98,4 +98,4 @@ const Sidebar = () => {
   );
 };
 
-export default Sidebar;
+export default React.memo(Sidebar);

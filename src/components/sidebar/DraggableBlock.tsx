@@ -141,4 +141,4 @@ const DraggableBlock: React.FC<DraggableBlockProps> = ({ Icon, DragShell, name, 
   )
 }
 
-export default DraggableBlock;
+export default React.memo(DraggableBlock);

@@ -2,7 +2,7 @@
   "name": "react-flow-demo",
   "version": "0.0.0",
   "scripts": {
-    "dev": "vite",
+    "dev": "vite --host",
     "build": "tsc && vite build",
     "serve": "vite preview"
   },
@@ -14,12 +14,11 @@
     "path-intersection": "^2.2.1",
     "react": "^17.0.0",
     "react-dom": "^17.0.0",
-    "react-flowy": "^0.0.17",
+    "react-flowy": "^0.0.18",
     "react-router": "^5.2.0",
     "react-router-dom": "^5.2.0"
   },
   "devDependencies": {
-    "@types/node": "^15.6.0",
     "@types/react": "^17.0.3",
     "@types/react-dom": "^17.0.3",
     "@types/react-router-dom": "^5.1.7",

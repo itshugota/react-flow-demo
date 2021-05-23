@@ -13,6 +13,6 @@ const GrabIcon = () => {
   );
 };
 
-export default GrabIcon;
+export default React.memo(GrabIcon);
 
 

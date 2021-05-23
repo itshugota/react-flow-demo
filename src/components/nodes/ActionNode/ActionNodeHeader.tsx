@@ -1,9 +1,12 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import IconButton from '@material-ui/core/IconButton';
 import Typography from '@material-ui/core/Typography';
+import Menu from '@material-ui/core/Menu';
+import MenuItem from '@material-ui/core/MenuItem';
 import FlashOnIcon from '@material-ui/icons/FlashOn';
 import MoreHorizIcon from '@material-ui/icons/MoreHoriz';
+import DeleteIcon from '@material-ui/icons/Delete';
 
 const useStyles = makeStyles(theme => ({
   header: {
@@ -33,14 +36,34 @@ const useStyles = makeStyles(theme => ({
 
 const ActionNodeHeader = () => {
   const classes = useStyles();
+  const [anchorEl, setAnchorEl] = useState<Element | null>(null);
+
+  const handleOpenMenu = (event: React.MouseEvent) => {
+    setAnchorEl(event.currentTarget);
+  };
+
+  const handleCloseMenu = () => {
+    setAnchorEl(null);
+  };
 
   return (
     <header className={classes.header}>
       <FlashOnIcon className={classes.leadingIcon} />
       <Typography className={classes.title} variant="h3">Action</Typography>
-      <IconButton className={classes.moreOptionsButton} aria-label="more options">
+      <IconButton className={classes.moreOptionsButton} aria-label="more options" onClick={handleOpenMenu}>
         <MoreHorizIcon />
       </IconButton>
+      <Menu
+        anchorEl={anchorEl}
+        keepMounted
+        open={Boolean(anchorEl)}
+        onClose={handleCloseMenu}
+      >
+        <MenuItem onClick={handleCloseMenu}>
+          <DeleteIcon />
+          Delete
+        </MenuItem>
+      </Menu>
     </header>
   )
 };
