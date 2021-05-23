@@ -3,7 +3,7 @@ import { makeStyles } from '@material-ui/core/styles';
 import Typography from '@material-ui/core/Typography';
 
 import GrabIcon from '../icons/GrabIcon';
-import { useSnapshot, eventPointToCanvasCoordinates, getCanvas, getReactFlowyElement, isPointInRect, reactFlowyState, Node, upsertNode } from 'react-flowy/lib';
+import { useReactFlowyStore, eventPointToCanvasCoordinates, getCanvas, getReactFlowyElement, isPointInRect, Node, transformSelector } from 'react-flowy/lib';
 
 const useStyles = makeStyles(theme => ({
   root: {
@@ -57,8 +57,9 @@ export interface DraggableBlockProps {
 }
 
 const DraggableBlock: React.FC<DraggableBlockProps> = ({ Icon, DragShell, name, description, nodeType }) => {
-  const snap = useSnapshot(reactFlowyState);
   const classes = useStyles();
+  const transform = useReactFlowyStore(transformSelector);
+  const upsertNode = useReactFlowyStore(state => state.upsertNode);
   const [isGrabbing, setIsGrabbing] = useState(false);
   const [dragX, setDragX] = useState(0);
   const [dragY, setDragY] = useState(0);
@@ -66,23 +67,23 @@ const DraggableBlock: React.FC<DraggableBlockProps> = ({ Icon, DragShell, name, 
   useEffect(() => {
     if (!isGrabbing) return;
 
-    document.addEventListener('mousemove', handleMouseMove);
-    document.addEventListener('mouseup', handleMouseUp);
+    document.addEventListener('mousemove', handleDrag);
+    document.addEventListener('mouseup', handleDragStop);
     document.body.style.cursor = 'grabbing';
 
     return () => {
-      document.removeEventListener('mousemove', handleMouseMove);
-      document.removeEventListener('mouseup', handleMouseUp);
+      document.removeEventListener('mousemove', handleDrag);
+      document.removeEventListener('mouseup', handleDragStop);
       document.body.style.cursor = 'auto';
     };
-  }, [isGrabbing]);
+  }, [isGrabbing, transform]);
 
-  const handleMouseMove = (e: MouseEvent) => {
+  const handleDrag = (e: MouseEvent) => {
     setDragX(e.clientX);
     setDragY(e.clientY);
   };
 
-  const handleMouseUp = (e: MouseEvent) => {
+  const handleDragStop = (e: MouseEvent) => {
     setIsGrabbing(false);
 
     const reactFlowyElement = getReactFlowyElement();
@@ -91,7 +92,7 @@ const DraggableBlock: React.FC<DraggableBlockProps> = ({ Icon, DragShell, name, 
     
     if (!isPointInRect(cursorPosition, reactFlowyElementBoundingRect)) return;
     
-    const canvas = getCanvas(reactFlowyState.transform);
+    const canvas = getCanvas(transform);
 
     const cursorCoordinates = eventPointToCanvasCoordinates(e)(canvas);
 
@@ -107,14 +108,14 @@ const DraggableBlock: React.FC<DraggableBlockProps> = ({ Icon, DragShell, name, 
     upsertNode(newNode);
   };
 
-  const handleMouseDown = (e: React.MouseEvent) => {
+  const handleDragStart = (e: React.MouseEvent) => {
     setIsGrabbing(true);
     setDragX(e.clientX);
     setDragY(e.clientY);
   };
 
   return (
-    <div className={classes.root} onMouseDown={handleMouseDown}>
+    <div className={classes.root} onMouseDown={handleDragStart}>
       <span className={classes.iconGroup}>
         <GrabIcon />
         <span className={classes.blockTypeIcon}>
@@ -131,7 +132,7 @@ const DraggableBlock: React.FC<DraggableBlockProps> = ({ Icon, DragShell, name, 
           top: dragY,
           left: dragX,
           opacity: 0.7,
-          transform: `scale(${snap.transform[2]})`,
+          transform: `scale(${transform[2]})`,
           transformOrigin: 'top left'
         }}>
           <DragShell />

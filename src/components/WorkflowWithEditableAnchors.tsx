@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useRef } from 'react';
 
 import IntentNode from './nodes/IntentNode/IntentNode';
 import StartNode from './nodes/StartNode/StartNode';
@@ -10,17 +10,18 @@ import ReactFlowy, {
   ReactFlowProps,
   BackgroundVariant,
   Background,
-  reactFlowyState,
   getRectangleByNodeId,
   getNodeById,
   repairConnection,
   StandardEdge,
   Elements,
-  unselectAllElements,
   getSelectedElement,
-  deleteElementById,
-  registerNodeValidator,
   getOutEdges,
+  useReactFlowyStore,
+  nodesSelector,
+  edgesSelector,
+  Node,
+  Edge,
 } from 'react-flowy/lib';
 
 const nodeTypes = {
@@ -94,6 +95,23 @@ const graphElements: Elements = [
 ];
 
 const WorkflowWithEditableAnchors = () => {
+  const nodes = useRef<Node[]>([]);
+  const edges = useRef<Edge[]>([]);
+  const unselectAllElements = useReactFlowyStore(state => state.unselectAllElements);
+  const deleteElementById = useReactFlowyStore(state => state.deleteElementById);
+  const registerNodeValidator = useReactFlowyStore(state => state.registerNodeValidator);
+  const upsertEdge = useReactFlowyStore(state => state.upsertEdge);
+
+  useEffect(() => {
+    useReactFlowyStore.subscribe(edgesFromStore => {
+      edges.current = edgesFromStore;
+    }, edgesSelector);
+
+    useReactFlowyStore.subscribe(nodesFromStore => {
+      nodes.current = nodesFromStore;
+    }, nodesSelector);
+  }, []);
+
   useEffect(() => {
     document.addEventListener('keyup', handleKeyUp);
 
@@ -116,7 +134,7 @@ const WorkflowWithEditableAnchors = () => {
     console.log(reactFlowInstance.toObject());
 
     registerNodeValidator('intentNode')((sourceNode, targetNode) => {
-      if (targetNode.type === 'terminateNode' || targetNode.type === 'startNode')
+      if (targetNode.id === sourceNode.id || targetNode.type === 'terminateNode' || targetNode.type === 'startNode')
         return { isValid: false, reason: 'Invalid target node' };
 
       if (getOutEdges(sourceNode).length > 1)
@@ -126,14 +144,14 @@ const WorkflowWithEditableAnchors = () => {
     });
 
     registerNodeValidator('conditionNode')((sourceNode, targetNode) => {
-      if (targetNode.type === 'terminateNode' || targetNode.type === 'startNode' || targetNode.type === 'intentNode')
+      if (targetNode.id === sourceNode.id || targetNode.type === 'terminateNode' || targetNode.type === 'startNode' || targetNode.type === 'intentNode')
         return { isValid: false, reason: 'Invalid target node' };
 
       return { isValid: true };
     });
 
     registerNodeValidator('actionNode')((sourceNode, targetNode) => {
-      if (targetNode.type === 'startNode' || targetNode.type === 'conditionNode')
+      if (targetNode.id === sourceNode.id || targetNode.type === 'startNode' || targetNode.type === 'conditionNode')
         return { isValid: false, reason: 'Invalid target node' };
 
       if (getOutEdges(sourceNode).length > 1)
@@ -143,7 +161,7 @@ const WorkflowWithEditableAnchors = () => {
     });
 
     registerNodeValidator('startNode')((sourceNode, targetNode) => {
-      if (targetNode.type === 'terminateNode' || targetNode.type === 'conditionNode')
+      if (targetNode.id === sourceNode.id || targetNode.type === 'terminateNode' || targetNode.type === 'conditionNode')
         return { isValid: false, reason: 'Invalid target node' };
 
       if (getOutEdges(sourceNode).length > 1)
@@ -154,10 +172,10 @@ const WorkflowWithEditableAnchors = () => {
   };
 
   const handleNodeDrag: ReactFlowProps['onNodeDrag'] = (event, node, dragDelta) => {
-    const elements = [...reactFlowyState.nodes, ...reactFlowyState.edges];
+    const elements = [...nodes.current, ...edges.current];
 
-    reactFlowyState.edges.forEach(edge => {
-      if (edge.target !== node.id && edge.source !== node.id) return;
+    edges.current.forEach(edge => {
+      if (edge.target !== node.id && edge.source !== node.id) return edge;
 
       const otherNode = edge.target === node.id ?
         getNodeById(elements)(edge.source) :
@@ -179,9 +197,10 @@ const WorkflowWithEditableAnchors = () => {
         y: edge.waypoints[edge.waypoints.length - 1].y + dragDelta.deltaY,
       }
 
-      edge.waypoints = edge.source === node.id ?
+      upsertEdge({ ...edge, waypoints: edge.source === node.id ?
         repairConnection(nodeRectangle, otherNodeRectangle, newStart, undefined, edge.waypoints, { connectionStart: true }) :
-        repairConnection(otherNodeRectangle, nodeRectangle, undefined, newEnd, edge.waypoints, { connectionEnd: true });
+        repairConnection(otherNodeRectangle, nodeRectangle, undefined, newEnd, edge.waypoints, { connectionEnd: true })
+      });
     });
   };
 
@@ -195,7 +214,6 @@ const WorkflowWithEditableAnchors = () => {
     nodeTypes={nodeTypes}
     snapToGrid={true}
     snapGrid={[8, 8]}
-    onlyRenderVisibleElements={false}
     onLoad={handleLoad}
     onNodeDrag={handleNodeDrag}
     onBackgroundClick={handleBackgroundClick}
