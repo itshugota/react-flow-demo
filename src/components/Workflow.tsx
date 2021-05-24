@@ -200,10 +200,18 @@ const Workflow = () => {
         y: edge.waypoints[edge.waypoints.length - 1].y + dragDelta.deltaY,
       }
 
-      upsertEdge({ ...edge, waypoints: edge.source === node.id ?
+      upsertEdge({ ...edge, isDragging: true, waypoints: edge.source === node.id ?
         repairConnection(nodeRectangle, otherNodeRectangle, newStart, undefined, edge.waypoints, { connectionStart: true }) :
         repairConnection(otherNodeRectangle, nodeRectangle, undefined, newEnd, edge.waypoints, { connectionEnd: true })
       });
+    });
+  };
+
+  const handleNodeDragStop: ReactFlowyProps['onNodeDragStop'] = (event, node) => {
+    edges.current.forEach(edge => {
+      if (edge.target !== node.id && edge.source !== node.id) return edge;
+
+      if (edge.isDragging) upsertEdge({ ...edge, isDragging: false });
     });
   };
 
@@ -218,6 +226,7 @@ const Workflow = () => {
     snapGrid={[8, 8]}
     onLoad={handleLoad}
     onNodeDrag={handleNodeDrag}
+    onNodeDragStop={handleNodeDragStop}
     onBackgroundClick={handleBackgroundClick}
   >
     <Toolbar />
