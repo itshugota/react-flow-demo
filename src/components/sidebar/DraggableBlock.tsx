@@ -100,9 +100,6 @@ const DraggableBlock: React.FC<DraggableBlockProps> = ({ Icon, DragShell, name, 
       id: `x${cursorPosition.x}y${cursorPosition.y}`,
       type: nodeType,
       position: cursorCoordinates,
-      __rf: {
-        position: cursorCoordinates,
-      },
     };
 
     upsertNode(newNode);

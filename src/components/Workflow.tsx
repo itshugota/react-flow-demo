@@ -22,8 +22,8 @@ import ReactFlowy, {
   edgesSelector,
   Node,
   Edge,
-  initializeUndoRedo,
 } from 'react-flowy/lib';
+import Toolbar from './toolbar/Toolbar';
 
 const nodeTypes = {
   startNode: StartNode,
@@ -95,7 +95,7 @@ const graphElements: Elements = [
   },
 ];
 
-const WorkflowWithEditableAnchors = () => {
+const Workflow = () => {
   const nodes = useRef<Node[]>([]);
   const edges = useRef<Edge[]>([]);
   const unselectAllElements = useReactFlowyStore(state => state.unselectAllElements);
@@ -133,7 +133,6 @@ const WorkflowWithEditableAnchors = () => {
   }
 
   const handleLoad: ReactFlowyProps['onLoad'] = (reactFlowInstance) => {
-    initializeUndoRedo();
     console.log(reactFlowInstance.toObject());
     setElements(graphElements);
 
@@ -221,8 +220,9 @@ const WorkflowWithEditableAnchors = () => {
     onNodeDrag={handleNodeDrag}
     onBackgroundClick={handleBackgroundClick}
   >
+    <Toolbar />
     <Background color="#aaa" gap={32} variant={BackgroundVariant.Lines} />
   </ReactFlowy>;
 }
 
-export default WorkflowWithEditableAnchors;
+export default Workflow;

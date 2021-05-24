@@ -7,7 +7,7 @@ import {
 
 import './App.css'
 import Sidebar from './components/sidebar/Sidebar';
-import WorkflowWithEditableAnchors from './components/WorkflowWithEditableAnchors';
+import Workflow from './components/Workflow';
 
 function App() {
   return (
@@ -19,7 +19,7 @@ function App() {
         <Switch>
           <Route path="/">
             <Sidebar />
-            <WorkflowWithEditableAnchors />
+            <Workflow />
           </Route>
         </Switch>
       </div>
