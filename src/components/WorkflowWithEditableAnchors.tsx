@@ -7,7 +7,7 @@ import ActionNode from './nodes/ActionNode/ActionNode';
 import TerminateNode from './nodes/TerminateNode/TerminateNode';
 
 import ReactFlowy, {
-  ReactFlowProps,
+  ReactFlowyProps,
   BackgroundVariant,
   Background,
   getRectangleByNodeId,
@@ -22,6 +22,7 @@ import ReactFlowy, {
   edgesSelector,
   Node,
   Edge,
+  initializeUndoRedo,
 } from 'react-flowy/lib';
 
 const nodeTypes = {
@@ -101,6 +102,7 @@ const WorkflowWithEditableAnchors = () => {
   const deleteElementById = useReactFlowyStore(state => state.deleteElementById);
   const registerNodeValidator = useReactFlowyStore(state => state.registerNodeValidator);
   const upsertEdge = useReactFlowyStore(state => state.upsertEdge);
+  const setElements = useReactFlowyStore(state => state.setElements);
 
   useEffect(() => {
     useReactFlowyStore.subscribe(edgesFromStore => {
@@ -130,8 +132,10 @@ const WorkflowWithEditableAnchors = () => {
     }
   }
 
-  const handleLoad: ReactFlowProps['onLoad'] = (reactFlowInstance) => {
+  const handleLoad: ReactFlowyProps['onLoad'] = (reactFlowInstance) => {
+    initializeUndoRedo();
     console.log(reactFlowInstance.toObject());
+    setElements(graphElements);
 
     registerNodeValidator('intentNode')((sourceNode, targetNode) => {
       if (targetNode.id === sourceNode.id || targetNode.type === 'terminateNode' || targetNode.type === 'startNode')
@@ -171,7 +175,7 @@ const WorkflowWithEditableAnchors = () => {
     });
   };
 
-  const handleNodeDrag: ReactFlowProps['onNodeDrag'] = (event, node, dragDelta) => {
+  const handleNodeDrag: ReactFlowyProps['onNodeDrag'] = (event, node, dragDelta) => {
     const elements = [...nodes.current, ...edges.current];
 
     edges.current.forEach(edge => {
@@ -209,7 +213,6 @@ const WorkflowWithEditableAnchors = () => {
   }
 
   return <ReactFlowy
-    elements={graphElements}
     edgeTypes={edgeTypes}
     nodeTypes={nodeTypes}
     snapToGrid={true}
