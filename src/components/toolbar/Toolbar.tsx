@@ -12,6 +12,8 @@ import FullscreenIcon from '@material-ui/icons/Fullscreen';
 import FullscreenExitIcon from '@material-ui/icons/FullscreenExit';
 import ExitToAppIcon from '@material-ui/icons/ExitToApp';
 import { transformSelector, useReactFlowyStore, initializeUndoRedo, useUndoRedoStore, minZoomSelector, maxZoomSelector } from 'react-flowy/lib';
+import ValidIndicator from '../icons/ValidIndicator';
+import StatusIndicator from './StatusIndicator';
 
 const useStyles = makeStyles(theme => ({
   root: {
@@ -238,11 +240,7 @@ const Toolbar = () => {
         </Tooltip>
       }
       <div className={clsx(classes.separator, classes.mLSmall, classes.mRSmall)} />
-      <Tooltip title="Exit">
-        <IconButton className={classes.iconButton}>
-          <ExitToAppIcon />
-        </IconButton>
-      </Tooltip>
+      <StatusIndicator />
     </Paper>
   );
 }

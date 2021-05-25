@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import Typography from '@material-ui/core/Typography';
+import DragIndicatorIcon from '@material-ui/icons/DragIndicator';
 
-import GrabIcon from '../icons/GrabIcon';
 import { useReactFlowyStore, eventPointToCanvasCoordinates, getCanvas, getReactFlowyElement, isPointInRect, Node, transformSelector } from 'react-flowy/lib';
 
 const useStyles = makeStyles(theme => ({
@@ -16,6 +16,7 @@ const useStyles = makeStyles(theme => ({
     display: 'flex',
     alignItems: 'center',
     height: 'fit-content',
+    color: '#e9e9ef',
   },
   blockTypeIcon: {
     display: 'flex',
@@ -114,7 +115,7 @@ const DraggableBlock: React.FC<DraggableBlockProps> = ({ Icon, DragShell, name, 
   return (
     <div className={classes.root} onMouseDown={handleDragStart}>
       <span className={classes.iconGroup}>
-        <GrabIcon />
+        <DragIndicatorIcon />
         <span className={classes.blockTypeIcon}>
           <Icon />
         </span>
