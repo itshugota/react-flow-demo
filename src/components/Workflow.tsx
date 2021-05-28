@@ -6,14 +6,11 @@ import ConditionNode from './nodes/ConditionNode/ConditionNode';
 import ActionNode from './nodes/ActionNode/ActionNode';
 import TerminateNode from './nodes/TerminateNode/TerminateNode';
 
-import ReactFlowy, {
+import {
+  DraggableReactFlowy,
   ReactFlowyProps,
   BackgroundVariant,
   Background,
-  getRectangleByNodeId,
-  getNodeById,
-  repairConnection,
-  StandardEdge,
   Elements,
   getSelectedElement,
   getOutEdges,
@@ -25,6 +22,7 @@ import ReactFlowy, {
 } from 'react-flowy/lib';
 import Toolbar from './toolbar/Toolbar';
 import EdgeWithContextMenu from './edges/EdgeWithContextMenu';
+import { registerNodeDropValidator } from './sidebar/DraggableBlock';
 
 const nodeTypes = {
   startNode: StartNode,
@@ -102,7 +100,6 @@ const Workflow = () => {
   const unselectAllElements = useReactFlowyStore(state => state.unselectAllElements);
   const deleteElementById = useReactFlowyStore(state => state.deleteElementById);
   const registerNodeValidator = useReactFlowyStore(state => state.registerNodeValidator);
-  const upsertEdge = useReactFlowyStore(state => state.upsertEdge);
   const setElements = useReactFlowyStore(state => state.setElements);
 
   useEffect(() => {
@@ -141,7 +138,12 @@ const Workflow = () => {
       if (targetNode.id === sourceNode.id || targetNode.type === 'terminateNode' || targetNode.type === 'startNode')
         return { isValid: false, reason: 'Invalid target node' };
 
-      if (getOutEdges(sourceNode).length > 1)
+      const outcomingEdges = getOutEdges(sourceNode).filter(edge => edge.target !== targetNode.id);
+      const firstConnectedNode = nodes.current.find(node => node.id === outcomingEdges[0].target);
+
+      if ((firstConnectedNode?.type === 'conditionNode' && targetNode.type !== 'conditionNode') ||
+        (firstConnectedNode?.type === 'actionNode')
+      )
         return { isValid: false, reason: 'There is already a connected edge' };
 
       return { isValid: true };
@@ -173,46 +175,17 @@ const Workflow = () => {
 
       return { isValid: true };
     });
-  };
 
-  const handleNodeDrag: ReactFlowyProps['onNodeDrag'] = (event, node, dragDelta) => {
-    const elements = [...nodes.current, ...edges.current];
+    registerNodeDropValidator('startNode')((nodes, droppableNode) => {
+      if (nodes.find(node => node.type === 'startNode')) return false;
 
-    edges.current.forEach(edge => {
-      if (edge.target !== node.id && edge.source !== node.id) return edge;
-
-      const otherNode = edge.target === node.id ?
-        getNodeById(elements)(edge.source) :
-        getNodeById(elements)(edge.target);
-
-      const nodeRectangle = getRectangleByNodeId(elements)(node.id);
-      nodeRectangle.x += dragDelta.deltaX;
-      nodeRectangle.y += dragDelta.deltaY;
-
-      const otherNodeRectangle = getRectangleByNodeId(elements)(otherNode!.id);
-
-      const newStart = {
-        x: edge.waypoints[0].x + dragDelta.deltaX,
-        y: edge.waypoints[0].y + dragDelta.deltaY,
-      }
-
-      const newEnd = {
-        x: edge.waypoints[edge.waypoints.length - 1].x + dragDelta.deltaX,
-        y: edge.waypoints[edge.waypoints.length - 1].y + dragDelta.deltaY,
-      }
-
-      upsertEdge({ ...edge, isDragging: true, waypoints: edge.source === node.id ?
-        repairConnection(nodeRectangle, otherNodeRectangle, newStart, undefined, edge.waypoints, { connectionStart: true }) :
-        repairConnection(otherNodeRectangle, nodeRectangle, undefined, newEnd, edge.waypoints, { connectionEnd: true })
-      });
+      return true;
     });
-  };
 
-  const handleNodeDragStop: ReactFlowyProps['onNodeDragStop'] = (event, node) => {
-    edges.current.forEach(edge => {
-      if (edge.target !== node.id && edge.source !== node.id) return edge;
+    registerNodeDropValidator('terminateNode')((nodes, droppableNode) => {
+      if (nodes.find(node => node.type === 'terminateNode')) return false;
 
-      if (edge.isDragging) upsertEdge({ ...edge, isDragging: false });
+      return true;
     });
   };
 
@@ -220,19 +193,17 @@ const Workflow = () => {
     unselectAllElements();
   }
 
-  return <ReactFlowy
+  return <DraggableReactFlowy
     edgeTypes={edgeTypes}
     nodeTypes={nodeTypes}
     snapToGrid={true}
     snapGrid={[8, 8]}
     onLoad={handleLoad}
-    onNodeDrag={handleNodeDrag}
-    onNodeDragStop={handleNodeDragStop}
     onBackgroundClick={handleBackgroundClick}
   >
     <Toolbar />
     <Background color="#aaa" gap={32} variant={BackgroundVariant.Lines} />
-  </ReactFlowy>;
+  </DraggableReactFlowy>;
 }
 
 export default Workflow;

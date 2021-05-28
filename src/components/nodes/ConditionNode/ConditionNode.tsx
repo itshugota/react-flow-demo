@@ -18,6 +18,7 @@ const useStyles = makeStyles(() => ({
 const ConditionNode: React.FC<NodeComponentProps> = ({ children, ...node }) => {
   const classes = useStyles();
   const shouldShowInvalidNodes = useStatusStore(state => state.shouldShowInvalidNodes);
+  const shouldShowUnhandledConditions = useStatusStore(state => state.shouldShowUnhandledConditions);
   const problematicNode = useStatusStore(state => state.problematicNodes.find(pN => pN.id === node.id));
 
   return (
@@ -27,7 +28,7 @@ const ConditionNode: React.FC<NodeComponentProps> = ({ children, ...node }) => {
           <ConditionNodeHeader node={node} />
           <ConditionNodeBody conditions={node.data?.conditions || []} />
         </div>
-        {shouldShowInvalidNodes && problematicNode && <ProblemPopover status={problematicNode.status} message={problematicNode.message} />}
+        {(shouldShowInvalidNodes || shouldShowUnhandledConditions) && problematicNode && <ProblemPopover status={problematicNode.status} message={problematicNode.message} />}
       </Paper>
     </ExtendedNodeContainer>
   );

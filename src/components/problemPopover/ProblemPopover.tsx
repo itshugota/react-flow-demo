@@ -1,6 +1,7 @@
 import React from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import CancelIcon from '@material-ui/icons/Cancel';
+import WarningIcon from '@material-ui/icons/Warning';
 import { WorkflowStatus } from '../../store/status.store';
 
 const useStyles = makeStyles(theme => ({
@@ -34,6 +35,9 @@ const useStyles = makeStyles(theme => ({
   errorIcon: {
     color: '#fa103e',
   },
+  warningIcon: {
+    color: '#f2994a',
+  },
   message: {
     color: theme.palette.common.white,
     fontSize: 12,
@@ -55,6 +59,7 @@ const ProblemPopover: React.FC<ProblemPopoverProps> = ({ status, message }) => {
     <>
       <div className={classes.root}>
         {status === WorkflowStatus.INVALID && <CancelIcon className={classes.errorIcon} fontSize="small" />}
+        {status === WorkflowStatus.WARNING && <WarningIcon className={classes.warningIcon} fontSize="small" />}
         <span className={classes.message}>{message}</span>
       </div>
       <span className={classes.arrow} />

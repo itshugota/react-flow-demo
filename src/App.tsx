@@ -4,6 +4,7 @@ import {
   Switch,
   Route
 } from 'react-router-dom';
+import { SnackbarProvider } from 'notistack';
 import { createMuiTheme, ThemeProvider } from '@material-ui/core/styles';
 
 import './App.css'
@@ -26,19 +27,21 @@ const theme = createMuiTheme({
 function App() {
   return (
     <ThemeProvider theme={theme}>
-      <Router>
-        <div className="App">
-          {/* <div style={{ position: 'fixed', zIndex: 1000, right: 64, bottom: 64, display: 'flex', flexDirection: 'column', alignItems: 'flex-start' }}>
-            <a href="/">1. Workflow with editable anchors</a>
-          </div> */}
-          <Switch>
-            <Route path="/">
-              <Sidebar />
-              <Workflow />
-            </Route>
-          </Switch>
-        </div>
-      </Router>
+      <SnackbarProvider maxSnack={3}>
+        <Router>
+          <div className="App">
+            {/* <div style={{ position: 'fixed', zIndex: 1000, right: 64, bottom: 64, display: 'flex', flexDirection: 'column', alignItems: 'flex-start' }}>
+              <a href="/">1. Workflow with editable anchors</a>
+            </div> */}
+            <Switch>
+              <Route path="/">
+                <Sidebar />
+                <Workflow />
+              </Route>
+            </Switch>
+          </div>
+        </Router>
+      </SnackbarProvider>
     </ThemeProvider>
   )
 }

@@ -1,5 +1,6 @@
-import { getInEdges, getOutEdges, isNode, subscribeToFinalElementChanges } from 'react-flowy/lib';
+import { Node, getInEdges, getOutEdges, isNode, subscribeToFinalElementChanges } from 'react-flowy/lib';
 import create from 'zustand';
+import { Condition, Operator } from '../components/nodes/ConditionNode/Condition.interface';
 
 export enum WorkflowStatus {
   VALID = 'valid',
@@ -18,14 +19,14 @@ export interface WorkflowStatusState {
   status: WorkflowStatus;
   problematicNodes: ProblematicNode[];
   shouldShowInvalidNodes: boolean;
-  shouldShowUnhandledCases: boolean;
+  shouldShowUnhandledConditions: boolean;
 }
 
 export interface WorkflowStatusActions {
   changeStatus: (newStatus: WorkflowStatus) => void;
   setProblematicNodes: (problematicNodes: ProblematicNode[]) => void;
   setShouldShowInvalidNodes: (shouldShowInvalidNodes: boolean) => void;
-  setShouldShowUnhandledCases: (shouldShowUnhandledCases: boolean) => void;
+  setShouldShowUnhandledConditions: (shouldShowUnhandledConditions: boolean) => void;
 }
 
 export const useStatusStore = create<WorkflowStatusState & WorkflowStatusActions>(set => ({
@@ -34,7 +35,7 @@ export const useStatusStore = create<WorkflowStatusState & WorkflowStatusActions
   status: WorkflowStatus.VALID,
   problematicNodes: [],
   shouldShowInvalidNodes: false,
-  shouldShowUnhandledCases: false,
+  shouldShowUnhandledConditions: false,
 
   // ========== ACTIONS ==========
 
@@ -50,8 +51,8 @@ export const useStatusStore = create<WorkflowStatusState & WorkflowStatusActions
     set(state => ({ ...state, shouldShowInvalidNodes }));
   },
 
-  setShouldShowUnhandledCases: (shouldShowUnhandledCases: boolean) => {
-    set(state => ({ ...state, shouldShowUnhandledCases }));
+  setShouldShowUnhandledConditions: (shouldShowUnhandledConditions: boolean) => {
+    set(state => ({ ...state, shouldShowUnhandledConditions }));
   }
 }));
 
@@ -61,17 +62,15 @@ subscribeToFinalElementChanges(elements => {
   if (batchUpdateTimeout) clearTimeout(batchUpdateTimeout);
 
   batchUpdateTimeout = window.setTimeout(() => {
-    const nodesWithNoOutgoingEdges = elements.filter(node => {
-      if (!isNode(node)) return false;
+    const nodes = elements.filter(element => isNode(element)) as Node[];
 
+    const nodesWithNoOutgoingEdges = nodes.filter(node => {
       const outgoingEdges = getOutEdges(node);
 
       return node.type !== 'terminateNode' && outgoingEdges.length === 0;
     });
 
-    const nodesWithNoIncomingEdges = elements.filter(node => {
-      if (!isNode(node)) return false;
-
+    const nodesWithNoIncomingEdges = nodes.filter(node => {
       const incomingEdges = getInEdges(node);
 
       return node.type !== 'startNode' && incomingEdges.length === 0;
@@ -93,11 +92,50 @@ subscribeToFinalElementChanges(elements => {
         ];
 
       useStatusStore.getState().setProblematicNodes(problematicNodes);
+      useStatusStore.getState().setShouldShowUnhandledConditions(false);
 
       return useStatusStore.getState().changeStatus(WorkflowStatus.INVALID);
     }
 
-    useStatusStore.getState().setShouldShowInvalidNodes(false);
+    const conditionNodes = nodes.filter(node => node.type === 'conditionNode');
+    const nodesWithWarning: ProblematicNode[] = [];
+
+    conditionNodes.forEach(conditionNode => {
+      const unfulfilledConditionMapping: Record<string, Operator[]> = {};
+
+      (conditionNode.data.conditions as Condition[]).forEach(condition => {
+        const { parameter, value } = condition;
+
+        unfulfilledConditionMapping[`${parameter}${value}`] = Object.values(Operator);
+
+        conditionNodes.forEach(cN => {
+          const conditionWithSameParameterAndValue = (cN.data.conditions as Condition[])
+            .find(({ parameter: param, value: val }) => param === parameter && val === value);
+
+          if (!conditionWithSameParameterAndValue) return;
+
+          const { operator } = conditionWithSameParameterAndValue;
+
+          unfulfilledConditionMapping[`${parameter}${value}`] = unfulfilledConditionMapping[`${parameter}${value}`].filter(o => o !== operator);
+        });
+      });
+
+      if (Object.values(unfulfilledConditionMapping).find(unfulfilledOperators => unfulfilledOperators.length > 0)) {
+        nodesWithWarning.push({
+          id: conditionNode.id,
+          status: WorkflowStatus.WARNING,
+          message: 'There are unhandled conditions.',
+        });
+      }
+    });
+
+    if (nodesWithWarning.length > 0) {
+      useStatusStore.getState().setShouldShowInvalidNodes(false);
+      useStatusStore.getState().setProblematicNodes(nodesWithWarning);
+
+      return useStatusStore.getState().changeStatus(WorkflowStatus.WARNING);
+    }
+
     useStatusStore.getState().setProblematicNodes([]);
     useStatusStore.getState().changeStatus(WorkflowStatus.VALID);
   }, 100);

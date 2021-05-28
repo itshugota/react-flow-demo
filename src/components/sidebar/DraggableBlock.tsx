@@ -1,9 +1,12 @@
 import React, { useEffect, useState } from 'react';
+import { useSnackbar } from 'notistack';
 import { makeStyles } from '@material-ui/core/styles';
 import Typography from '@material-ui/core/Typography';
 import DragIndicatorIcon from '@material-ui/icons/DragIndicator';
 
-import { useReactFlowyStore, eventPointToCanvasCoordinates, getCanvas, getReactFlowyElement, isPointInRect, Node, transformSelector, snapPointToGrid, snapGridSelector } from 'react-flowy/lib';
+import { useReactFlowyStore, eventPointToCanvasCoordinates, getCanvas, getReactFlowyElement, isPointInRect, Node, transformSelector, snapPointToGrid, snapGridSelector, nodesSelector } from 'react-flowy/lib';
+import { Operator } from '../nodes/ConditionNode/Condition.interface';
+import { useRef } from 'react';
 
 const useStyles = makeStyles(theme => ({
   root: {
@@ -57,14 +60,30 @@ export interface DraggableBlockProps {
   nodeType: string;
 }
 
+export type NodeDropValidator = (nodes: Node[], droppableNode: Node) => boolean; 
+
+export const nodeDropValidators: Record<string, NodeDropValidator> = {};
+
+export const registerNodeDropValidator = (nodeType: string) => (nodeDropValidator: NodeDropValidator) => {
+  nodeDropValidators[nodeType] = nodeDropValidator;
+};
+
 const DraggableBlock: React.FC<DraggableBlockProps> = ({ Icon, DragShell, name, description, nodeType }) => {
   const classes = useStyles();
+  const { enqueueSnackbar } = useSnackbar();
+  const nodes = useRef<Node[]>([]);
   const transform = useReactFlowyStore(transformSelector);
   const snapGrid = useReactFlowyStore(snapGridSelector);
   const upsertNode = useReactFlowyStore(state => state.upsertNode);
   const [isGrabbing, setIsGrabbing] = useState(false);
   const [dragX, setDragX] = useState(0);
   const [dragY, setDragY] = useState(0);
+
+  useEffect(() => {
+    useReactFlowyStore.subscribe(nodesFromStore => {
+      nodes.current = nodesFromStore;
+    }, nodesSelector);
+  }, []);
 
   useEffect(() => {
     if (!isGrabbing) return;
@@ -103,6 +122,20 @@ const DraggableBlock: React.FC<DraggableBlockProps> = ({ Icon, DragShell, name, 
       type: nodeType,
       position: cursorCoordinates,
     };
+
+    if (nodeType === 'conditionNode') {
+      newNode.data = {
+        conditions: [{
+          parameter: '@sys.geo_district',
+          operator: Operator.EQUAL,
+          value: 'NULL',
+        }],
+      };
+    }
+
+    if (typeof nodeDropValidators[nodeType] === 'function' && !nodeDropValidators[nodeType](nodes.current, newNode)) {
+      return enqueueSnackbar('Failed to insert node', { variant: 'error' });
+    }
 
     upsertNode(newNode);
   };
