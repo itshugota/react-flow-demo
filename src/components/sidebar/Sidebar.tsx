@@ -1,8 +1,11 @@
 import React from 'react';
 import Drawer from '@material-ui/core/Drawer';
 import Typography from '@material-ui/core/Typography';
+import Button from '@material-ui/core/Button';
 import InputIcon from '@material-ui/icons/Input';
 import FlashOnIcon from '@material-ui/icons/FlashOn';
+import HelpIcon from '@material-ui/icons/Help';
+import ExitToAppIcon from '@material-ui/icons/ExitToApp';
 import { makeStyles } from '@material-ui/core/styles';
 import CallMergeReverseIcon from '../icons/CallMergeReverse';
 import CallSplitReverseIcon from '../icons/CallSplitReverse';
@@ -24,7 +27,7 @@ const useStyles = makeStyles(theme => ({
     }
   },
   drawerPaper: {
-    width: SIDEBAR_WIDTH - theme.spacing(2) * 2,
+    width: SIDEBAR_WIDTH,
     border: 'none',
     boxShadow: theme.shadows[6],
     padding: theme.spacing(2)
@@ -36,7 +39,40 @@ const useStyles = makeStyles(theme => ({
     fontWeight: 500
   },
   draggableBlocks: {
-    marginTop: theme.spacing(3)
+    marginTop: theme.spacing(3),
+    flexGrow: 1,
+  },
+  footer: {
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
+  userGuideButton: {
+    display: 'flex',
+    alignItems: 'center',
+    border: 'none',
+    background: 'none',
+    cursor: 'pointer',
+    color: theme.palette.primary.main,
+    fontSize: 14,
+    fontWeight: 500,
+    transition: 'color 0.3s ease-in',
+    '& .MuiSvgIcon-root': {
+      color: theme.palette.grey[700],
+      marginRight: theme.spacing(0.75),
+      transition: 'color 0.3s ease-in',
+    },
+    '&:hover': {
+      color: theme.palette.primary.dark,
+      '& .MuiSvgIcon-root': {
+        color: theme.palette.grey[800],
+      }
+    }
+  },
+  exitButton: {
+    '& .MuiSvgIcon-root': {
+      marginRight: theme.spacing(0.75)
+    }
   }
 }));
 
@@ -93,6 +129,16 @@ const Sidebar = () => {
             <DraggableBlock key={name} Icon={Icon} DragShell={DragShell} name={name} description={description} nodeType={nodeType} />
           ))}
         </section>
+        <footer className={classes.footer}>
+          <button className={classes.userGuideButton}>
+            <HelpIcon />
+            User Guide
+          </button>
+          <Button color="primary" className={classes.exitButton}>
+            <ExitToAppIcon />
+            Exit
+          </Button>
+        </footer>
       </Drawer>
     </>
   );

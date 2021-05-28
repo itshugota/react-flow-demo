@@ -13,7 +13,7 @@ import FullscreenExitIcon from '@material-ui/icons/FullscreenExit';
 import ExitToAppIcon from '@material-ui/icons/ExitToApp';
 import { transformSelector, useReactFlowyStore, initializeUndoRedo, useUndoRedoStore, minZoomSelector, maxZoomSelector } from 'react-flowy/lib';
 import ValidIndicator from '../icons/ValidIndicator';
-import StatusIndicator from './StatusIndicator';
+import StatusIndicator from './StatusIndicator/StatusIndicator';
 
 const useStyles = makeStyles(theme => ({
   root: {
@@ -55,7 +55,7 @@ const useStyles = makeStyles(theme => ({
     outline: 'none',
     fontSize: 14,
     fontWeight: 500,
-    width: 35
+    width: 60
   }
 }));
 

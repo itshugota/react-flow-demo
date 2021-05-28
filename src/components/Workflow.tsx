@@ -24,6 +24,7 @@ import ReactFlowy, {
   Edge,
 } from 'react-flowy/lib';
 import Toolbar from './toolbar/Toolbar';
+import EdgeWithContextMenu from './edges/EdgeWithContextMenu';
 
 const nodeTypes = {
   startNode: StartNode,
@@ -34,7 +35,7 @@ const nodeTypes = {
 };
 
 const edgeTypes = {
-  standardEdge: StandardEdge,
+  standardEdge: EdgeWithContextMenu,
 };
 
 const graphElements: Elements = [

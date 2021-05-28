@@ -4,6 +4,8 @@ import Paper from '@material-ui/core/Paper';
 import CallSplitReverse from '../../icons/CallSplitReverse';
 import ExtendedNodeContainer from '../NodeContainer/NodeContainer';
 import { NodeComponentProps } from 'react-flowy/lib/components/Nodes/wrapNode';
+import { useStatusStore, WorkflowStatus } from '../../../store/status.store';
+import ProblemPopover from '../../problemPopover/ProblemPopover';
 
 const useStyles = makeStyles(theme => ({
   container: {
@@ -23,6 +25,8 @@ const useStyles = makeStyles(theme => ({
 
 const StartNode: React.FC<NodeComponentProps> = ({ children, ...node }) => {
   const classes = useStyles();
+  const shouldShowInvalidNodes = useStatusStore(state => state.shouldShowInvalidNodes);
+  const problematicNode = useStatusStore(state => state.problematicNodes.find(pN => pN.id === node.id));
 
   return (
     <ExtendedNodeContainer node={node}>
@@ -30,6 +34,7 @@ const StartNode: React.FC<NodeComponentProps> = ({ children, ...node }) => {
         <Paper className={classes.container} elevation={4}>
           <CallSplitReverse />
         </Paper>
+        {shouldShowInvalidNodes && problematicNode && <ProblemPopover status={problematicNode.status} message={problematicNode.message} />}
       </div>
     </ExtendedNodeContainer>
   );

@@ -3,9 +3,13 @@ import IconButton from '@material-ui/core/IconButton';
 import Popover from '@material-ui/core/Popover';
 import { makeStyles } from '@material-ui/core/styles';
 
-import { useStatusStore, WorkflowStatus } from '../../store/status.store';
-import ValidIndicator from '../icons/ValidIndicator';
-import InvalidIndicator from '../icons/InvalidIndicator';
+import { useStatusStore, WorkflowStatus } from '../../../store/status.store';
+import ValidIndicator from '../../icons/ValidIndicator';
+import InvalidIndicator from '../../icons/InvalidIndicator';
+import ValidStatusPopoverContent from './ValidStatusPopoverContent';
+import InvalidStatusPopoverContent from './InvalidStatusPopoverContent';
+import WarningStatusPopoverContent from './WarningStatusPopoverContent';
+import WarningIndicator from '../../icons/WarningIndicator';
 
 const useStyles = makeStyles(theme => ({
   statusIndicatorButton: {
@@ -35,6 +39,7 @@ const StatusIndicator = () => {
       <IconButton className={classes.statusIndicatorButton} onClick={handleOpenPopover}>
         {status === WorkflowStatus.VALID && <ValidIndicator />}
         {status === WorkflowStatus.INVALID && <InvalidIndicator />}
+        {status === WorkflowStatus.WARNING && <WarningIndicator />}
       </IconButton>
       <Popover
         open={!!anchorEl}
@@ -48,7 +53,11 @@ const StatusIndicator = () => {
           vertical: 'top',
           horizontal: 'center',
         }}
-      />
+      >
+        {status === WorkflowStatus.VALID && <ValidStatusPopoverContent />}
+        {status === WorkflowStatus.INVALID && <InvalidStatusPopoverContent />}
+        {status === WorkflowStatus.WARNING && <WarningStatusPopoverContent />}
+      </Popover>
     </>
   );
 };

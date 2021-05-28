@@ -1,9 +1,12 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
+import Menu from '@material-ui/core/Menu';
+import MenuItem from '@material-ui/core/MenuItem';
 import IconButton from '@material-ui/core/IconButton';
 import Typography from '@material-ui/core/Typography';
 import InputIcon from '@material-ui/icons/Input';
 import MoreHorizIcon from '@material-ui/icons/MoreHoriz';
+import { Node, useReactFlowyStore } from 'react-flowy/lib';
 
 const useStyles = makeStyles(theme => ({
   header: {
@@ -31,16 +34,46 @@ const useStyles = makeStyles(theme => ({
   },
 }));
 
-const IntentNodeHeader = () => {
+interface IntentNodeHeaderProps {
+  node?: Node;
+}
+
+const IntentNodeHeader: React.FC<IntentNodeHeaderProps> = ({ node }) => {
   const classes = useStyles();
+  const deleteElementById = useReactFlowyStore(state => state.deleteElementById);
+  const [anchorEl, setAnchorEl] = useState<Element | null>(null);
+
+  const handleOpenMenu = (event: React.MouseEvent) => {
+    setAnchorEl(event.currentTarget);
+  };
+
+  const handleCloseMenu = () => {
+    setAnchorEl(null);
+  };
+
+  const handleDelete = () => {
+    handleCloseMenu();
+
+    if (node) deleteElementById(node.id);
+  };
 
   return (
     <header className={classes.header}>
       <InputIcon className={classes.leadingIcon} />
       <Typography className={classes.title} variant="h3">Intent</Typography>
-      <IconButton className={classes.moreOptionsButton} aria-label="more options">
+      <IconButton className={classes.moreOptionsButton} aria-label="more options" onClick={handleOpenMenu}>
         <MoreHorizIcon />
       </IconButton>
+      <Menu
+        anchorEl={anchorEl}
+        keepMounted
+        open={Boolean(anchorEl)}
+        onClose={handleCloseMenu}
+      >
+        <MenuItem onClick={handleDelete}>
+          Delete
+        </MenuItem>
+      </Menu>
     </header>
   )
 };

@@ -3,7 +3,7 @@ import { makeStyles } from '@material-ui/core/styles';
 import Typography from '@material-ui/core/Typography';
 import DragIndicatorIcon from '@material-ui/icons/DragIndicator';
 
-import { useReactFlowyStore, eventPointToCanvasCoordinates, getCanvas, getReactFlowyElement, isPointInRect, Node, transformSelector } from 'react-flowy/lib';
+import { useReactFlowyStore, eventPointToCanvasCoordinates, getCanvas, getReactFlowyElement, isPointInRect, Node, transformSelector, snapPointToGrid, snapGridSelector } from 'react-flowy/lib';
 
 const useStyles = makeStyles(theme => ({
   root: {
@@ -60,6 +60,7 @@ export interface DraggableBlockProps {
 const DraggableBlock: React.FC<DraggableBlockProps> = ({ Icon, DragShell, name, description, nodeType }) => {
   const classes = useStyles();
   const transform = useReactFlowyStore(transformSelector);
+  const snapGrid = useReactFlowyStore(snapGridSelector);
   const upsertNode = useReactFlowyStore(state => state.upsertNode);
   const [isGrabbing, setIsGrabbing] = useState(false);
   const [dragX, setDragX] = useState(0);
@@ -90,12 +91,12 @@ const DraggableBlock: React.FC<DraggableBlockProps> = ({ Icon, DragShell, name, 
     const reactFlowyElement = getReactFlowyElement();
     const reactFlowyElementBoundingRect = reactFlowyElement!.getBoundingClientRect();
     const cursorPosition = { x: e.clientX, y: e.clientY };
-    
+
     if (!isPointInRect(cursorPosition, reactFlowyElementBoundingRect)) return;
-    
+
     const canvas = getCanvas(transform);
 
-    const cursorCoordinates = eventPointToCanvasCoordinates(e)(canvas);
+    const cursorCoordinates = snapPointToGrid(eventPointToCanvasCoordinates(e)(canvas), snapGrid);
 
     const newNode: Node = {
       id: `x${cursorPosition.x}y${cursorPosition.y}`,

@@ -7,6 +7,7 @@ import MenuItem from '@material-ui/core/MenuItem';
 import FlashOnIcon from '@material-ui/icons/FlashOn';
 import MoreHorizIcon from '@material-ui/icons/MoreHoriz';
 import DeleteIcon from '@material-ui/icons/Delete';
+import { Node, useReactFlowyStore } from 'react-flowy/lib';
 
 const useStyles = makeStyles(theme => ({
   header: {
@@ -34,8 +35,13 @@ const useStyles = makeStyles(theme => ({
   }
 }));
 
-const ActionNodeHeader = () => {
+interface ActionNodeHeaderProps {
+  node?: Node;
+}
+
+const ActionNodeHeader: React.FC<ActionNodeHeaderProps> = ({ node }) => {
   const classes = useStyles();
+  const deleteElementById = useReactFlowyStore(state => state.deleteElementById);
   const [anchorEl, setAnchorEl] = useState<Element | null>(null);
 
   const handleOpenMenu = (event: React.MouseEvent) => {
@@ -44,6 +50,12 @@ const ActionNodeHeader = () => {
 
   const handleCloseMenu = () => {
     setAnchorEl(null);
+  };
+
+  const handleDelete = () => {
+    handleCloseMenu();
+
+    if (node) deleteElementById(node.id);
   };
 
   return (
@@ -59,8 +71,7 @@ const ActionNodeHeader = () => {
         open={Boolean(anchorEl)}
         onClose={handleCloseMenu}
       >
-        <MenuItem onClick={handleCloseMenu}>
-          <DeleteIcon />
+        <MenuItem onClick={handleDelete}>
           Delete
         </MenuItem>
       </Menu>

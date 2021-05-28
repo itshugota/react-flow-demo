@@ -4,6 +4,8 @@ import Paper from '@material-ui/core/Paper';
 import CallMergeReverse from '../../icons/CallMergeReverse';
 import { NodeComponentProps } from 'react-flowy/lib/components/Nodes/wrapNode';
 import ExtendedNodeContainer from '../NodeContainer/NodeContainer';
+import { useStatusStore } from '../../../store/status.store';
+import ProblemPopover from '../../problemPopover/ProblemPopover';
 
 const useStyles = makeStyles(theme => ({
   container: {
@@ -23,6 +25,8 @@ const useStyles = makeStyles(theme => ({
 
 const TerminateNode: React.FC<NodeComponentProps> = ({ children, ...node }) => {
   const classes = useStyles();
+  const shouldShowInvalidNodes = useStatusStore(state => state.shouldShowInvalidNodes);
+  const problematicNode = useStatusStore(state => state.problematicNodes.find(pN => pN.id === node.id));
 
   return (
     <ExtendedNodeContainer node={node} isHandleDisabled>
@@ -30,6 +34,7 @@ const TerminateNode: React.FC<NodeComponentProps> = ({ children, ...node }) => {
         <Paper className={classes.container} elevation={4}>
           <CallMergeReverse />
         </Paper>
+        {shouldShowInvalidNodes && problematicNode && <ProblemPopover status={problematicNode.status} message={problematicNode.message} />}
       </div>
     </ExtendedNodeContainer>
   );
