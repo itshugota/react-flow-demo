@@ -27,7 +27,7 @@ const IntentNode: React.FC<NodeComponentProps> = ({ children, ...node }) => {
       <Paper className={classes.container} elevation={4}>
         <div className={node.isSelected ? classes.selected : ''}>
           <IntentNodeHeader node={node} />
-          <IntentNodeBody intent={node.data?.intent || ''} />
+          <IntentNodeBody node={node} />
         </div>
         {shouldShowInvalidNodes && problematicNode && <ProblemPopover status={problematicNode.status} message={problematicNode.message} />}
       </Paper>

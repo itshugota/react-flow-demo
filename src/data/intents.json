@@ -1,0 +1,18 @@
+[
+  {
+    "id": "intent-0",
+    "name": "Điều kiện vay vốn"
+  },
+  {
+    "id": "intent-1",
+    "name": "Điều kiện vay vốn (context vay)"
+  },
+  {
+    "id": "intent-2",
+    "name": "Điều kiện vay vốn (context mục đích vay)"
+  },
+  {
+    "id": "intent-3",
+    "name": "Điều kiện vay vốn (context hình thức cho vay)"
+  }
+]

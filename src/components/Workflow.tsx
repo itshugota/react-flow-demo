@@ -49,7 +49,7 @@ const graphElements: Elements = [
     id: '1',
     type: 'intentNode',
     data: {
-      intent: 'ATM Locations',
+      intent: 'intent-0',
     },
     position: {
       x: 80,
@@ -62,6 +62,7 @@ const graphElements: Elements = [
     data: {
       conditions: [
         {
+          parameterId: 'entity-0',
           parameter: '@sys.geo_district',
           operator: '!=',
           value: 'NULL',
@@ -77,7 +78,7 @@ const graphElements: Elements = [
     id: '3',
     type: 'actionNode',
     data: {
-      action: 'ATM Locations',
+      action: 'action-0',
     },
     position: {
       x: 1120,
@@ -131,17 +132,18 @@ const Workflow = () => {
   }
 
   const handleLoad: ReactFlowyProps['onLoad'] = (reactFlowInstance) => {
-    console.log(reactFlowInstance.toObject());
-    setElements(graphElements);
+    const savedElements = JSON.parse(localStorage.getItem('elements') || '[]');
+
+    setElements(savedElements.length > 0 ? savedElements : graphElements);
 
     registerNodeValidator('intentNode')((sourceNode, targetNode) => {
       if (targetNode.id === sourceNode.id || targetNode.type === 'terminateNode' || targetNode.type === 'startNode')
         return { isValid: false, reason: 'Invalid target node' };
 
       const outcomingEdges = getOutEdges(sourceNode).filter(edge => edge.target !== targetNode.id);
-      const firstConnectedNode = nodes.current.find(node => node.id === outcomingEdges[0].target);
+      const firstConnectedNode = outcomingEdges.length > 0 ? nodes.current.find(node => node.id === outcomingEdges[0]?.target) : null;
 
-      if ((firstConnectedNode?.type === 'conditionNode' && targetNode.type !== 'conditionNode') ||
+      if (firstConnectedNode && (firstConnectedNode?.type === 'conditionNode' && targetNode.type !== 'conditionNode') ||
         (firstConnectedNode?.type === 'actionNode')
       )
         return { isValid: false, reason: 'There is already a connected edge' };

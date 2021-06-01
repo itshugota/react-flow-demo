@@ -1,10 +1,6 @@
-export enum Operator {
-  EQUAL = '=',
-  UNEQUAL = '!=',
-}
-
 export interface Condition {
+  parameterId: string; 
   parameter: string;
-  operator: Operator;
+  operator: string;
   value: string;
 }

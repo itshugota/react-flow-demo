@@ -1,6 +1,8 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
-import FilledInput from '../../ui/FilledInput/FilledInput';
+import Autocomplete from '../../ui/Autocomplete/Autocomplete';
+import actions from '../../../data/actions.json';
+import { Node, useReactFlowyStore } from 'react-flowy/lib';
 
 const useStyles = makeStyles(theme => ({
   main: {
@@ -11,17 +13,31 @@ const useStyles = makeStyles(theme => ({
 }));
 
 export interface ActionNodeBodyProps {
-  action: string;
+  node: Node;
 }
 
-const ActionNodeBody: React.FC<ActionNodeBodyProps> = ({ action }) => {
+const ActionNodeBody: React.FC<ActionNodeBodyProps> = ({ node }) => {
   const classes = useStyles();
+  const upsertNode = useReactFlowyStore(state => state.upsertNode);
+
+  const handleActionChange = (newActionId: string) => {
+    if (node.data.action === newActionId) return;
+
+    const newNode = { ...node, data: { ...node.data, action: newActionId }};
+
+    upsertNode(newNode);
+  };
 
   return (
     <main className={classes.main}>
-      <form>
-        <FilledInput placeholder="Action" value={action} />
-      </form>
+      <Autocomplete
+        options={actions}
+        getOptionKey={option => option.id}
+        getOptionLabel={option => option.name}
+        value={node.data.action}
+        onChange={handleActionChange}
+        placeholder="Action"
+      />
     </main>
   )
 };

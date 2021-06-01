@@ -25,7 +25,7 @@ const ActionNode: React.FC<NodeComponentProps> = ({ children, ...node }) => {
       <Paper className={classes.container} elevation={4}>
         <div className={node.isSelected ? classes.selected : ''}>
           <ActionNodeHeader node={node} />
-          <ActionNodeBody action={node.data?.action || ''} />
+          <ActionNodeBody node={node} />
         </div>
         {shouldShowInvalidNodes && problematicNode && <ProblemPopover status={problematicNode.status} message={problematicNode.message} />}
       </Paper>

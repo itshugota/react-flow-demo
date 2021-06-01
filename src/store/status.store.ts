@@ -1,6 +1,6 @@
 import { Node, getInEdges, getOutEdges, isNode, subscribeToFinalElementChanges } from 'react-flowy/lib';
 import create from 'zustand';
-import { Condition, Operator } from '../components/nodes/ConditionNode/Condition.interface';
+import { Condition } from '../components/nodes/ConditionNode/Condition.interface';
 
 export enum WorkflowStatus {
   VALID = 'valid',
@@ -62,6 +62,8 @@ subscribeToFinalElementChanges(elements => {
   if (batchUpdateTimeout) clearTimeout(batchUpdateTimeout);
 
   batchUpdateTimeout = window.setTimeout(() => {
+    localStorage.setItem('elements', JSON.stringify(elements));
+
     const nodes = elements.filter(element => isNode(element)) as Node[];
 
     const nodesWithNoOutgoingEdges = nodes.filter(node => {
@@ -101,12 +103,12 @@ subscribeToFinalElementChanges(elements => {
     const nodesWithWarning: ProblematicNode[] = [];
 
     conditionNodes.forEach(conditionNode => {
-      const unfulfilledConditionMapping: Record<string, Operator[]> = {};
+      const unfulfilledConditionMapping: Record<string, string[]> = {};
 
       (conditionNode.data.conditions as Condition[]).forEach(condition => {
         const { parameter, value } = condition;
 
-        unfulfilledConditionMapping[`${parameter}${value}`] = Object.values(Operator);
+        unfulfilledConditionMapping[`${parameter}${value}`] = ['=', '!='];
 
         conditionNodes.forEach(cN => {
           const conditionWithSameParameterAndValue = (cN.data.conditions as Condition[])

@@ -1,6 +1,8 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
-import FilledInput from '../../ui/FilledInput/FilledInput';
+import Autocomplete from '../../ui/Autocomplete/Autocomplete';
+import intents from '../../../data/intents.json';
+import { Node, useReactFlowyStore } from 'react-flowy/lib';
 
 const useStyles = makeStyles(theme => ({
   main: {
@@ -11,17 +13,31 @@ const useStyles = makeStyles(theme => ({
 }));
 
 export interface IntentNodeBodyProps {
-  intent: string;
+  node: Node;
 }
 
-const IntentNodeBody: React.FC<IntentNodeBodyProps> = ({ intent }) => {
+const IntentNodeBody: React.FC<IntentNodeBodyProps> = ({ node }) => {
   const classes = useStyles();
+  const upsertNode = useReactFlowyStore(state => state.upsertNode);
+
+  const handleActionChange = (newIntentId: string) => {
+    if (node.data.intent === newIntentId) return;
+
+    const newNode = { ...node, data: { ...node.data, intent: newIntentId }};
+
+    upsertNode(newNode);
+  };
 
   return (
     <main className={classes.main}>
-      <form>
-        <FilledInput placeholder="Intent" value={intent} />
-      </form>
+      <Autocomplete
+        options={intents}
+        getOptionKey={option => option.id}
+        getOptionLabel={option => option.name}
+        value={node.data.intent}
+        onChange={handleActionChange}
+        placeholder="Intent"
+      />
     </main>
   )
 };

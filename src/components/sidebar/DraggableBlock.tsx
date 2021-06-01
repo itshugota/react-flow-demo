@@ -5,7 +5,6 @@ import Typography from '@material-ui/core/Typography';
 import DragIndicatorIcon from '@material-ui/icons/DragIndicator';
 
 import { useReactFlowyStore, eventPointToCanvasCoordinates, getCanvas, getReactFlowyElement, isPointInRect, Node, transformSelector, snapPointToGrid, snapGridSelector, nodesSelector } from 'react-flowy/lib';
-import { Operator } from '../nodes/ConditionNode/Condition.interface';
 import { useRef } from 'react';
 
 const useStyles = makeStyles(theme => ({
@@ -123,14 +122,12 @@ const DraggableBlock: React.FC<DraggableBlockProps> = ({ Icon, DragShell, name, 
       position: cursorCoordinates,
     };
 
-    if (nodeType === 'conditionNode') {
-      newNode.data = {
-        conditions: [{
-          parameter: '@sys.geo_district',
-          operator: Operator.EQUAL,
-          value: 'NULL',
-        }],
-      };
+    if (nodeType === 'actionNode') {
+      newNode.data = { action: '' };
+    } else if (nodeType === 'intentNode') {
+      newNode.data = { intent: '' };
+    } else if (nodeType === 'conditionNode') {
+      newNode.data = { conditions: [] };
     }
 
     if (typeof nodeDropValidators[nodeType] === 'function' && !nodeDropValidators[nodeType](nodes.current, newNode)) {

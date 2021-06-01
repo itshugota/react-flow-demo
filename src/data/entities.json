@@ -1,0 +1,17 @@
+[
+  {
+    "id": "entity-0",
+    "parameter": "@sys.geo_district",
+    "values": ["NULL"]
+  },
+  {
+    "id": "entity-1",
+    "parameter": "Hình thức cho vay",
+    "values": ["vay_the_chap", "vay_tin_chap", "vay_cam_co_GTCG"]
+  },
+  {
+    "id": "entity-2",
+    "parameter": "Mục đích cho vay",
+    "values": ["vay_mua_xe", "vay_mua_bds", "vay_kinh_doanh", "vay_tieu_dung"]
+  }
+]

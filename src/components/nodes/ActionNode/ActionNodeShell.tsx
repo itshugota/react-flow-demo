@@ -3,6 +3,7 @@ import { makeStyles } from '@material-ui/core/styles';
 import Paper from '@material-ui/core/Paper';
 import ActionNodeHeader from './ActionNodeHeader';
 import ActionNodeBody from './ActionNodeBody';
+import { Node } from 'react-flowy/lib';
 
 const useStyles = makeStyles(() => ({
   container: {},
@@ -11,10 +12,18 @@ const useStyles = makeStyles(() => ({
 const ActionNodeShell: React.FC = () => {
   const classes = useStyles();
 
+  const shellNode: Node = {
+    id: '?',
+    position: { x: 0, y: 0 },
+    data: {
+      action: '',
+    },
+  };
+
   return (
     <Paper className={classes.container} elevation={4}>
       <ActionNodeHeader />
-      <ActionNodeBody action="" />
+      <ActionNodeBody node={shellNode} />
     </Paper>
   );
 };

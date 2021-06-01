@@ -1,0 +1,14 @@
+[
+  {
+    "id": "action-0",
+    "name": "Xác nhận mục đích cho vay"
+  },
+  {
+    "id": "action-1",
+    "name": "Xác nhận hình thức cho vay"
+  },
+  {
+    "id": "action-2",
+    "name": "Điều kiện vay vốn"
+  }
+]
