@@ -9,6 +9,7 @@ import { createMuiTheme, ThemeProvider } from '@material-ui/core/styles';
 
 import './App.css'
 import Sidebar from './components/sidebar/Sidebar';
+// @ts-ignore
 import Workflow from './components/Workflow';
 
 const theme = createMuiTheme({

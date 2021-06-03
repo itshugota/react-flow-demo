@@ -14,5 +14,9 @@
   {
     "id": "intent-3",
     "name": "Điều kiện vay vốn (context hình thức cho vay)"
+  },
+  {
+    "id": "intent-4",
+    "name": "Vị trí ATM"
   }
 ]

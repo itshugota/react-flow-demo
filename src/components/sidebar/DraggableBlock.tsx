@@ -120,6 +120,7 @@ const DraggableBlock: React.FC<DraggableBlockProps> = ({ Icon, DragShell, name, 
       id: `x${cursorPosition.x}y${cursorPosition.y}`,
       type: nodeType,
       position: cursorCoordinates,
+      shapeType: 'rectangle',
     };
 
     if (nodeType === 'actionNode') {
@@ -128,6 +129,8 @@ const DraggableBlock: React.FC<DraggableBlockProps> = ({ Icon, DragShell, name, 
       newNode.data = { intent: '' };
     } else if (nodeType === 'conditionNode') {
       newNode.data = { conditions: [] };
+    } else if (nodeType === 'startNode' || nodeType === 'terminateNode') {
+      newNode.shapeType = 'circle'
     }
 
     if (typeof nodeDropValidators[nodeType] === 'function' && !nodeDropValidators[nodeType](nodes.current, newNode)) {

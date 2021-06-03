@@ -8,21 +8,18 @@ import TerminateNode from './nodes/TerminateNode/TerminateNode';
 
 import {
   DraggableReactFlowy,
-  ReactFlowyProps,
   BackgroundVariant,
   Background,
-  Elements,
   getSelectedElement,
   getOutEdges,
   useReactFlowyStore,
   nodesSelector,
   edgesSelector,
-  Node,
-  Edge,
 } from 'react-flowy/lib';
 import Toolbar from './toolbar/Toolbar';
-import EdgeWithContextMenu from './edges/EdgeWithContextMenu';
+import StandardEdgeWithContextMenu from './edges/StandardEdgeWithContextMenu';
 import { registerNodeDropValidator } from './sidebar/DraggableBlock';
+import LabelEdgeWithContextMenu from './edges/LabelEdgeWithContextMenu';
 
 const nodeTypes = {
   startNode: StartNode,
@@ -33,10 +30,11 @@ const nodeTypes = {
 };
 
 const edgeTypes = {
-  standardEdge: EdgeWithContextMenu,
+  standardEdge: StandardEdgeWithContextMenu,
+  labelEdge: LabelEdgeWithContextMenu,
 };
 
-const graphElements: Elements = [
+const graphElements = [
   {
     id: '0',
     type: 'startNode',
@@ -44,6 +42,7 @@ const graphElements: Elements = [
       x: 80,
       y: 80,
     },
+    shapeType: 'circle',
   },
   {
     id: '1',
@@ -55,6 +54,7 @@ const graphElements: Elements = [
       x: 80,
       y: 400,
     },
+    shapeType: 'rectangle',
   },
   {
     id: '2',
@@ -73,6 +73,7 @@ const graphElements: Elements = [
       x: 480,
       y: 200,
     },
+    shapeType: 'rectangle',
   },
   {
     id: '3',
@@ -84,6 +85,7 @@ const graphElements: Elements = [
       x: 1120,
       y: 200,
     },
+    shapeType: 'rectangle',
   },
   {
     id: '4',
@@ -92,12 +94,13 @@ const graphElements: Elements = [
       x: 640,
       y: 600,
     },
+    shapeType: 'circle',
   },
 ];
 
 const Workflow = () => {
-  const nodes = useRef<Node[]>([]);
-  const edges = useRef<Edge[]>([]);
+  const nodes = useRef([]);
+  const edges = useRef([]);
   const unselectAllElements = useReactFlowyStore(state => state.unselectAllElements);
   const deleteElementById = useReactFlowyStore(state => state.deleteElementById);
   const registerNodeValidator = useReactFlowyStore(state => state.registerNodeValidator);
@@ -119,7 +122,7 @@ const Workflow = () => {
     return () => document.removeEventListener('keyup', handleKeyUp);
   }, []);
 
-  const handleKeyUp = (e: KeyboardEvent) => {
+  const handleKeyUp = e => {
     if (e.key === 'Escape') return unselectAllElements();
 
     if (e.key === 'Delete') {
@@ -131,7 +134,7 @@ const Workflow = () => {
     }
   }
 
-  const handleLoad: ReactFlowyProps['onLoad'] = (reactFlowInstance) => {
+  const handleLoad = (reactFlowInstance) => {
     const savedElements = JSON.parse(localStorage.getItem('elements') || '[]');
 
     setElements(savedElements.length > 0 ? savedElements : graphElements);
@@ -155,6 +158,12 @@ const Workflow = () => {
       if (targetNode.id === sourceNode.id || targetNode.type === 'terminateNode' || targetNode.type === 'startNode' || targetNode.type === 'intentNode')
         return { isValid: false, reason: 'Invalid target node' };
 
+      const outcomingEdges = getOutEdges(sourceNode);
+
+      if (outcomingEdges.length > 2) {
+        return { isValid: false, reason: 'A condition node can only have two outcoming edges' };
+      }
+
       return { isValid: true };
     });
 
@@ -172,9 +181,6 @@ const Workflow = () => {
       if (targetNode.id === sourceNode.id || targetNode.type === 'terminateNode' || targetNode.type === 'conditionNode')
         return { isValid: false, reason: 'Invalid target node' };
 
-      if (getOutEdges(sourceNode).length > 1)
-        return { isValid: false, reason: 'There is already a connected edge' };
-
       return { isValid: true };
     });
 
@@ -191,7 +197,7 @@ const Workflow = () => {
     });
   };
 
-  const handleBackgroundClick = (e: React.MouseEvent) => {
+  const handleBackgroundClick = e => {
     unselectAllElements();
   }
 

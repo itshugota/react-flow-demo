@@ -1,17 +1,17 @@
 import React, { useState } from 'react';
 import Menu from '@material-ui/core/Menu';
 import MenuItem from '@material-ui/core/MenuItem';
-import { EdgeProps, StandardEdge, useReactFlowyStore, getSourceAndTargetNodes, connectRectangles, getRectangleFromNode } from 'react-flowy/lib';
+import { useReactFlowyStore, getSourceAndTargetNodes, connectShapes, getRectangleFromNode } from 'react-flowy/lib';
 
-export default React.memo(
-  (edgeProps: EdgeProps) => {
+const EdgeWithContextMenu = React.memo(
+  ({ edgeProps, EdgeComponent }) => {
     const setSelectedElementById = useReactFlowyStore(state => state.setSelectedElementById);
     const deleteElementById = useReactFlowyStore(state => state.deleteElementById);
     const upsertEdge = useReactFlowyStore(state => state.upsertEdge);
-    const [mouseX, setMouseX] = useState<number | null>(null);
-    const [mouseY, setMouseY] = useState<number | null>(null);
+    const [mouseX, setMouseX] = useState(null);
+    const [mouseY, setMouseY] = useState(null);
 
-    const handleContextMenu = (event: React.MouseEvent) => {
+    const handleContextMenu = event => {
       event.preventDefault();
 
       setSelectedElementById(edgeProps.id);
@@ -30,10 +30,10 @@ export default React.memo(
 
       const { sourceNode, targetNode } = getSourceAndTargetNodes(edgeProps);
 
-      const sourceRectangle = getRectangleFromNode(sourceNode!);
-      const targetRectangle = getRectangleFromNode(targetNode!);
-      
-      const resetEdgeWaypoints = connectRectangles(sourceRectangle, targetRectangle);
+      const sourceRectangle = getRectangleFromNode(sourceNode);
+      const targetRectangle = getRectangleFromNode(targetNode);
+
+      const resetEdgeWaypoints = connectShapes(sourceRectangle, targetRectangle, 'rectangle', 'rectangle');
 
       upsertEdge({ ...edgeProps, waypoints: resetEdgeWaypoints });
     };
@@ -47,7 +47,7 @@ export default React.memo(
     return (
       <>
         <g onContextMenu={handleContextMenu}>
-          <StandardEdge {...edgeProps} />
+          <EdgeComponent {...edgeProps} />
         </g>
         <Menu
           open={!!mouseX && !!mouseY}
@@ -66,3 +66,5 @@ export default React.memo(
     );
   }
 );
+
+export default EdgeWithContextMenu;

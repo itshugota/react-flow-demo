@@ -1,16 +1,18 @@
 import React from 'react';
-import { Node, NodeContainer } from 'react-flowy/lib';
+import { Edge, Node, NodeContainer } from 'react-flowy/lib';
 import Tooltip from '@material-ui/core/Tooltip';
 
 export interface NodeContainerProps {
   node: Node;
+  additionalEdgeProps?: Partial<Edge>;
   isHandleDisabled?: boolean;
 }
 
-const ExtendedNodeContainer: React.FC<NodeContainerProps> = React.memo(({ children, node, isHandleDisabled }) => {
+const ExtendedNodeContainer: React.FC<NodeContainerProps> = React.memo(({ children, node, isHandleDisabled, additionalEdgeProps }) => {
   return (
     <NodeContainer
       node={node}
+      additionalEdgeProps={additionalEdgeProps}
       isHandleDisabled={isHandleDisabled}
       TopHandleIndicator={HandleIndicator}
       RightHandleIndicator={HandleIndicator}

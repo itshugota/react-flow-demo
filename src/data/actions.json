@@ -10,5 +10,13 @@
   {
     "id": "action-2",
     "name": "Điều kiện vay vốn"
+  },
+  {
+    "id": "action-3",
+    "name": "Xin lỗi"
+  },
+  {
+    "id": "action-4",
+    "name": "Vị trí ATM"
   }
 ]
