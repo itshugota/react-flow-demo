@@ -18,6 +18,7 @@ const ActionNodeShell: React.FC = () => {
     data: {
       action: '',
     },
+    shapeType: 'rectangle',
   };
 
   return (

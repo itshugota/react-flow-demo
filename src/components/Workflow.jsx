@@ -15,11 +15,17 @@ import {
   useReactFlowyStore,
   nodesSelector,
   edgesSelector,
+  registerGetDockingPointFunction,
+  registerIsPointInShapeFunction,
+  registerShapeAsTRBLFunction,
 } from 'react-flowy/lib';
 import Toolbar from './toolbar/Toolbar';
 import StandardEdgeWithContextMenu from './edges/StandardEdgeWithContextMenu';
 import { registerNodeDropValidator } from './sidebar/DraggableBlock';
 import LabelEdgeWithContextMenu from './edges/LabelEdgeWithContextMenu';
+import { getDockingPointForHexagon } from '../utils/docking';
+import { isPointInHexagon } from '../utils/shape';
+import { hexagonAsTRBL } from '../utils/trbl';
 
 const nodeTypes = {
   startNode: StartNode,
@@ -73,7 +79,11 @@ const graphElements = [
       x: 480,
       y: 200,
     },
-    shapeType: 'rectangle',
+    shapeType: 'hexagon',
+    shapeData: {
+      topPeakHeight: 70,
+      bottomPeakHeight: 70,
+    },
   },
   {
     id: '3',
@@ -97,6 +107,10 @@ const graphElements = [
     shapeType: 'circle',
   },
 ];
+
+registerGetDockingPointFunction('hexagon')(getDockingPointForHexagon);
+registerIsPointInShapeFunction('hexagon')(isPointInHexagon);
+registerShapeAsTRBLFunction('hexagon')(hexagonAsTRBL);
 
 const Workflow = () => {
   const nodes = useRef([]);

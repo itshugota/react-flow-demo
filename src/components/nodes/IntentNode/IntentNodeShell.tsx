@@ -20,6 +20,7 @@ const IntentNodeShell: React.FC = () => {
     data: {
       intent: '',
     },
+    shapeType: 'rectangle',
   };
 
   return (

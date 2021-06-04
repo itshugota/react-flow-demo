@@ -3,6 +3,7 @@ import { makeStyles } from '@material-ui/core/styles';
 import Paper from '@material-ui/core/Paper';
 import ConditionNodeHeader from './ConditionNodeHeader';
 import ConditionNodeBody from './ConditionNodeBody';
+import { Node } from 'react-flowy/lib';
 import { NodeComponentProps } from 'react-flowy/lib/components/Nodes/wrapNode';
 
 const useStyles = makeStyles(theme => ({
@@ -20,6 +21,7 @@ const ConditionNodeShell: React.FC<NodeComponentProps> = ({ children, ...node })
     data: {
       conditions: [],
     },
+    shapeType: 'hexagon',
   };
 
   return (

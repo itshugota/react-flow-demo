@@ -8,6 +8,7 @@ import { SnackbarProvider } from 'notistack';
 import { createMuiTheme, ThemeProvider } from '@material-ui/core/styles';
 
 import './App.css'
+// @ts-ignore
 import Sidebar from './components/sidebar/Sidebar';
 // @ts-ignore
 import Workflow from './components/Workflow';

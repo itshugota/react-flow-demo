@@ -14,21 +14,14 @@ const getFirstSegment = waypoints => {
   };
 };
 
-const getSecondSegment = waypoints => {
-  if (waypoints.length < 3) return null;
-
-  return {
-    sourceX: waypoints[1].x,
-    sourceY: waypoints[1].y,
-    targetX: waypoints[2].x,
-    targetY: waypoints[2].y,
-  };
-};
-
 const getSegmentDirection = segment => {
-  if (segment.targetX === segment.sourceX) return 'vertical';
+  if (segment.targetX === segment.sourceX) {
+    if (segment.targetY > segment.sourceY) return 'vertical-bottom';
+    if (segment.targetY < segment.sourceY) return 'vertical-top';
+  }
 
-  return 'horizontal';
+  if (segment.targetX > segment.sourceX) return 'horizontal-right';
+  if (segment.targetX < segment.sourceX) return 'horizontal-left';
 };
 
 export default React.memo(
@@ -49,17 +42,32 @@ export default React.memo(
 
     const firstSegment = getFirstSegment(waypoints);
     const firstSegmentDirection = getSegmentDirection(firstSegment);
-    const secondSegment = getSecondSegment(waypoints);
 
-    let textX = waypoints[0].x + 12;
-    let textY = firstSegmentDirection === 'vertical' ? waypoints[0].y + 24 : waypoints[0].y - 12;
+    let textX;
+    let textY;
 
-    if (secondSegment) {
-      if (firstSegmentDirection === 'horizontal' && secondSegment.sourceX <= textX + label.length * 12 && secondSegment.targetY < secondSegment.sourceY) {
-        textY = waypoints[0].y + 24;
-      } else if (firstSegmentDirection === 'vertical' && secondSegment.sourceY <= textY + 24) {
-        textX = waypoints[0].x - (label.length * 12);
+    switch (firstSegmentDirection) {
+      case 'vertical-top': {
+        textX = waypoints[0].x + 12;
+        textY = waypoints[0].y - 24;
+        break;
       }
+      case 'vertical-bottom': {
+        textX = waypoints[0].x + 12;
+        textY = waypoints[0].y + 24;
+        break;
+      }
+      case 'horizontal-left': {
+        textX = waypoints[0].x - 12 - label.length * 12;
+        textY = waypoints[0].y - 12;
+        break;
+      }
+      case 'horizontal-right': {
+        textX = waypoints[0].x + 12;
+        textY = waypoints[0].y - 12;
+        break;
+      }
+      default:
     }
 
     return (

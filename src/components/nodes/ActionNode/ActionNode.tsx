@@ -3,7 +3,7 @@ import { makeStyles } from '@material-ui/core/styles';
 import Paper from '@material-ui/core/Paper';
 import ActionNodeHeader from './ActionNodeHeader';
 import ActionNodeBody from './ActionNodeBody';
-import ExtendedNodeContainer from '../NodeContainer/NodeContainer';
+import ExtendedNodeContainer from '../NodeContainer/ExtendedNodeContainer';
 import { NodeComponentProps } from 'react-flowy/lib/components/Nodes/wrapNode';
 import ProblemPopover from '../../problemPopover/ProblemPopover';
 import { useStatusStore } from '../../../store/status.store';

@@ -6,7 +6,7 @@ import AddIcon from '@material-ui/icons/Add';
 
 import ConditionNodeHeader from './ConditionNodeHeader';
 import ConditionNodeBody from './ConditionNodeBody';
-import ExtendedNodeContainer from '../NodeContainer/NodeContainer';
+import ExtendedNodeContainer from '../NodeContainer/ExtendedNodeContainer';
 import { NodeComponentProps } from 'react-flowy/lib/components/Nodes/wrapNode';
 import ProblemPopover from '../../problemPopover/ProblemPopover';
 import { useStatusStore } from '../../../store/status.store';
@@ -85,7 +85,7 @@ const ConditionNode: React.FC<NodeComponentProps> = ({ children, ...node }) => {
   return (
     <ExtendedNodeContainer node={node} additionalEdgeProps={{ type: 'labelEdge', label: isThereOutcomigEdgeWithTrueLabel ? 'FALSE' : 'TRUE' }}>
       <Paper className={classes.container} elevation={0}>
-        <svg onMouseDown={e => {e.stopPropagation();console.log('stopped propagation')}} onMouseUp={e => e.stopPropagation()} onMouseMove={e => e.stopPropagation()} style={{ position: 'absolute', top: -69, left: 0 }} width="518" height="70" viewBox="0 0 518 70" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <svg onMouseDown={e => {e.stopPropagation();}} style={{ position: 'absolute', top: -69, left: 0 }} width="518" height="70" viewBox="0 0 518 70" fill="none" xmlns="http://www.w3.org/2000/svg">
           <path d="M259 0L518 70H0 0Z" fill="#ffffff" fillOpacity="1"/>
           <path d="M259 0L518 70H0 0Z" fill="#0fe8ac" fillOpacity="0.05"/>
         </svg>
