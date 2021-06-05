@@ -215,8 +215,6 @@ const Workflow = () => {
     unselectAllElements();
   };
 
-  console.log('wtf nodeTypes', nodeTypes);
-
   return <DraggableReactFlowy
     edgeTypes={edgeTypes}
     nodeTypes={nodeTypes}

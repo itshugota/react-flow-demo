@@ -1,7 +1,7 @@
 import React from 'react';
 import Tooltip from '@material-ui/core/Tooltip';
 import { NodeContainer } from 'react-flowy/lib';
-import ConditionHandles from '../../handles/ConditionHandles';
+import ConditionHandles, { ARROW_DISTANCE } from '../../handles/ConditionHandles';
 
 const ConditionNodeContainer = React.memo(({ children, node, isHandleDisabled, additionalEdgeProps }) => {
   return (
@@ -9,6 +9,7 @@ const ConditionNodeContainer = React.memo(({ children, node, isHandleDisabled, a
       node={node}
       additionalEdgeProps={additionalEdgeProps}
       isHandleDisabled={isHandleDisabled}
+      arrowDistance={ARROW_DISTANCE}
       Handles={ConditionHandles}
       TopHandleIndicator={HandleIndicator}
       RightHandleIndicator={HandleIndicator}

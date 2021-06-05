@@ -1,5 +1,5 @@
 import React, { useMemo } from 'react';
-import cc from 'classcat';
+import clsx from 'clsx';
 
 import { getMarkerEnd, getPathFromWaypoints, getRectangleFromNode, getSourceNode, isPointInShape, StandardEdgeController } from 'react-flowy/lib';
 
@@ -83,14 +83,12 @@ export default React.memo(
       <>
         <path
           style={style}
-          className={cc([
+          className={clsx(
             'react-flowy__edge-path',
-            {
-              'react-flowy__edge-path--forming': isForming,
-              'react-flowy__edge-path--selected': isSelected,
-              'react-flowy__edge-path--invalid': isInvalid,
-            }
-          ])}
+            isForming ? 'react-flowy__edge-path--forming' : '',
+            isSelected ? 'react-flowy__edge-path--selected' : '',
+            isInvalid ? 'react-flowy__edge-path--invalid' : '',
+          )}
           d={getPathFromWaypoints(waypoints)}
           markerEnd={isInvalid ? errorMarkerEnd : markerEnd}
         />

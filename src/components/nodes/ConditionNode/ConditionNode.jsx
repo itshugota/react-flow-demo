@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useRef, useEffect } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import Paper from '@material-ui/core/Paper';
 import Button from '@material-ui/core/Button';
@@ -9,7 +9,7 @@ import ConditionNodeBody from './ConditionNodeBody';
 import ConditionNodeContainer from '../NodeContainer/ConditionNodeContainer';
 import ProblemPopover from '../../problemPopover/ProblemPopover';
 import { useStatusStore } from '../../../store/status.store';
-import { eventPointToCanvasCoordinates, getCanvas, getOutEdges, isPointInShape, transformSelector, useReactFlowyStore } from 'react-flowy/lib';
+import { connectShapes, eventPointToCanvasCoordinates, getCanvas, getInEdges, getOutEdges, getRectangleFromNode, getSourceNode, getTargetNode, isPointInShape, transformSelector, useReactFlowyStore } from 'react-flowy/lib';
 
 const useStyles = makeStyles(theme => ({
   container: {
@@ -53,12 +53,14 @@ const useStyles = makeStyles(theme => ({
 
 const ConditionNode = ({ children, ...node }) => {
   const classes = useStyles();
+  const previousNodeHeight = useRef(node.height);
   const shouldShowInvalidNodes = useStatusStore(state => state.shouldShowInvalidNodes);
   const shouldShowUnhandledConditions = useStatusStore(state => state.shouldShowUnhandledConditions);
   const problematicNode = useStatusStore(state => state.problematicNodes.find(pN => pN.id === node.id));
   const outcomingEdges = getOutEdges(node);
   const isThereOutcomigEdgeWithTrueLabel = outcomingEdges.find(edge => edge.label === 'TRUE');
   const upsertNode = useReactFlowyStore(state => state.upsertNode);
+  const upsertEdge = useReactFlowyStore(state => state.upsertEdge);
   const transform = useReactFlowyStore(transformSelector);
 
   const addParameter = () => {
@@ -95,7 +97,33 @@ const ConditionNode = ({ children, ...node }) => {
     if (!isPointInShape(node.shapeType)(eventPointToCanvasCoordinates(e)(canvas), nodeShape)) {
       return e.stopPropagation();
     }
-  }
+  };
+
+  useEffect(() => {
+    if (!previousNodeHeight.current) previousNodeHeight.current = node.height;
+
+    if (node.height < previousNodeHeight.current) {
+      getOutEdges(node).forEach(outcomingEdge => {
+        if (outcomingEdge.waypoints[0].y <= node.height) return outcomingEdges;
+
+        const targetNode = getTargetNode(outcomingEdge);
+        const newWaypoints = connectShapes({ ...getRectangleFromNode(node), ...node.shapeData }, { ...getRectangleFromNode(targetNode), ...targetNode.shapeData }, node.shapeType, targetNode.shapeType);
+
+        upsertEdge({ ...outcomingEdge, waypoints: newWaypoints });
+      });
+
+      getInEdges(node).forEach(incomingEdge => {
+        if (incomingEdge.waypoints[0].y <= node.height) return outcomingEdges;
+
+        const sourceNode = getSourceNode(incomingEdge);
+        const newWaypoints = connectShapes({ ...getRectangleFromNode(sourceNode), ...sourceNode.shapeData }, { ...getRectangleFromNode(node), ...node.shapeData }, sourceNode.shapeType, node.shapeType);
+
+        upsertEdge({ ...incomingEdge, waypoints: newWaypoints });
+      });
+    }
+
+    previousNodeHeight.current = node.height;
+  }, [node.height]);
 
   return (
     <ConditionNodeContainer node={node} additionalEdgeProps={{ type: 'conditionEdge', label: isThereOutcomigEdgeWithTrueLabel ? 'FALSE' : 'TRUE' }}>

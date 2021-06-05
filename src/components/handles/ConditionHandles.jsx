@@ -2,9 +2,9 @@ import React from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import clsx from 'clsx';
 
-import Handle, { UpArrow, RightArrow, DownArrow, LeftArrow } from 'react-flowy/lib';
+import { Handle, UpArrow, RightArrow, DownArrow, LeftArrow } from 'react-flowy/lib';
 
-export const ARROW_DISTANCE = 12 + 24;
+export const ARROW_DISTANCE = 12 + 24 + 70;
 
 const useStyles = makeStyles(() => ({
   upArrow: {
@@ -13,7 +13,7 @@ const useStyles = makeStyles(() => ({
   },
   downArrow: {
     left: 'calc(50% - 12px)',
-    top: -112,
+    bottom: -112,
   },
 }));
 
