@@ -1,14 +1,8 @@
 import React from 'react';
-import { Edge, Node, NodeContainer } from 'react-flowy/lib';
 import Tooltip from '@material-ui/core/Tooltip';
+import { NodeContainer } from 'react-flowy/lib';
 
-export interface NodeContainerProps {
-  node: Node;
-  additionalEdgeProps?: Partial<Edge>;
-  isHandleDisabled?: boolean;
-}
-
-const ExtendedNodeContainer: React.FC<NodeContainerProps> = React.memo(({ children, node, isHandleDisabled, additionalEdgeProps }) => {
+const ExtendedNodeContainer = React.memo(({ children, node, isHandleDisabled, additionalEdgeProps }) => {
   return (
     <NodeContainer
       node={node}
@@ -24,7 +18,7 @@ const ExtendedNodeContainer: React.FC<NodeContainerProps> = React.memo(({ childr
   );
 });
 
-const HandleIndicator: React.FC = ({ children }) => {
+const HandleIndicator = ({ children }) => {
   return (
     <Tooltip title="Click and drag to connect">
       <div>{children}</div>

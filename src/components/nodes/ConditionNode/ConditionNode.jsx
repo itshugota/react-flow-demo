@@ -6,12 +6,10 @@ import AddIcon from '@material-ui/icons/Add';
 
 import ConditionNodeHeader from './ConditionNodeHeader';
 import ConditionNodeBody from './ConditionNodeBody';
-import ExtendedNodeContainer from '../NodeContainer/ExtendedNodeContainer';
-import { NodeComponentProps } from 'react-flowy/lib/components/Nodes/wrapNode';
+import ConditionNodeContainer from '../NodeContainer/ConditionNodeContainer';
 import ProblemPopover from '../../problemPopover/ProblemPopover';
 import { useStatusStore } from '../../../store/status.store';
-import { getOutEdges, useReactFlowyStore } from 'react-flowy/lib';
-import { Condition } from './Condition.interface';
+import { eventPointToCanvasCoordinates, getCanvas, getOutEdges, isPointInShape, transformSelector, useReactFlowyStore } from 'react-flowy/lib';
 
 const useStyles = makeStyles(theme => ({
   container: {
@@ -53,7 +51,7 @@ const useStyles = makeStyles(theme => ({
   },
 }));
 
-const ConditionNode: React.FC<NodeComponentProps> = ({ children, ...node }) => {
+const ConditionNode = ({ children, ...node }) => {
   const classes = useStyles();
   const shouldShowInvalidNodes = useStatusStore(state => state.shouldShowInvalidNodes);
   const shouldShowUnhandledConditions = useStatusStore(state => state.shouldShowUnhandledConditions);
@@ -61,10 +59,11 @@ const ConditionNode: React.FC<NodeComponentProps> = ({ children, ...node }) => {
   const outcomingEdges = getOutEdges(node);
   const isThereOutcomigEdgeWithTrueLabel = outcomingEdges.find(edge => edge.label === 'TRUE');
   const upsertNode = useReactFlowyStore(state => state.upsertNode);
+  const transform = useReactFlowyStore(transformSelector);
 
   const addParameter = () => {
-    let newConditions: Condition[] = [];
-    const newCondition: Condition = {
+    let newConditions = [];
+    const newCondition = {
       parameterId: '',
       parameter: '',
       operator: '',
@@ -72,7 +71,7 @@ const ConditionNode: React.FC<NodeComponentProps> = ({ children, ...node }) => {
     };
 
     if (node.data && Array.isArray(node.data.conditions)) {
-      newConditions = [...(node.data.conditions as Condition[]), newCondition];
+      newConditions = [...node.data.conditions, newCondition];
     } else {
       newConditions = [newCondition];
     }
@@ -82,14 +81,30 @@ const ConditionNode: React.FC<NodeComponentProps> = ({ children, ...node }) => {
     upsertNode(newNode);
   };
 
+  const handleMouseDown = e => {
+    const canvas = getCanvas(transform);
+
+    const nodeShape = {
+      x: node.position.x,
+      y: node.position.y,
+      width: node.width,
+      height: node.height,
+      ...node.shapeData,
+    };
+
+    if (!isPointInShape(node.shapeType)(eventPointToCanvasCoordinates(e)(canvas), nodeShape)) {
+      return e.stopPropagation();
+    }
+  }
+
   return (
-    <ExtendedNodeContainer node={node} additionalEdgeProps={{ type: 'labelEdge', label: isThereOutcomigEdgeWithTrueLabel ? 'FALSE' : 'TRUE' }}>
+    <ConditionNodeContainer node={node} additionalEdgeProps={{ type: 'conditionEdge', label: isThereOutcomigEdgeWithTrueLabel ? 'FALSE' : 'TRUE' }}>
       <Paper className={classes.container} elevation={0}>
-        <svg onMouseDown={e => {e.stopPropagation();}} style={{ position: 'absolute', top: -69, left: 0 }} width="518" height="70" viewBox="0 0 518 70" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <svg onMouseDown={handleMouseDown} style={{ position: 'absolute', top: -69, left: 0 }} width="518" height="70" viewBox="0 0 518 70" fill="none" xmlns="http://www.w3.org/2000/svg">
           <path d="M259 0L518 70H0 0Z" fill="#ffffff" fillOpacity="1"/>
           <path d="M259 0L518 70H0 0Z" fill="#0fe8ac" fillOpacity="0.05"/>
         </svg>
-        <svg style={{ position: 'absolute', bottom: -69, left: 0, filter: 'drop-shadow(rgba(0, 0, 0, 0.2) 0px 4px 2px)' }} width="518" height="70" viewBox="0 0 518 70" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <svg onMouseDown={handleMouseDown} style={{ position: 'absolute', bottom: -69, left: 0, filter: 'drop-shadow(rgba(0, 0, 0, 0.2) 0px 4px 2px)' }} width="518" height="70" viewBox="0 0 518 70" fill="none" xmlns="http://www.w3.org/2000/svg">
           <path d="M259 70L0 0L518 0L259 70Z" fill="#ffffff" fillOpacity="1"/>
         </svg>
         <ConditionNodeHeader node={node} />
@@ -102,7 +117,7 @@ const ConditionNode: React.FC<NodeComponentProps> = ({ children, ...node }) => {
         </footer>
         {(shouldShowInvalidNodes || shouldShowUnhandledConditions) && problematicNode && <ProblemPopover status={problematicNode.status} message={problematicNode.message} />}
       </Paper>
-    </ExtendedNodeContainer>
+    </ConditionNodeContainer>
   );
 };
 

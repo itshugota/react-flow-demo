@@ -130,7 +130,7 @@ const DraggableBlock: React.FC<DraggableBlockProps> = ({ Icon, DragShell, name, 
     } else if (nodeType === 'conditionNode') {
       newNode.data = { conditions: [] };
       newNode.shapeType = 'hexagon';
-      newNode.shapeData = { topPeakHeight: 70, bottomPeakHeight: 70 };
+      newNode.shapeData = { topPeakHeight: 69, bottomPeakHeight: 69 };
     } else if (nodeType === 'startNode' || nodeType === 'terminateNode') {
       newNode.shapeType = 'circle'
     }

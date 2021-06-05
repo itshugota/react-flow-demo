@@ -1,7 +1,7 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import cc from 'classcat';
 
-import { getMarkerEnd, getPathFromWaypoints, StandardEdgeController } from 'react-flowy/lib';
+import { getMarkerEnd, getPathFromWaypoints, getRectangleFromNode, getSourceNode, isPointInShape, StandardEdgeController } from 'react-flowy/lib';
 
 const getFirstSegment = waypoints => {
   if (waypoints.length < 2) return null;
@@ -39,36 +39,45 @@ export default React.memo(
   }) => {
     const markerEnd = getMarkerEnd(arrowHeadType);
     const errorMarkerEnd = getMarkerEnd(`${arrowHeadType}--error`);
-
     const firstSegment = getFirstSegment(waypoints);
     const firstSegmentDirection = getSegmentDirection(firstSegment);
+    const sourceNode = getSourceNode({ id, source, target, waypoints });
+    const shape = { ...getRectangleFromNode(sourceNode), ...sourceNode.shapeData };
 
-    let textX;
-    let textY;
+    const { textX, textY } = useMemo(() => {
+      const labelSize = label.length * 12;
 
-    switch (firstSegmentDirection) {
-      case 'vertical-top': {
-        textX = waypoints[0].x + 12;
-        textY = waypoints[0].y - 24;
-        break;
+      switch (firstSegmentDirection) {
+        case 'vertical-top': {
+          return { textX: waypoints[0].x + 12, textY: waypoints[0].y - 24 };
+        }
+        case 'vertical-bottom': {
+          return { textX: waypoints[0].x + 12, textY: waypoints[0].y + 24 };
+        }
+        case 'horizontal-left': {
+          let textX = waypoints[0].x - 12 - labelSize;
+          let textY = waypoints[0].y - 12;
+
+          if (isPointInShape(sourceNode.shapeType)({ x: textX + labelSize, y: textY }, shape)) {
+            textY = waypoints[0].y + 24;
+          }
+
+          return { textX, textY };
+        }
+        case 'horizontal-right': {
+          let textX = waypoints[0].x + 12;
+          let textY = waypoints[0].y - 12;
+
+          if (isPointInShape(sourceNode.shapeType)({ x: textX, y: textY }, shape)) {
+            textY = waypoints[0].y + 24;
+          }
+
+          return { textX, textY };
+        }
+        default:
+          return { textX: waypoints[0].x, textY: waypoints[0].y };
       }
-      case 'vertical-bottom': {
-        textX = waypoints[0].x + 12;
-        textY = waypoints[0].y + 24;
-        break;
-      }
-      case 'horizontal-left': {
-        textX = waypoints[0].x - 12 - label.length * 12;
-        textY = waypoints[0].y - 12;
-        break;
-      }
-      case 'horizontal-right': {
-        textX = waypoints[0].x + 12;
-        textY = waypoints[0].y - 12;
-        break;
-      }
-      default:
-    }
+    }, [waypoints, sourceNode.shapeType, shape]);
 
     return (
       <>

@@ -22,10 +22,10 @@ import {
 import Toolbar from './toolbar/Toolbar';
 import StandardEdgeWithContextMenu from './edges/StandardEdgeWithContextMenu';
 import { registerNodeDropValidator } from './sidebar/DraggableBlock';
-import LabelEdgeWithContextMenu from './edges/LabelEdgeWithContextMenu';
 import { getDockingPointForHexagon } from '../utils/docking';
 import { isPointInHexagon } from '../utils/shape';
 import { hexagonAsTRBL } from '../utils/trbl';
+import ConditionEdgeWithContextMenu from './edges/ConditionEdgeWithContextMenu';
 
 const nodeTypes = {
   startNode: StartNode,
@@ -37,7 +37,7 @@ const nodeTypes = {
 
 const edgeTypes = {
   standardEdge: StandardEdgeWithContextMenu,
-  labelEdge: LabelEdgeWithContextMenu,
+  conditionEdge: ConditionEdgeWithContextMenu,
 };
 
 const graphElements = [
@@ -81,8 +81,8 @@ const graphElements = [
     },
     shapeType: 'hexagon',
     shapeData: {
-      topPeakHeight: 70,
-      bottomPeakHeight: 70,
+      topPeakHeight: 69,
+      bottomPeakHeight: 69,
     },
   },
   {
@@ -213,7 +213,9 @@ const Workflow = () => {
 
   const handleBackgroundClick = e => {
     unselectAllElements();
-  }
+  };
+
+  console.log('wtf nodeTypes', nodeTypes);
 
   return <DraggableReactFlowy
     edgeTypes={edgeTypes}
