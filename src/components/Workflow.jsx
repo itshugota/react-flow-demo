@@ -18,6 +18,7 @@ import {
   registerGetDockingPointFunction,
   registerIsPointInShapeFunction,
   registerShapeAsTRBLFunction,
+  addMarkerDefinition,
 } from 'react-flowy/lib';
 import Toolbar from './toolbar/Toolbar';
 import StandardEdgeWithContextMenu from './edges/StandardEdgeWithContextMenu';
@@ -26,6 +27,7 @@ import { getDockingPointForHexagon } from '../utils/docking';
 import { isPointInHexagon } from '../utils/shape';
 import { hexagonAsTRBL } from '../utils/trbl';
 import ConditionEdgeWithContextMenu from './edges/ConditionEdgeWithContextMenu';
+import EdgeWithStartIndicatorWithContextMenu from './edges/EdgeWithStartIndicatorWithContextMenu';
 
 const nodeTypes = {
   startNode: StartNode,
@@ -38,6 +40,7 @@ const nodeTypes = {
 const edgeTypes = {
   standardEdge: StandardEdgeWithContextMenu,
   conditionEdge: ConditionEdgeWithContextMenu,
+  edgeWithStartIndicator: EdgeWithStartIndicatorWithContextMenu,
 };
 
 const graphElements = [
@@ -149,6 +152,16 @@ const Workflow = () => {
   }
 
   const handleLoad = (reactFlowInstance) => {
+    addMarkerDefinition('react-flowy__thinarrow',
+      <polyline
+        className="react-flowy__thinarrow"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        strokeWidth="1"
+        points="-10,-4 0,0 -10,4 -10,-4"
+      />,
+    );
+
     const savedElements = JSON.parse(localStorage.getItem('elements') || '[]');
 
     setElements(savedElements.length > 0 ? savedElements : graphElements);

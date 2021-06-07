@@ -7,7 +7,7 @@ const ConditionNodeContainer = React.memo(({ children, node, isHandleDisabled, a
   return (
     <NodeContainer
       node={node}
-      additionalEdgeProps={additionalEdgeProps}
+      additionalEdgeProps={{ ...additionalEdgeProps, arrowHeadType: 'thinarrow', type: 'conditionEdge' }}
       isHandleDisabled={isHandleDisabled}
       arrowDistance={ARROW_DISTANCE}
       Handles={ConditionHandles}

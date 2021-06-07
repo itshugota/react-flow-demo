@@ -22,6 +22,7 @@ const ConditionNodeShell: React.FC<NodeComponentProps> = ({ children, ...node })
       conditions: [],
     },
     shapeType: 'hexagon',
+    type: 'conditionNode',
   };
 
   return (

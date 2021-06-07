@@ -6,7 +6,7 @@ const ExtendedNodeContainer = React.memo(({ children, node, isHandleDisabled, ad
   return (
     <NodeContainer
       node={node}
-      additionalEdgeProps={additionalEdgeProps}
+      additionalEdgeProps={{ ...additionalEdgeProps, arrowHeadType: 'thinarrow', type: 'edgeWithStartIndicator' }}
       isHandleDisabled={isHandleDisabled}
       TopHandleIndicator={HandleIndicator}
       RightHandleIndicator={HandleIndicator}

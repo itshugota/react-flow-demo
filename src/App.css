@@ -11,6 +11,26 @@
   display: flex;
 }
 
+.App .react-flowy__edge-path {
+  stroke: #666;
+  stroke-width: 2;
+  fill: none;
+}
+
+.App path.react-flowy__edge-path--invalid {
+  stroke: #ef4a3c;
+}
+
+.App .react-flowy__arrowclosed--error {
+  stroke: #ef4a3c;
+  fill: #ef4a3c;
+}
+
+.App .react-flowy__arrowclosed, .App .react-flowy__thinarrow, .App .edge__start-indicator {
+  stroke: #666;
+  fill: #666;
+}
+
 .App input, .App button {
   font-family: 'Roboto';
 }

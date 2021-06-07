@@ -21,6 +21,7 @@ const IntentNodeShell: React.FC = () => {
       intent: '',
     },
     shapeType: 'rectangle',
+    type: 'intentNode',
   };
 
   return (

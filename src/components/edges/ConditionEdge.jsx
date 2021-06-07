@@ -1,7 +1,7 @@
 import React, { useMemo } from 'react';
-import clsx from 'clsx';
 
-import { getMarkerEnd, getPathFromWaypoints, getRectangleFromNode, getSourceNode, isPointInShape, StandardEdgeController } from 'react-flowy/lib';
+import { getRectangleFromNode, getSourceNode, isPointInShape, StandardEdge } from 'react-flowy/lib';
+import EdgeWithStartIndicator from './EdgeWithStartIndicator';
 
 const getFirstSegment = waypoints => {
   if (waypoints.length < 2) return null;
@@ -27,18 +27,13 @@ const getSegmentDirection = segment => {
 export default React.memo(
   ({
     id,
-    style,
-    arrowHeadType,
     label,
     source,
     target,
     waypoints,
-    isForming,
-    isSelected,
     isInvalid,
+    ...rest
   }) => {
-    const markerEnd = getMarkerEnd(arrowHeadType);
-    const errorMarkerEnd = getMarkerEnd(`${arrowHeadType}--error`);
     const firstSegment = getFirstSegment(waypoints);
     const firstSegmentDirection = getSegmentDirection(firstSegment);
     const sourceNode = getSourceNode({ id, source, target, waypoints });
@@ -81,19 +76,8 @@ export default React.memo(
 
     return (
       <>
-        <path
-          style={style}
-          className={clsx(
-            'react-flowy__edge-path',
-            isForming ? 'react-flowy__edge-path--forming' : '',
-            isSelected ? 'react-flowy__edge-path--selected' : '',
-            isInvalid ? 'react-flowy__edge-path--invalid' : '',
-          )}
-          d={getPathFromWaypoints(waypoints)}
-          markerEnd={isInvalid ? errorMarkerEnd : markerEnd}
-        />
+        <EdgeWithStartIndicator id={id} label={label} source={source} target={target} waypoints={waypoints} isInvalid={isInvalid} {...rest} />
         {!isInvalid && <text style={{ fontWeight: 500, userSelect: 'none', pointerEvents: 'none' }} x={textX} y={textY}>{label}</text>}
-        {!isForming && <StandardEdgeController id={id} source={source} target={target} waypoints={waypoints} />}
       </>
     );
   }

@@ -126,7 +126,7 @@ const ConditionNode = ({ children, ...node }) => {
   }, [node.height]);
 
   return (
-    <ConditionNodeContainer node={node} additionalEdgeProps={{ type: 'conditionEdge', label: isThereOutcomigEdgeWithTrueLabel ? 'FALSE' : 'TRUE' }}>
+    <ConditionNodeContainer node={node} additionalEdgeProps={{ label: isThereOutcomigEdgeWithTrueLabel ? 'FALSE' : 'TRUE' }}>
       <Paper className={classes.container} elevation={0}>
         <svg onMouseDown={handleMouseDown} style={{ position: 'absolute', top: -69, left: 0 }} width="518" height="70" viewBox="0 0 518 70" fill="none" xmlns="http://www.w3.org/2000/svg">
           <path d="M259 0L518 70H0 0Z" fill="#ffffff" fillOpacity="1"/>
