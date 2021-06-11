@@ -1,9 +1,9 @@
 import findPathIntersections from 'path-intersection';
 import { getLinePath, Point, Shape } from 'react-flowy/lib';
 
-export const getDockingPointForHexagon = (point: Point, shape: Shape, detailedDockingDirection: 't' | 'r' | 'b' | 'l') => {
-  // shape.topPeakHeight shape.bottomPeakHeight
+const GAP_THRESHOLD = 12;
 
+export const getDockingPointForHexagon = (point: Point, shape: Shape, detailedDockingDirection: 't' | 'r' | 'b' | 'l') => {
   const topPeak = { x: shape.x + shape.width / 2, y: shape.y - shape.topPeakHeight };
   const topLeftPeak = { x: shape.x, y: shape.y };
   const topRightPeak = { x: shape.x + shape.width, y: shape.y };
@@ -12,7 +12,13 @@ export const getDockingPointForHexagon = (point: Point, shape: Shape, detailedDo
   const bottomRightPeak = { x: shape.x + shape.width, y: shape.y + shape.height };
 
   if (detailedDockingDirection === 't') {
-    const otherPoint = { x: point.x, y: point.y - shape.topPeakHeight * 2 - shape.height };
+    point = { x: point.x, y: point.y + shape.height / 2 };
+
+    if (point.x <= topLeftPeak.x + GAP_THRESHOLD || point.x >= topRightPeak.x - GAP_THRESHOLD) {
+      point.x = topPeak.x;
+    }
+
+    const otherPoint = { x: point.x, y: point.y - shape.topPeakHeight * 2 - shape.height * 2 };
     const intersections = findPathIntersections(getLinePath([point, otherPoint]), getLinePath([topLeftPeak, topPeak, topRightPeak]));
 
     return {
@@ -32,6 +38,10 @@ export const getDockingPointForHexagon = (point: Point, shape: Shape, detailedDo
     const otherPoint = { x: point.x + shape.width, y: point.y };
 
     if (point.y < shape.y) {
+      if (point.y <= topPeak.y) {
+        point = { ...point, y: topPeak.y + GAP_THRESHOLD };
+      }
+
       const intersections = findPathIntersections(getLinePath([point, otherPoint]), getLinePath([topLeftPeak, topPeak, topRightPeak]));
 
       return {
@@ -41,6 +51,10 @@ export const getDockingPointForHexagon = (point: Point, shape: Shape, detailedDo
     }
 
     if (point.y > shape.y + shape.height) {
+      if (point.y >= bottomPeak.y) {
+        point = { ...point, y: bottomPeak.y - GAP_THRESHOLD };
+      }
+
       const intersections = findPathIntersections(getLinePath([point, otherPoint]), getLinePath([bottomLeftPeak, bottomPeak, bottomRightPeak]));
 
       return {
@@ -51,7 +65,13 @@ export const getDockingPointForHexagon = (point: Point, shape: Shape, detailedDo
   }
 
   if (detailedDockingDirection === 'b') {
-    const otherPoint = { x: point.x, y: point.y + shape.topPeakHeight * 2 + shape.height };
+    point = { x: point.x - shape.width / 2, y: point.y - shape.height / 2 };
+
+    if (point.x <= bottomLeftPeak.x + GAP_THRESHOLD || point.x >= bottomRightPeak.x - GAP_THRESHOLD) {
+      point.x = topPeak.x;
+    }
+
+    const otherPoint = { x: point.x, y: point.y + shape.topPeakHeight * 2 + shape.height * 2 };
     const intersections = findPathIntersections(getLinePath([point, otherPoint]), getLinePath([bottomLeftPeak, bottomPeak, bottomRightPeak]));
 
     return {

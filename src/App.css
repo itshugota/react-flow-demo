@@ -12,7 +12,7 @@
 }
 
 .App .react-flowy__edge-path {
-  stroke: #666;
+  stroke: #66666f;
   stroke-width: 2;
   fill: none;
 }
@@ -27,8 +27,13 @@
 }
 
 .App .react-flowy__arrowclosed, .App .react-flowy__thinarrow, .App .edge__start-indicator {
-  stroke: #666;
-  fill: #666;
+  stroke: #66666f;
+  fill: #66666f;
+}
+
+.App .edge__start-indicator--invalid {
+  stroke: #ef4a3c;
+  fill: #ef4a3c;
 }
 
 .App input, .App button {

@@ -1,4 +1,4 @@
-import React, { useRef } from 'react';
+import React from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import Table from '@material-ui/core/Table';
 import TableBody from '@material-ui/core/TableBody';
@@ -8,8 +8,6 @@ import TableHead from '@material-ui/core/TableHead';
 import TableRow from '@material-ui/core/TableRow';
 
 import ConditionRow from './ConditionRow';
-import { Node } from 'react-flowy/lib';
-import { Condition } from './Condition.interface';
 
 const useStyles = makeStyles(theme => ({
   main: {
@@ -31,13 +29,9 @@ const useStyles = makeStyles(theme => ({
   },
 }));
 
-interface ConditionTableProps {
-  node: Node;
-}
-
-const ConditionTable: React.FC<ConditionTableProps> = React.memo(({ node }) => {
+const ConditionTable = React.memo(({ node }) => {
   const classes = useStyles();
-  const conditions: Condition[] = node.data && Array.isArray(node.data.conditions) ? node.data.conditions as Condition[] : [];
+  const conditions = node.data && Array.isArray(node.data.conditions) ? node.data.conditions : [];
 
   return (
     <TableContainer>
@@ -65,9 +59,7 @@ const ConditionTable: React.FC<ConditionTableProps> = React.memo(({ node }) => {
   );
 });
 
-export interface ConditionNodeBodyProps extends ConditionTableProps {}
-
-const ConditionNodeBody: React.FC<ConditionNodeBodyProps> = ({ node }) => {
+const ConditionNodeBody= ({ node }) => {
   const classes = useStyles();
 
   return (

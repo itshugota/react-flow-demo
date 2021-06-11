@@ -1,33 +1,34 @@
 import React from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import Paper from '@material-ui/core/Paper';
-import ActionNodeHeader from './ActionNodeHeader';
-import ActionNodeBody from './ActionNodeBody';
-import { Node } from 'react-flowy/lib';
+import IntentNodeHeader from './IntentNodeHeader';
+import IntentNodeBody from './IntentNodeBody';
 
 const useStyles = makeStyles(() => ({
-  container: {},
+  container: {
+    position: 'relative'
+  },
 }));
 
-const ActionNodeShell: React.FC = () => {
+const IntentNodeShell = () => {
   const classes = useStyles();
 
-  const shellNode: Node = {
+  const shellNode = {
     id: '?',
     position: { x: 0, y: 0 },
     data: {
-      action: '',
+      intent: '',
     },
     shapeType: 'rectangle',
-    type: 'acttionNode',
+    type: 'intentNode',
   };
 
   return (
     <Paper className={classes.container} elevation={4}>
-      <ActionNodeHeader />
-      <ActionNodeBody node={shellNode} />
+      <IntentNodeHeader />
+      <IntentNodeBody node={shellNode} />
     </Paper>
   );
 };
 
-export default React.memo(ActionNodeShell);
+export default React.memo(IntentNodeShell);

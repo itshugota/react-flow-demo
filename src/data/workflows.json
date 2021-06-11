@@ -1,0 +1,18 @@
+[
+  {
+    "id": "workflow-0",
+    "name": "Hồ sơ vay vốn"
+  },
+  {
+    "id": "workflow-1",
+    "name": "Điều kiện vay vốn"
+  },
+  {
+    "id": "workflow-2",
+    "name": "Relative"
+  },
+  {
+    "id": "workflow-3",
+    "name": "Predue Main"
+  }
+]

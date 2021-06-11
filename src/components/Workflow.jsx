@@ -28,6 +28,7 @@ import { isPointInHexagon } from '../utils/shape';
 import { hexagonAsTRBL } from '../utils/trbl';
 import ConditionEdgeWithContextMenu from './edges/ConditionEdgeWithContextMenu';
 import EdgeWithStartIndicatorWithContextMenu from './edges/EdgeWithStartIndicatorWithContextMenu';
+import BaseWorkflowNode from './nodes/BaseWorkflowNode/BaseWorkflowNode';
 
 const nodeTypes = {
   startNode: StartNode,
@@ -35,6 +36,7 @@ const nodeTypes = {
   conditionNode: ConditionNode,
   actionNode: ActionNode,
   terminateNode: TerminateNode,
+  baseWorkflowNode: BaseWorkflowNode,
 };
 
 const edgeTypes = {
@@ -207,6 +209,19 @@ const Workflow = () => {
     registerNodeValidator('startNode')((sourceNode, targetNode) => {
       if (targetNode.id === sourceNode.id || targetNode.type === 'terminateNode' || targetNode.type === 'conditionNode')
         return { isValid: false, reason: 'Invalid target node' };
+
+      return { isValid: true };
+    });
+
+    registerNodeValidator('baseWorkflowNode')((sourceNode, targetNode) => {
+      if (targetNode.id === sourceNode.id || targetNode.type === 'startNode')
+        return { isValid: false, reason: 'Invalid target node' };
+
+      const outcomingEdges = getOutEdges(sourceNode);
+
+      if (outcomingEdges.length > 1) {
+        return { isValid: false, reason: 'A base workflow node can only have one outcoming edge' };
+      }
 
       return { isValid: true };
     });

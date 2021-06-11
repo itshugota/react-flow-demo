@@ -4,20 +4,19 @@ import IconButton from '@material-ui/core/IconButton';
 import Typography from '@material-ui/core/Typography';
 import Menu from '@material-ui/core/Menu';
 import MenuItem from '@material-ui/core/MenuItem';
-import FlashOnIcon from '@material-ui/icons/FlashOn';
+import ForumIcon from '@material-ui/icons/Forum';
 import MoreHorizIcon from '@material-ui/icons/MoreHoriz';
-import DeleteIcon from '@material-ui/icons/Delete';
-import { Node, useReactFlowyStore } from 'react-flowy/lib';
+import { useReactFlowyStore } from 'react-flowy/lib';
 
 const useStyles = makeStyles(theme => ({
   header: {
     display: 'flex',
     alignItems: 'center',
     padding: theme.spacing(1.5, 2),
-    background: 'rgba(255, 203, 17, 0.1)'
+    background: 'rgba(65, 45, 235, 0.07)'
   },
   leadingIcon: {
-    color: '#ffcb11',
+    color: '#412deb',
     marginRight: theme.spacing(1)
   },
   title: {
@@ -35,16 +34,12 @@ const useStyles = makeStyles(theme => ({
   }
 }));
 
-interface ActionNodeHeaderProps {
-  node?: Node;
-}
-
-const ActionNodeHeader: React.FC<ActionNodeHeaderProps> = ({ node }) => {
+const BaseWorkflowNodeHeader = ({ node }) => {
   const classes = useStyles();
   const deleteElementById = useReactFlowyStore(state => state.deleteElementById);
-  const [anchorEl, setAnchorEl] = useState<Element | null>(null);
+  const [anchorEl, setAnchorEl] = useState(null);
 
-  const handleOpenMenu = (event: React.MouseEvent) => {
+  const handleOpenMenu = event => {
     setAnchorEl(event.currentTarget);
   };
 
@@ -60,8 +55,8 @@ const ActionNodeHeader: React.FC<ActionNodeHeaderProps> = ({ node }) => {
 
   return (
     <header className={classes.header}>
-      <FlashOnIcon className={classes.leadingIcon} />
-      <Typography className={classes.title} variant="h3">Action</Typography>
+      <ForumIcon className={classes.leadingIcon} />
+      <Typography className={classes.title} variant="h3">Workflow</Typography>
       <IconButton className={classes.moreOptionsButton} aria-label="more options" onClick={handleOpenMenu}>
         <MoreHorizIcon />
       </IconButton>
@@ -79,4 +74,4 @@ const ActionNodeHeader: React.FC<ActionNodeHeaderProps> = ({ node }) => {
   )
 };
 
-export default React.memo(ActionNodeHeader);
+export default React.memo(BaseWorkflowNodeHeader);

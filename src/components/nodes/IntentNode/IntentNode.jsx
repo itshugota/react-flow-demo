@@ -4,7 +4,6 @@ import Paper from '@material-ui/core/Paper';
 import IntentNodeHeader from './IntentNodeHeader';
 import IntentNodeBody from './IntentNodeBody';
 import ExtendedNodeContainer from '../NodeContainer/ExtendedNodeContainer';
-import { NodeComponentProps } from 'react-flowy/lib/components/Nodes/wrapNode';
 import ProblemPopover from '../../problemPopover/ProblemPopover';
 import { useStatusStore } from '../../../store/status.store';
 
@@ -17,7 +16,7 @@ const useStyles = makeStyles(() => ({
   }
 }));
 
-const IntentNode: React.FC<NodeComponentProps> = ({ children, ...node }) => {
+const IntentNode = ({ children, ...node }) => {
   const classes = useStyles();
   const shouldShowInvalidNodes = useStatusStore(state => state.shouldShowInvalidNodes);
   const problematicNode = useStatusStore(state => state.problematicNodes.find(pN => pN.id === node.id));

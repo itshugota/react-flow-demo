@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useCallback, useEffect } from 'react';
+import React, { useState, useMemo, useCallback, useEffect, useRef } from 'react';
 import clsx from 'clsx';
 import ArrowDropDownIcon from '@material-ui/icons/ArrowDropDown';
 import { makeStyles } from '@material-ui/core/styles';
@@ -22,6 +22,8 @@ const useStyles = makeStyles(theme => ({
     background: theme.palette.common.white,
     boxShadow: theme.shadows[4],
     padding: theme.spacing(1, 0),
+    maxHeight: 244,
+    overflowY: 'auto',
     zIndex: 1,
   },
   hidden: {
@@ -66,11 +68,13 @@ const Autocomplete =
     onChange,
     placeholder = '',
     fixedWidth = 244,
+    children,
   }) => {
     const classes = useStyles({ fixedWidth });
     const [selectedIndex, setSelectedIndex] = useState(-1);
     const [inputValue, setInputValue] = useState('');
     const [shouldShowDropdown, setShouldShowDropdown] = useState(false);
+    const dropdownRef = useRef();
 
     useEffect(() => {
       if (value === '') return setInputValue('');
@@ -98,18 +102,6 @@ const Autocomplete =
       closeDropdown();
     };
 
-    const closeDropdown = () => {
-      setShouldShowDropdown(false);
-
-      const selectedOption = options.find(option => String(getOptionKey(option)) === value);
-
-      if (selectedOption) {
-        setInputValue(getOptionLabel(selectedOption));
-      } else {
-        setInputValue('');
-      }
-    };
-
     const handleSelectItem = useCallback(option => () => {
       if (typeof onChange === 'function') onChange(getOptionKey(option));
     }, [onChange, getOptionKey]);
@@ -122,28 +114,63 @@ const Autocomplete =
       event.stopPropagation();
     };
 
-    useEffect(() => {
-      const selectedOption = options[selectedIndex];
+    const filteredOptions = useMemo(() => {
+      return options.filter(option => {
+        const optionLabel = getOptionLabel(option);
 
-      if (!selectedOption) return;
+        return optionLabel.includes(inputValue);
+      });
+    }, [options, inputValue]);
 
-      if (typeof onChange === 'function') onChange(getOptionKey(selectedOption));
-    }, [options, selectedIndex]);
+    const dropdownItems = useMemo(() =>
+      filteredOptions.map(option => {
+        const key = getOptionKey(option);
+        const optionLabel = getOptionLabel(option);
+        const selectedOption = filteredOptions[selectedIndex] || {};
+        const selectedKey = getOptionKey(selectedOption);
+
+        return <div key={key} className={clsx(classes.dropdownItem, value === key || selectedKey === key ? classes.dropdownItemSelected : '')} onMouseDown={handleSelectItem(option)}>{optionLabel}</div>
+      }),
+      [filteredOptions, getOptionKey, inputValue, getOptionLabel, selectedIndex]
+    );
+
+    const closeDropdown = () => {
+      setShouldShowDropdown(false);
+
+      const selectedOption = filteredOptions[selectedIndex] || {};
+      const selectedKey = getOptionKey(selectedOption);
+
+      const finalOption = options.find(option => getOptionKey(option) === value || getOptionKey(option) === selectedKey);
+
+      if (finalOption) {
+        setInputValue(getOptionLabel(finalOption));
+
+        if (getOptionKey(finalOption) !== value) {
+          typeof onChange === 'function' && onChange(getOptionKey(finalOption));
+        }
+      } else {
+        setInputValue('');
+      }
+
+      setSelectedIndex(-1);
+    };
 
     const handleInputKeyDown = event => {
       if (!shouldShowDropdown) return;
 
-      event.preventDefault();
-
       if (event.key === 'ArrowDown') {
+        event.preventDefault();
+
         return setSelectedIndex(sI => {
-          if (sI + 1 === options.length) return options.length - 1;
+          if (sI + 1 === filteredOptions.length) return filteredOptions.length - 1;
 
           return sI + 1;
         });
       }
 
       if (event.key === 'ArrowUp') {
+        event.preventDefault();
+
         return setSelectedIndex(sI => {
           if (sI === 0) return 0;
 
@@ -152,18 +179,15 @@ const Autocomplete =
       }
 
       if (event.key === 'Enter') {
+        event.preventDefault();
+
         event.target.blur();
       }
     };
 
-    const dropdownItems = useMemo(() =>
-      options.map(option => {
-        const key = getOptionKey(option);
-
-        return <div key={key} className={clsx(classes.dropdownItem, String(value) === String(key) ? classes.dropdownItemSelected : '')} onMouseDown={handleSelectItem(option)}>{getOptionLabel(option)}</div>
-      }).filter(Boolean),
-      [options, getOptionKey, inputValue, getOptionLabel]
-    );
+    const handleWheelDropdown = event => {
+      event.stopPropagation();
+    };
 
     return (
       <div className={classes.container} onMouseDown={handleMouseDown} onMouseMove={handleMouseMove}>
@@ -178,10 +202,11 @@ const Autocomplete =
         />
         <ArrowDropDownIcon className={classes.dropdownIcon} />
         {shouldShowDropdown &&
-          <div className={classes.dropdown}>
+          <div ref={dropdownRef} className={classes.dropdown} onWheelCapture={handleWheelDropdown}>
             {dropdownItems.length > 0 ? dropdownItems : (
               <div className={classes.noMatchingOption}>No matching option found</div>
             )}
+            {children}
           </div>
         }
       </div>

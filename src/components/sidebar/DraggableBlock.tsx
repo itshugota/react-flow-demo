@@ -133,6 +133,8 @@ const DraggableBlock: React.FC<DraggableBlockProps> = ({ Icon, DragShell, name, 
       newNode.shapeData = { topPeakHeight: 69, bottomPeakHeight: 69 };
     } else if (nodeType === 'startNode' || nodeType === 'terminateNode') {
       newNode.shapeType = 'circle'
+    } else if (nodeType === 'baseWorkflowNode') {
+      newNode.data = { workflow: '' };
     }
 
     if (typeof nodeDropValidators[nodeType] === 'function' && !nodeDropValidators[nodeType](nodes.current, newNode)) {
