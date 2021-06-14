@@ -197,6 +197,7 @@ const ConditionRow = React.memo(({ node, condition, index, isLastRow }) => {
             value={condition.parameterId}
             onChange={handleParameterChange}
             placeholder="Parameter"
+            onSelectChildren={openCreateDialog}
             fixedWidth={168}
           >
             <div className={classes.createNewEntity} onMouseDown={openCreateDialog}>
@@ -212,6 +213,7 @@ const ConditionRow = React.memo(({ node, condition, index, isLastRow }) => {
             getOptionLabel={option => option}
             value={condition.operator}
             onChange={handleOperatorChange}
+            shouldShowFullOptions
             fixedWidth={64}
           />
         </TableCell>
@@ -222,6 +224,7 @@ const ConditionRow = React.memo(({ node, condition, index, isLastRow }) => {
             getOptionLabel={option => option}
             value={condition.value}
             onChange={handleParameterValueChange}
+            shouldShowFullOptions
             fixedWidth={144}
           />
         </TableCell>

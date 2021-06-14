@@ -92,6 +92,7 @@ const IntentNodeBody = ({ node }) => {
         getOptionLabel={option => option.name}
         value={node.data.intent}
         onChange={handleActionChange}
+        onSelectChildren={openCreateDialog}
         placeholder="Intent"
       >
         <div className={classes.createNewIntent} onMouseDown={openCreateDialog}>

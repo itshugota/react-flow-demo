@@ -8,6 +8,8 @@ interface AutocompleteProps<T> {
   onChange?: (newValue: string) => void;
   placeholder?: string;
   fixedWidth?: number;
+  onSelectChildren?: () => void;
+  shouldShowFullOptions?: boolean;
   children?: React.ReactNode;
 }
 

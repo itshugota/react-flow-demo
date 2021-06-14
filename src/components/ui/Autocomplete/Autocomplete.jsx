@@ -68,6 +68,8 @@ const Autocomplete =
     onChange,
     placeholder = '',
     fixedWidth = 244,
+    onSelectChildren,
+    shouldShowFullOptions = false,
     children,
   }) => {
     const classes = useStyles({ fixedWidth });
@@ -115,12 +117,22 @@ const Autocomplete =
     };
 
     const filteredOptions = useMemo(() => {
+      if (shouldShowFullOptions) return options;
+
       return options.filter(option => {
         const optionLabel = getOptionLabel(option);
 
         return optionLabel.includes(inputValue);
       });
-    }, [options, inputValue]);
+    }, [options, inputValue, shouldShowFullOptions]);
+
+    useEffect(() => {
+      const selectedIndex = filteredOptions.findIndex(filteredOption => getOptionKey(filteredOption) === value);
+
+      if (selectedIndex > -1) setSelectedIndex(selectedIndex);
+    }, [filteredOptions, value]);
+
+    const selectableLength = children ? filteredOptions.length + 1 : filteredOptions.length;
 
     const dropdownItems = useMemo(() =>
       filteredOptions.map(option => {
@@ -129,13 +141,18 @@ const Autocomplete =
         const selectedOption = filteredOptions[selectedIndex] || {};
         const selectedKey = getOptionKey(selectedOption);
 
-        return <div key={key} className={clsx(classes.dropdownItem, value === key || selectedKey === key ? classes.dropdownItemSelected : '')} onMouseDown={handleSelectItem(option)}>{optionLabel}</div>
+        return <div key={key} className={clsx(classes.dropdownItem, selectedKey === key ? classes.dropdownItemSelected : '')} onMouseDown={handleSelectItem(option)}>{optionLabel}</div>
       }),
       [filteredOptions, getOptionKey, inputValue, getOptionLabel, selectedIndex]
     );
 
     const closeDropdown = () => {
       setShouldShowDropdown(false);
+      setSelectedIndex(-1);
+
+      if (children && selectedIndex === selectableLength - 1) {
+        typeof onSelectChildren === 'function' && onSelectChildren();
+      }
 
       const selectedOption = filteredOptions[selectedIndex] || {};
       const selectedKey = getOptionKey(selectedOption);
@@ -151,8 +168,6 @@ const Autocomplete =
       } else {
         setInputValue('');
       }
-
-      setSelectedIndex(-1);
     };
 
     const handleInputKeyDown = event => {
@@ -162,7 +177,7 @@ const Autocomplete =
         event.preventDefault();
 
         return setSelectedIndex(sI => {
-          if (sI + 1 === filteredOptions.length) return filteredOptions.length - 1;
+          if (sI + 1 === selectableLength) return selectableLength - 1;
 
           return sI + 1;
         });
@@ -206,7 +221,9 @@ const Autocomplete =
             {dropdownItems.length > 0 ? dropdownItems : (
               <div className={classes.noMatchingOption}>No matching option found</div>
             )}
-            {children}
+            {!!children && <div className={selectedIndex === selectableLength - 1 ? classes.dropdownItemSelected : '' }>
+              {children}
+            </div>}
           </div>
         }
       </div>

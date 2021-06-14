@@ -91,6 +91,7 @@ const ActionNodeBody = ({ node }) => {
         getOptionLabel={option => option.name}
         value={node.data.action}
         onChange={handleActionChange}
+        onSelectChildren={openCreateDialog}
         placeholder="Action"
       >
         <div className={classes.createNewAction} onMouseDown={openCreateDialog}>
