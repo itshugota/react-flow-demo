@@ -47,12 +47,7 @@ const useStyles = makeStyles(theme => ({
   },
 }));
 
-interface ProblemPopoverProps {
-  status: WorkflowStatus;
-  message: string;
-}
-
-const ProblemPopover: React.FC<ProblemPopoverProps> = ({ status, message }) => {
+const ProblemPopover = ({ status, message }) => {
   const classes = useStyles();
 
   return (

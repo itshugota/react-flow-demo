@@ -10,9 +10,7 @@ import ZoomOutIcon from '@material-ui/icons/ZoomOut';
 import ZoomInIcon from '@material-ui/icons/ZoomIn';
 import FullscreenIcon from '@material-ui/icons/Fullscreen';
 import FullscreenExitIcon from '@material-ui/icons/FullscreenExit';
-import ExitToAppIcon from '@material-ui/icons/ExitToApp';
 import { transformSelector, useReactFlowyStore, initializeUndoRedo, useUndoRedoStore, minZoomSelector, maxZoomSelector } from 'react-flowy/lib';
-import ValidIndicator from '../icons/ValidIndicator';
 import StatusIndicator from './StatusIndicator/StatusIndicator';
 
 const useStyles = makeStyles(theme => ({
@@ -61,14 +59,14 @@ const useStyles = makeStyles(theme => ({
 
 function getFullscreenElement() {
   return document.fullscreenElement // Standard property
-    || (document as any).webkitFullscreenElement // Safari/Opera support
-    || (document as any).document?.mozFullscreenElement // Firefox support
+    || document.webkitFullscreenElement // Safari/Opera support
+    || document.mozFullscreenElement // Firefox support
 }
 
 const useFullscreen = () => {
   const [isFullscreen, setIsFullscreen] = useState(Boolean(document.fullscreenElement));
 
-  const toggleFullscreen = (fullscreen: Boolean) => {
+  const toggleFullscreen = fullscreen => {
     if (fullscreen) {
       document.documentElement.requestFullscreen();
       return;
@@ -90,10 +88,10 @@ const useFullscreen = () => {
   }, []);
 
   useEffect(() => {
-    const pressF11Listener = (e: KeyboardEvent) => {
-      if (e.key !== 'F11') return;
+    const pressF11Listener = event => {
+      if (event.key !== 'F11') return;
 
-      e.preventDefault();
+      event.preventDefault();
 
       if (isFullscreen) return toggleFullscreen(false);
 
@@ -108,15 +106,15 @@ const useFullscreen = () => {
   return { isFullscreen, toggleFullscreen };
 };
 
-const getZoomInputValueFromScale = (scale: number) => {
+const getZoomInputValueFromScale = scale => {
   return `${Math.round(scale * 100)}%`;
 };
 
-const getScaleFromZoomInputValue = (zoomInputValue: string) => {
+const getScaleFromZoomInputValue = zoomInputValue => {
   return (+zoomInputValue.replace('%', '') / 100);
 }
 
-let zoomInputTimeout: number;
+let zoomInputTimeout;
 
 const Toolbar = () => {
   const classes = useStyles();
@@ -124,9 +122,9 @@ const Toolbar = () => {
   const maxZoom = useReactFlowyStore(maxZoomSelector);
   const transform = useReactFlowyStore(transformSelector);
   const zoomTo = useReactFlowyStore(state => state.zoomTo);
-  const undoFn = useRef<Function>();
-  const redoFn = useRef<Function>();
-  const undoRedoInstanceRef = useRef<any>();
+  const undoFn = useRef();
+  const redoFn = useRef();
+  const undoRedoInstanceRef = useRef();
   const isUndoable = useUndoRedoStore(state => state.isUndoable);
   const isRedoable = useUndoRedoStore(state => state.isRedoable);
   const [zoomInputValue, setZoomInputValue] = useState(getZoomInputValueFromScale(transform[2]));
@@ -188,7 +186,7 @@ const Toolbar = () => {
     if (transform[2] > minZoom) zoomTo(zoom);
   };
 
-  const handleZoomInputChange: React.ChangeEventHandler<HTMLInputElement> = (event) => {
+  const handleZoomInputChange = event => {
     if (event.target.value.includes('%') && event.target.value[event.target.value.length - 1] !== '%') return;
 
     if (isNaN(+event.target.value.replace('%', ''))) return;

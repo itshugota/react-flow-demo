@@ -1,7 +1,7 @@
 import React from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import Paper from '@material-ui/core/Paper';
-import CallMergeReverse from '../../icons/CallMergeReverse';
+import CallSplitReverse from '../../icons/CallSplitReverse';
 
 const useStyles = makeStyles(theme => ({
   container: {
@@ -9,20 +9,20 @@ const useStyles = makeStyles(theme => ({
     alignItems: 'center',
     justifyContent: 'center',
     borderRadius: '50%',
-    background: '#434343',
+    background: '#fa103e',
     padding: theme.spacing(1),
     color: '#fff',
   },
 }));
 
-const TerminateNodeShell: React.FC = () => {
+const StartNodeShell = () => {
   const classes = useStyles();
 
   return (
     <Paper className={classes.container} elevation={4}>
-      <CallMergeReverse />
+      <CallSplitReverse />
     </Paper>
   );
 };
 
-export default React.memo(TerminateNodeShell);
+export default React.memo(StartNodeShell);

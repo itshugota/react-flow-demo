@@ -51,7 +51,7 @@ subscribeToFinalElementChanges(elements => {
     if (isInvalidStatusDetected) return;
 
     const isWarningStatusDetected = detectWarningStatus(nodes);
-    
+
     if (isWarningStatusDetected) return;
 
     useStatusStore.getState().setProblematicNodes([]);

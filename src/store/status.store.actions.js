@@ -1,5 +1,5 @@
 import { getInEdges, getOutEdges } from 'react-flowy/lib';
-import { useStatusStore } from './status.store';
+import { useStatusStore, WorkflowStatus } from './status.store';
 
 export const detectInvalidStatus = nodes => {
   const nodesWithNoOutgoingEdges = nodes.filter(node => {
@@ -45,26 +45,17 @@ export const detectWarningStatus = nodes => {
   const nodesWithWarning = [];
 
   conditionNodes.forEach(conditionNode => {
-    const unfulfilledConditionMapping = {};
+    const outcomingEdges = getOutEdges(conditionNode);
 
-    conditionNode.data.conditions.forEach(condition => {
-      const { parameter, value } = condition;
+    let doesTrueEdgeExist = false;
+    let doesFalseEdgeExist = false;
 
-      unfulfilledConditionMapping[`${parameter}${value}`] = ['=', '!='];
-
-      conditionNodes.forEach(cN => {
-        const conditionWithSameParameterAndValue = cN.data.conditions
-          .find(({ parameter: param, value: val }) => param === parameter && val === value);
-
-        if (!conditionWithSameParameterAndValue) return;
-
-        const { operator } = conditionWithSameParameterAndValue;
-
-        unfulfilledConditionMapping[`${parameter}${value}`] = unfulfilledConditionMapping[`${parameter}${value}`].filter(o => o !== operator);
-      });
+    outcomingEdges.forEach(outcomingEdge => {
+      if (outcomingEdge.label === 'TRUE') doesTrueEdgeExist = true;
+      else if (outcomingEdge.label === 'FALSE') doesFalseEdgeExist = true;
     });
 
-    if (Object.values(unfulfilledConditionMapping).find(unfulfilledOperators => unfulfilledOperators.length > 0)) {
+    if (!doesTrueEdgeExist || !doesFalseEdgeExist) {
       nodesWithWarning.push({
         id: conditionNode.id,
         status: WorkflowStatus.WARNING,

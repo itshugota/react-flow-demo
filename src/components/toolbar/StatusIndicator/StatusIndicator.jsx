@@ -23,10 +23,10 @@ const useStyles = makeStyles(theme => ({
 
 const StatusIndicator = () => {
   const classes = useStyles();
-  const [anchorEl, setAnchorEl] = useState<Element | null>(null);
+  const [anchorEl, setAnchorEl] = useState(null);
   const status = useStatusStore(state => state.status);
 
-  const handleOpenPopover = (event: React.MouseEvent) => {
+  const handleOpenPopover = event => {
     setAnchorEl(event.currentTarget);
   };
 
