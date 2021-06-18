@@ -164,6 +164,16 @@ const Workflow = () => {
       />,
     );
 
+    addMarkerDefinition('react-flowy__thinarrow--error',
+      <polyline
+        className="react-flowy__thinarrow--error"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        strokeWidth="1"
+        points="-10,-4 0,0 -10,4 -10,-4"
+      />,
+    );
+
     const savedElements = JSON.parse(localStorage.getItem('elements') || '[]');
 
     setElements(savedElements.length > 0 ? savedElements : graphElements);

@@ -8,8 +8,9 @@ import HelpIcon from '@material-ui/icons/Help';
 import ForumIcon from '@material-ui/icons/Forum';
 import ExitToAppIcon from '@material-ui/icons/ExitToApp';
 import { makeStyles } from '@material-ui/core/styles';
-import CallMergeReverseIcon from '../icons/CallMergeReverse';
 import CallSplitReverseIcon from '../icons/CallSplitReverse';
+import CircleIcon from '../icons/Circle';
+import DoubleCircleIcon from '../icons/DoubleCircle';
 import FilterAltIcon from '../icons/FilterAlt';
 import DraggableBlock from './DraggableBlock';
 import StartNodeShell from '../nodes/StartNode/StartNodeShell';
@@ -92,7 +93,7 @@ const draggableMainBlocks = [
     name: 'Start',
     description: 'The entry point of the workflow',
     nodeType: 'startNode',
-    Icon: CallMergeReverseIcon,
+    Icon: CircleIcon,
     DragShell: StartNodeShell,
   },
   {
@@ -120,15 +121,15 @@ const draggableMainBlocks = [
     name: 'Terminate',
     description: 'The point where the workflow terminates',
     nodeType: 'terminateNode',
-    Icon: CallSplitReverseIcon,
+    Icon: DoubleCircleIcon,
     DragShell: TerminateNodeShell,
   }
 ];
 
 const draggableOtherBlocks = [
   {
-    name: 'Base workflow',
-    description: 'A base workflow (or a child workflow)',
+    name: 'Sub workflow',
+    description: 'A sub workflow (or a child workflow)',
     nodeType: 'baseWorkflowNode',
     Icon: ForumIcon,
     DragShell: BaseWorkflowNodeShell,

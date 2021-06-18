@@ -1,5 +1,9 @@
 import React from 'react';
 
+interface PopoverContentComponentProps {
+  id: string;
+}
+
 interface AutocompleteProps<T> {
   options: ReadonlyArray<T>;
   getOptionLabel: (option: T) => string;
@@ -11,6 +15,7 @@ interface AutocompleteProps<T> {
   onSelectChildren?: () => void;
   shouldShowFullOptions?: boolean;
   children?: React.ReactNode;
+  PopoverContentComponent: React.FC<PopoverContentComponentProps>;
 }
 
 export default function Autocomplete<T>(props: AutocompleteProps<T>): JSX.Element;

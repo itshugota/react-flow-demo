@@ -1,6 +1,7 @@
 import React, { useState, useMemo, useCallback, useEffect, useRef } from 'react';
 import clsx from 'clsx';
 import ArrowDropDownIcon from '@material-ui/icons/ArrowDropDown';
+import Popper from '@material-ui/core/Popper';
 import { makeStyles } from '@material-ui/core/styles';
 
 const useStyles = makeStyles(theme => ({
@@ -59,6 +60,31 @@ const useStyles = makeStyles(theme => ({
   }
 }));
 
+const DropdownItem = ({ dropdownItem, PopoverContentComponent }) => {
+  const [shouldShowPopper, setShouldShowPopper] = useState(false);
+  const [anchorElement, setAnchorElement] = useState(null);
+  const DropdownItemComponent = dropdownItem.Component;
+
+  if (!PopoverContentComponent) return <DropdownItemComponent />;
+
+  const handleMouseEnter = () => {
+    setShouldShowPopper(true);
+  };
+
+  const handleMouseLeave = () => {
+    setShouldShowPopper(false);
+  };
+
+  return (
+    <>
+      <Popper style={{ zIndex: 100 }} id={dropdownItem.key} open={shouldShowPopper} anchorEl={anchorElement} placement="right-start">
+        <PopoverContentComponent id={dropdownItem.key} />
+      </Popper>
+      <DropdownItemComponent ref={setAnchorElement} onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave} />
+    </>
+  )
+};
+
 const Autocomplete =
   ({
     options,
@@ -70,6 +96,7 @@ const Autocomplete =
     fixedWidth = 244,
     onSelectChildren,
     shouldShowFullOptions = false,
+    PopoverContentComponent,
     children,
   }) => {
     const classes = useStyles({ fixedWidth });
@@ -141,7 +168,21 @@ const Autocomplete =
         const selectedOption = filteredOptions[selectedIndex] || {};
         const selectedKey = getOptionKey(selectedOption);
 
-        return <div key={key} className={clsx(classes.dropdownItem, selectedKey === key ? classes.dropdownItemSelected : '')} onMouseDown={handleSelectItem(option)}>{optionLabel}</div>
+        return {
+          key,
+          Component: React.memo(React.forwardRef(({ onMouseEnter, onMouseLeave }, ref) =>
+            <div
+              key={key}
+              ref={ref}
+              className={clsx(classes.dropdownItem, selectedKey === key ? classes.dropdownItemSelected : '')}
+              onMouseEnter={onMouseEnter}
+              onMouseLeave={onMouseLeave}
+              onMouseDown={handleSelectItem(option)}
+            >
+              {optionLabel}
+            </div>
+          )),
+        };
       }),
       [filteredOptions, getOptionKey, inputValue, getOptionLabel, selectedIndex]
     );
@@ -218,9 +259,12 @@ const Autocomplete =
         <ArrowDropDownIcon className={classes.dropdownIcon} />
         {shouldShowDropdown &&
           <div ref={dropdownRef} className={classes.dropdown} onWheelCapture={handleWheelDropdown}>
-            {dropdownItems.length > 0 ? dropdownItems : (
+            {dropdownItems.length > 0 ?
+              dropdownItems.map(dropdownItem => (
+                <DropdownItem key={dropdownItem.key} dropdownItem={dropdownItem} PopoverContentComponent={PopoverContentComponent} />
+              )) :
               <div className={classes.noMatchingOption}>No matching option found</div>
-            )}
+            }
             {!!children && <div className={selectedIndex === selectableLength - 1 ? classes.dropdownItemSelected : '' }>
               {children}
             </div>}

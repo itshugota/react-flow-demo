@@ -8,7 +8,9 @@ import ProblemPopover from '../../problemPopover/ProblemPopover';
 import { useStatusStore } from '../../../store/status.store';
 
 const useStyles = makeStyles(() => ({
-  container: {},
+  container: {
+    border: '2px solid #434343',
+  },
   selected: {
     boxShadow: '0px 0px 4px var(--selected-color)'
   }

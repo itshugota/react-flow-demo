@@ -12,9 +12,11 @@ const useStyles = makeStyles(theme => ({
     alignItems: 'center',
     justifyContent: 'center',
     borderRadius: '50%',
-    background: '#fa103e',
+    background: '#434343',
     padding: theme.spacing(1),
     color: '#fff',
+    width: 40,
+    height: 40,
   },
   selected: {
     boxShadow: '0px 0px 4px var(--selected-color)',
@@ -30,9 +32,7 @@ const StartNode = ({ children, ...node }) => {
   return (
     <ExtendedNodeContainer node={node}>
       <div className={node.isSelected ? classes.selected : ''}>
-        <Paper className={classes.container} elevation={4}>
-          <CallSplitReverse />
-        </Paper>
+        <Paper className={classes.container} elevation={4} />
         {shouldShowInvalidNodes && problematicNode && <ProblemPopover status={problematicNode.status} message={problematicNode.message} />}
       </div>
     </ExtendedNodeContainer>

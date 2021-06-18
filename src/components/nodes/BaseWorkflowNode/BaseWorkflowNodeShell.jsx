@@ -5,7 +5,9 @@ import BaseWorkflowNodeHeader from './BaseWorkflowNodeHeader';
 import BaseWorkflowNodeBody from './BaseWorkflowNodeBody';
 
 const useStyles = makeStyles(() => ({
-  container: {},
+  container: {
+    border: '2px solid #434343',
+  },
 }));
 
 const BaseWorkflowNodeShell = () => {

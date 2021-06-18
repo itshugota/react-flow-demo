@@ -21,12 +21,12 @@
   stroke: #ef4a3c;
 }
 
-.App .react-flowy__arrowclosed--error {
+.App .react-flowy__thinarrow--error {
   stroke: #ef4a3c;
   fill: #ef4a3c;
 }
 
-.App .react-flowy__arrowclosed, .App .react-flowy__thinarrow, .App .edge__start-indicator {
+.App .react-flowy__thinarrow, .App .edge__start-indicator {
   stroke: #66666f;
   fill: #66666f;
 }

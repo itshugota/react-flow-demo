@@ -1,7 +1,8 @@
 [
   {
     "id": "intent-0",
-    "name": "Điều kiện vay vốn"
+    "name": "Điều kiện vay vốn",
+    "trainingPhrases": ["các điều kiện để vay vốn", "muốn được vay vốn cần những điều kiện gì", "mình muốn vay vốn mua nhà"]
   },
   {
     "id": "intent-1",
