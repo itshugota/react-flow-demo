@@ -261,7 +261,6 @@ const Workflow = () => {
     onLoad={handleLoad}
     onBackgroundClick={handleBackgroundClick}
   >
-    <Toolbar />
     <Background color="#aaa" gap={32} variant={BackgroundVariant.Lines} />
   </DraggableReactFlowy>;
 }

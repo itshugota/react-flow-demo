@@ -34,7 +34,7 @@ const EdgeWithContextMenu = React.memo(
       const targetRectangle = getRectangleFromNode(targetNode);
 
       const resetEdgeWaypoints = connectShapes(sourceRectangle, targetRectangle, 'rectangle', 'rectangle');
-
+      console.log('edgeProps', edgeProps);
       upsertEdge({ ...edgeProps, waypoints: resetEdgeWaypoints });
     };
 

@@ -8,10 +8,9 @@ import { SnackbarProvider } from 'notistack';
 import { createMuiTheme, ThemeProvider } from '@material-ui/core/styles';
 
 import './App.css'
-// @ts-ignore
 import Sidebar from './components/sidebar/Sidebar';
-// @ts-ignore
 import Workflow from './components/Workflow';
+import Toolbar from './components/toolbar/Toolbar';
 
 const theme = createMuiTheme({
   palette: {
@@ -32,12 +31,10 @@ function App() {
       <SnackbarProvider maxSnack={3}>
         <Router>
           <div className="App">
-            {/* <div style={{ position: 'fixed', zIndex: 1000, right: 64, bottom: 64, display: 'flex', flexDirection: 'column', alignItems: 'flex-start' }}>
-              <a href="/">1. Workflow with editable anchors</a>
-            </div> */}
             <Switch>
               <Route path="/">
                 <Sidebar />
+                <Toolbar />
                 <Workflow />
               </Route>
             </Switch>
