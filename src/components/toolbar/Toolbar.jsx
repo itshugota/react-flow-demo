@@ -13,6 +13,7 @@ import FullscreenExitIcon from '@material-ui/icons/FullscreenExit';
 import { transformSelector, useReactFlowyStore, initializeUndoRedo, useUndoRedoStore, minZoomSelector, maxZoomSelector } from 'react-flowy/lib';
 import StatusIndicator from './StatusIndicator/StatusIndicator';
 import ExportAsPNG from './ExportAsPNG/ExportAsPNG';
+import ScriptGenerator from './ScriptGenerator/ScriptGenerator';
 
 const useStyles = makeStyles(theme => ({
   root: {
@@ -227,6 +228,7 @@ const Toolbar = () => {
         </IconButton>
       </Tooltip>
       <ExportAsPNG />
+      <ScriptGenerator />
       {isFullscreen ?
         <Tooltip title="Exit fullscreen">
           <IconButton className={classes.iconButton} onClick={handleExitFullscreen}>
@@ -245,4 +247,4 @@ const Toolbar = () => {
   );
 }
 
-export default Toolbar;
+export default React.memo(Toolbar);

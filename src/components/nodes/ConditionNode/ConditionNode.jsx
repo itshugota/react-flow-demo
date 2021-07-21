@@ -1,4 +1,4 @@
-import React, { useRef, useEffect } from 'react';
+import React, { useEffect, useMemo } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import Paper from '@material-ui/core/Paper';
 import Button from '@material-ui/core/Button';
@@ -9,7 +9,9 @@ import ConditionNodeBody from './ConditionNodeBody';
 import ConditionNodeContainer from '../NodeContainer/ConditionNodeContainer';
 import ProblemPopover from '../../problemPopover/ProblemPopover';
 import { useStatusStore } from '../../../store/status.store';
-import { connectShapes, eventPointToCanvasCoordinates, getCanvas, getInEdges, getOutEdges, getRectangleFromNode, getSourceNode, getTargetNode, isPointInShape, transformSelector, useReactFlowyStore } from 'react-flowy/lib';
+import { eventPointToCanvasCoordinates, getCanvas, isPointInShape, transformSelector, useReactFlowyStore } from 'react-flowy/lib';
+import { isNodeInLoop } from '../../../utils/nodes';
+import useEnsureEdgePositions from '../useEnsureEdgePositions';
 
 const useStyles = makeStyles(theme => ({
   container: {
@@ -51,17 +53,19 @@ const useStyles = makeStyles(theme => ({
   },
 }));
 
-const ConditionNode = ({ children, ...node }) => {
+const ConditionNode = ({ children, node }) => {
   const classes = useStyles();
-  const previousNodeHeight = useRef(node.height);
   const shouldShowInvalidNodes = useStatusStore(state => state.shouldShowInvalidNodes);
   const shouldShowUnhandledConditions = useStatusStore(state => state.shouldShowUnhandledConditions);
   const problematicNode = useStatusStore(state => state.problematicNodes.find(pN => pN.id === node.id));
-  const outcomingEdges = getOutEdges(node);
-  const isThereOutcomigEdgeWithTrueLabel = outcomingEdges.find(edge => edge.label === 'TRUE');
+  const outcomingEdges = useReactFlowyStore(state => state.edges).filter(edge => edge.source === node.id);
+  const isThereOutcomingEdgeWithTrueLabel = outcomingEdges.find(edge => edge.label === 'TRUE');
+  const isThereOutcomingEdgeWithFalseLabel = outcomingEdges.find(edge => edge.label === 'FALSE');
+  const isInLoop = useMemo(() => isNodeInLoop(node), [node, outcomingEdges]);
   const upsertNode = useReactFlowyStore(state => state.upsertNode);
-  const upsertEdge = useReactFlowyStore(state => state.upsertEdge);
+  const deleteElementById = useReactFlowyStore(state => state.deleteElementById);
   const transform = useReactFlowyStore(transformSelector);
+  useEnsureEdgePositions(node);
 
   const addParameter = () => {
     let newConditions = [];
@@ -100,33 +104,31 @@ const ConditionNode = ({ children, ...node }) => {
   };
 
   useEffect(() => {
-    if (!previousNodeHeight.current) previousNodeHeight.current = node.height;
+    if (isInLoop) return;
 
-    if (node.height < previousNodeHeight.current) {
-      getOutEdges(node).forEach(outcomingEdge => {
-        if (outcomingEdge.waypoints[0].y <= node.height) return outcomingEdges;
+    const breakLoopEdge = outcomingEdges.find(outcomingEdge => outcomingEdge.label === 'LOOP END');
 
-        const targetNode = getTargetNode(outcomingEdge);
-        const newWaypoints = connectShapes({ ...getRectangleFromNode(node), ...node.shapeData }, { ...getRectangleFromNode(targetNode), ...targetNode.shapeData }, node.shapeType, targetNode.shapeType);
+    if (!breakLoopEdge) return;
 
-        upsertEdge({ ...outcomingEdge, waypoints: newWaypoints });
-      });
+    deleteElementById(breakLoopEdge.id);
+  }, [isInLoop]);
 
-      getInEdges(node).forEach(incomingEdge => {
-        if (incomingEdge.waypoints[0].y <= node.height) return outcomingEdges;
+  const additionalEdgeProps = useMemo(() => {
+    let nextEdgeLabel = 'TRUE';
 
-        const sourceNode = getSourceNode(incomingEdge);
-        const newWaypoints = connectShapes({ ...getRectangleFromNode(sourceNode), ...sourceNode.shapeData }, { ...getRectangleFromNode(node), ...node.shapeData }, sourceNode.shapeType, node.shapeType);
-
-        upsertEdge({ ...incomingEdge, waypoints: newWaypoints });
-      });
+    if (isThereOutcomingEdgeWithTrueLabel) {
+      if (!isThereOutcomingEdgeWithFalseLabel) {
+        nextEdgeLabel = 'FALSE';
+      } else if (isInLoop) {
+        nextEdgeLabel = 'LOOP END';
+      }
     }
 
-    previousNodeHeight.current = node.height;
-  }, [node.height]);
+    return { label: nextEdgeLabel };
+  }, [isThereOutcomingEdgeWithFalseLabel, isThereOutcomingEdgeWithTrueLabel]);
 
   return (
-    <ConditionNodeContainer node={node} additionalEdgeProps={{ label: isThereOutcomigEdgeWithTrueLabel ? 'FALSE' : 'TRUE' }}>
+    <ConditionNodeContainer node={node} additionalEdgeProps={additionalEdgeProps}>
       <Paper className={classes.container} elevation={0}>
         <svg onMouseDown={handleMouseDown} style={{ position: 'absolute', top: -69, left: 0 }} width="518" height="70" viewBox="0 0 518 70" fill="none" xmlns="http://www.w3.org/2000/svg">
           <path d="M259 0L518 70H0 0Z" fill="#ffffff" fillOpacity="1"/>

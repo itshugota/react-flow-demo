@@ -1,9 +1,11 @@
 import findPathIntersections from 'path-intersection';
-import { getLinePath, Point, Shape } from 'react-flowy/lib';
+import { getLinePath } from 'react-flowy/lib';
 
 const GAP_THRESHOLD = 12;
 
-export const getDockingPointForHexagon = (point: Point, shape: Shape, detailedDockingDirection: 't' | 'r' | 'b' | 'l') => {
+export const getDockingPointForHexagon = (point, shape, detailedDockingDirection) => {
+  point = { ...point, x: Math.round(point.x), y: Math.round(point.y) };
+
   const topPeak = { x: shape.x + shape.width / 2, y: shape.y - shape.topPeakHeight };
   const topLeftPeak = { x: shape.x, y: shape.y };
   const topRightPeak = { x: shape.x + shape.width, y: shape.y };

@@ -1,7 +1,6 @@
 import React from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import Paper from '@material-ui/core/Paper';
-import CallSplitReverse from '../../icons/CallSplitReverse';
 import ExtendedNodeContainer from '../NodeContainer/ExtendedNodeContainer';
 import { useStatusStore } from '../../../store/status.store';
 import ProblemPopover from '../../problemPopover/ProblemPopover';

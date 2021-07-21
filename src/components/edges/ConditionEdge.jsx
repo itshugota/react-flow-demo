@@ -1,4 +1,5 @@
 import React, { useMemo } from 'react';
+import Tooltip from '@material-ui/core/Tooltip';
 
 import { getRectangleFromNode, getSourceNode, isPointInShape, StandardEdge } from 'react-flowy/lib';
 import EdgeWithStartIndicator from './EdgeWithStartIndicator';
@@ -77,7 +78,14 @@ export default React.memo(
     return (
       <>
         <EdgeWithStartIndicator id={id} label={label} source={source} target={target} waypoints={waypoints} isInvalid={isInvalid} {...rest} />
-        {!isInvalid && <text style={{ fontWeight: 500, userSelect: 'none', pointerEvents: 'none' }} x={textX} y={textY}>{label}</text>}
+        {!isInvalid &&
+          <g className="condition-edge__text-group">
+            <g className="condition-edge__text-group__tooltip">
+              <text style={{ fontWeight: 500, userSelect: 'none', pointerEvents: 'none' }} x={textX} y={textY}>MUHAHAHAHAHa</text>
+            </g>
+            <text style={{ fontWeight: 500, userSelect: 'none', pointerEvents: 'none' }} x={textX} y={textY}>{label}</text>
+          </g>
+        }
       </>
     );
   }

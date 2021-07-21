@@ -20,7 +20,6 @@ import {
   registerShapeAsTRBLFunction,
   addMarkerDefinition,
 } from 'react-flowy/lib';
-import Toolbar from './toolbar/Toolbar';
 import StandardEdgeWithContextMenu from './edges/StandardEdgeWithContextMenu';
 import { registerNodeDropValidator } from './sidebar/DraggableBlock';
 import { getDockingPointForHexagon } from '../utils/docking';
@@ -29,6 +28,8 @@ import { hexagonAsTRBL } from '../utils/trbl';
 import ConditionEdgeWithContextMenu from './edges/ConditionEdgeWithContextMenu';
 import EdgeWithStartIndicatorWithContextMenu from './edges/EdgeWithStartIndicatorWithContextMenu';
 import BaseWorkflowNode from './nodes/BaseWorkflowNode/BaseWorkflowNode';
+import { isNodeInLoop } from '../utils/nodes';
+import '../state/ensureCorrectState';
 
 const nodeTypes = {
   startNode: StartNode,
@@ -199,14 +200,21 @@ const Workflow = () => {
 
       const outcomingEdges = getOutEdges(sourceNode);
 
-      if (outcomingEdges.length > 2) {
+      const isInLoop = isNodeInLoop(sourceNode);
+
+      if (!isInLoop && outcomingEdges.length > 2) {
         return { isValid: false, reason: 'A condition node can only have two outcoming edges' };
+      }
+
+      if (isInLoop && outcomingEdges.length > 3) {
+        return { isValid: false, reason: 'A condition node in a loop can only have three outcoming edges' };
       }
 
       return { isValid: true };
     });
 
     registerNodeValidator('actionNode')((sourceNode, targetNode) => {
+      console.log('What hh mTFK');
       if (targetNode.id === sourceNode.id || targetNode.type === 'startNode' || targetNode.type === 'conditionNode')
         return { isValid: false, reason: 'Invalid target node' };
 

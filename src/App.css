@@ -331,3 +331,11 @@
 button {
   font-size: calc(10px + 2vmin);
 }
+
+.condition-edge__text-group .condition-edge__text-group__tooltip {
+  display: none;
+}
+
+.condition-edge__text-group:hover .condition-edge__text-group__tooltip {
+  display: block;
+}

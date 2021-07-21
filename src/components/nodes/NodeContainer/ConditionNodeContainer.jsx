@@ -1,13 +1,15 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import Tooltip from '@material-ui/core/Tooltip';
 import { NodeContainer } from 'react-flowy/lib';
 import ConditionHandles, { ARROW_DISTANCE } from '../../handles/ConditionHandles';
 
 const ConditionNodeContainer = React.memo(({ children, node, isHandleDisabled, additionalEdgeProps }) => {
+  const edgeProps = useMemo(() => ({ ...additionalEdgeProps, arrowHeadType: 'thinarrow', type: 'conditionEdge' }), [additionalEdgeProps]);
+
   return (
     <NodeContainer
       node={node}
-      additionalEdgeProps={{ ...additionalEdgeProps, arrowHeadType: 'thinarrow', type: 'conditionEdge' }}
+      additionalEdgeProps={edgeProps}
       isHandleDisabled={isHandleDisabled}
       arrowDistance={ARROW_DISTANCE}
       Handles={ConditionHandles}

@@ -1,6 +1,4 @@
-import { Shape } from 'react-flowy/lib';
-
-export const hexagonAsTRBL = (shape: Shape) => {
+export const hexagonAsTRBL = shape => {
   return {
     top: shape.y - shape.topPeakHeight,
     right: shape.x + shape.width,

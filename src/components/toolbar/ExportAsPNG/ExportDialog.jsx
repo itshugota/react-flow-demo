@@ -70,7 +70,7 @@ const ExportDialog = ({ isOpen, onClose, onExport }) => {
     if (Number(inputValue) < 0) return false;
 
     return true;
-  }
+  };
 
   const handleChangeMargin = event => {
     if (!validatePositiveIntegerInput(event.target.value)) return;
@@ -81,9 +81,9 @@ const ExportDialog = ({ isOpen, onClose, onExport }) => {
   const handleChangeQualityLevel = event => {
     if (!validatePositiveIntegerInput(event.target.value)) return;
 
-    if (event.target.value === '0') return setQualityLevel(1);
+    if (event.target.value === '0') return setQualityLevel('1');
 
-    if (Number(event.target.value) > 10) return setQualityLevel(10);
+    if (Number(event.target.value) > 10) return setQualityLevel('10');
 
     setQualityLevel(event.target.value);
   };

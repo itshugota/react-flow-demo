@@ -4,7 +4,7 @@ import { makeStyles } from '@material-ui/core/styles';
 import Typography from '@material-ui/core/Typography';
 import DragIndicatorIcon from '@material-ui/icons/DragIndicator';
 
-import { useReactFlowyStore, eventPointToCanvasCoordinates, getCanvas, getReactFlowyElement, isPointInRect, Node, transformSelector, snapPointToGrid, snapGridSelector, nodesSelector } from 'react-flowy/lib';
+import { useReactFlowyStore, eventPointToCanvasCoordinates, getCanvas, getReactFlowyElement, isPointInRect, transformSelector, snapPointToGrid, snapGridSelector, nodesSelector } from 'react-flowy/lib';
 import { useRef } from 'react';
 
 const useStyles = makeStyles(theme => ({
@@ -51,26 +51,16 @@ const useStyles = makeStyles(theme => ({
   }
 }));
 
-export interface DraggableBlockProps {
-  Icon: React.FC;
-  DragShell: React.FC;
-  name: string;
-  description: string;
-  nodeType: string;
-}
+export const nodeDropValidators = {};
 
-export type NodeDropValidator = (nodes: Node[], droppableNode: Node) => boolean; 
-
-export const nodeDropValidators: Record<string, NodeDropValidator> = {};
-
-export const registerNodeDropValidator = (nodeType: string) => (nodeDropValidator: NodeDropValidator) => {
+export const registerNodeDropValidator = nodeType => nodeDropValidator => {
   nodeDropValidators[nodeType] = nodeDropValidator;
 };
 
-const DraggableBlock: React.FC<DraggableBlockProps> = ({ Icon, DragShell, name, description, nodeType }) => {
+const DraggableBlock = ({ Icon, DragShell, name, description, nodeType }) => {
   const classes = useStyles();
   const { enqueueSnackbar } = useSnackbar();
-  const nodes = useRef<Node[]>([]);
+  const nodes = useRef([]);
   const transform = useReactFlowyStore(transformSelector);
   const snapGrid = useReactFlowyStore(snapGridSelector);
   const upsertNode = useReactFlowyStore(state => state.upsertNode);
@@ -98,25 +88,25 @@ const DraggableBlock: React.FC<DraggableBlockProps> = ({ Icon, DragShell, name, 
     };
   }, [isGrabbing, transform]);
 
-  const handleDrag = (e: MouseEvent) => {
-    setDragX(e.clientX);
-    setDragY(e.clientY);
+  const handleDrag = event => {
+    setDragX(event.clientX);
+    setDragY(event.clientY);
   };
 
-  const handleDragStop = (e: MouseEvent) => {
+  const handleDragStop = event => {
     setIsGrabbing(false);
 
     const reactFlowyElement = getReactFlowyElement();
-    const reactFlowyElementBoundingRect = reactFlowyElement!.getBoundingClientRect();
-    const cursorPosition = { x: e.clientX, y: e.clientY };
+    const reactFlowyElementBoundingRect = reactFlowyElement.getBoundingClientRect();
+    const cursorPosition = { x: event.clientX, y: event.clientY };
 
     if (!isPointInRect(cursorPosition, reactFlowyElementBoundingRect)) return;
 
     const canvas = getCanvas(transform);
 
-    const cursorCoordinates = snapPointToGrid(eventPointToCanvasCoordinates(e)(canvas), snapGrid);
+    const cursorCoordinates = snapPointToGrid(eventPointToCanvasCoordinates(event)(canvas), snapGrid);
 
-    const newNode: Node = {
+    const newNode = {
       id: `x${cursorPosition.x}y${cursorPosition.y}`,
       type: nodeType,
       position: cursorCoordinates,
@@ -144,10 +134,10 @@ const DraggableBlock: React.FC<DraggableBlockProps> = ({ Icon, DragShell, name, 
     upsertNode(newNode);
   };
 
-  const handleDragStart = (e: React.MouseEvent) => {
+  const handleDragStart = event => {
     setIsGrabbing(true);
-    setDragX(e.clientX);
-    setDragY(e.clientY);
+    setDragX(event.clientX);
+    setDragY(event.clientY);
   };
 
   return (

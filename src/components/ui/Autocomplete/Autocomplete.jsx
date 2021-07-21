@@ -3,19 +3,11 @@ import clsx from 'clsx';
 import ArrowDropDownIcon from '@material-ui/icons/ArrowDropDown';
 import Popper from '@material-ui/core/Popper';
 import { makeStyles } from '@material-ui/core/styles';
+import FilledInput from '../FilledInput/FilledInput';
 
 const useStyles = makeStyles(theme => ({
   container: {
     position: 'relative',
-  },
-  input: {
-    border: 'none',
-    background: '#f1f3f4',
-    borderRadius: '4px 4px 0 0',
-    padding: theme.spacing(1.5, 4, 1.5, 2),
-    outline: 'none',
-    fontSize: 14,
-    width: ({ fixedWidth }) => fixedWidth,
   },
   dropdown: {
     position: 'fixed',
@@ -247,14 +239,14 @@ const Autocomplete =
 
     return (
       <div className={classes.container} onMouseDown={handleMouseDown} onMouseMove={handleMouseMove}>
-        <input
-          className={classes.input}
+        <FilledInput
           placeholder={placeholder}
           value={inputValue}
           onChange={handleInputChange}
           onFocus={handleInputFocus}
           onBlur={handleInputBlur}
           onKeyDown={handleInputKeyDown}
+          width={fixedWidth}
         />
         <ArrowDropDownIcon className={classes.dropdownIcon} />
         {shouldShowDropdown &&

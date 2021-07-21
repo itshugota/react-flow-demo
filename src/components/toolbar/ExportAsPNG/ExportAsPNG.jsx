@@ -40,4 +40,4 @@ const ExportAsPNG = () => {
   );
 };
 
-export default ExportAsPNG;
+export default React.memo(ExportAsPNG);

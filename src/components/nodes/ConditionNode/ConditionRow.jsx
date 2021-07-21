@@ -7,11 +7,11 @@ import IconButton from '@material-ui/core/IconButton';
 import DeleteIcon from '@material-ui/icons/Delete';
 import AddIcon from '@material-ui/icons/Add';
 
-import premadeEntities from '../../../data/entities.json';
 import operators from '../../../data/operators.json';
 import Autocomplete from '../../ui/Autocomplete/Autocomplete';
 import { useReactFlowyStore } from 'react-flowy/lib';
 import CreateEntityDialog from '../../dialogs/CreateEntityDialog';
+import useEntities from '../../../hooks/useEntities';
 
 const useStyles = makeStyles(theme => ({
   tableRow: {
@@ -78,28 +78,6 @@ const useStyles = makeStyles(theme => ({
     height: 20,
   },
 }));
-
-const useEntities = () => {
-  const [entities, setEntities] = useState([]);
-
-  useEffect(() => {
-    const stringifiedStoredEntities = localStorage.getItem('entities');
-
-    if (stringifiedStoredEntities) {
-      return setEntities(JSON.parse(stringifiedStoredEntities));
-    }
-
-    setEntities(premadeEntities);
-  }, []);
-
-  const saveEntities = (entities) => {
-    localStorage.setItem('entities', JSON.stringify(entities));
-
-    setEntities(entities);
-  };
-
-  return { entities, saveEntities };
-};
 
 const ConditionRow = React.memo(({ node, condition, index, isLastRow }) => {
   const classes = useStyles();

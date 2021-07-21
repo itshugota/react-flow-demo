@@ -1,10 +1,10 @@
-import { isPointInRect, Point, Shape } from 'react-flowy/lib';
+import { isPointInRect } from 'react-flowy/lib';
 
-const sign = (pointA: Point, pointB: Point, pointC: Point) => {
+const sign = (pointA, pointB, pointC) => {
   return (pointA.x - pointC.x) * (pointB.y - pointC.y) - (pointB.x - pointC.x) * (pointA.y - pointC.y);
 }
 
-export const isPointInTriangle = (point: Point) => (trianglePointA: Point, trianglePointB: Point, trianglePointC: Point) => {
+export const isPointInTriangle = point => (trianglePointA, trianglePointB, trianglePointC) => {
     const d1 = sign(point, trianglePointA, trianglePointB);
     const d2 = sign(point, trianglePointB, trianglePointC);
     const d3 = sign(point, trianglePointC, trianglePointA);
@@ -15,7 +15,7 @@ export const isPointInTriangle = (point: Point) => (trianglePointA: Point, trian
     return !(has_neg && has_pos);
 }
 
-export const isPointInHexagon = (point: Point, shape: Shape) => {
+export const isPointInHexagon = (point, shape) => {
   const isPointInHexagonRect = isPointInRect(point, shape);
 
   if (isPointInHexagonRect) return true;

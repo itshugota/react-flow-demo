@@ -6,9 +6,9 @@ import AddIcon from '@material-ui/icons/Add';
 import QuoteIcon from '@material-ui/icons/FormatQuote';
 
 import Autocomplete from '../../ui/Autocomplete/Autocomplete';
-import premadeIntents from '../../../data/intents.json';
 import { useReactFlowyStore } from 'react-flowy/lib';
 import CreateIntentDialog from '../../dialogs/CreateIntentDialog';
+import useIntents from '../../../hooks/useIntents';
 
 const useStyles = makeStyles(theme => ({
   main: {
@@ -72,28 +72,6 @@ const useStyles = makeStyles(theme => ({
     },
   },
 }));
-
-const useIntents = () => {
-  const [intents, setIntents] = useState([]);
-
-  useEffect(() => {
-    const stringifiedStoredIntents = localStorage.getItem('intents');
-
-    if (stringifiedStoredIntents) {
-      return setIntents(JSON.parse(stringifiedStoredIntents));
-    }
-
-    setIntents(premadeIntents);
-  }, []);
-
-  const saveIntents = (intents) => {
-    localStorage.setItem('intents', JSON.stringify(intents));
-
-    setIntents(intents);
-  };
-
-  return { intents, saveIntents };
-};
 
 const IntentDescriptionPopover = ({ id }) => {
   const classes = useStyles();

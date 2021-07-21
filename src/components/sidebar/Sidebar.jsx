@@ -8,7 +8,6 @@ import HelpIcon from '@material-ui/icons/Help';
 import ForumIcon from '@material-ui/icons/Forum';
 import ExitToAppIcon from '@material-ui/icons/ExitToApp';
 import { makeStyles } from '@material-ui/core/styles';
-import CallSplitReverseIcon from '../icons/CallSplitReverse';
 import CircleIcon from '../icons/Circle';
 import DoubleCircleIcon from '../icons/DoubleCircle';
 import FilterAltIcon from '../icons/FilterAlt';

@@ -6,6 +6,7 @@ import ActionNodeBody from './ActionNodeBody';
 import ExtendedNodeContainer from '../NodeContainer/ExtendedNodeContainer';
 import ProblemPopover from '../../problemPopover/ProblemPopover';
 import { useStatusStore } from '../../../store/status.store';
+import useEnsureEdgePositions from '../useEnsureEdgePositions';
 
 const useStyles = makeStyles(() => ({
   container: {},
@@ -14,10 +15,11 @@ const useStyles = makeStyles(() => ({
   }
 }));
 
-const ActionNode = ({ children, ...node }) => {
+const ActionNode = ({ children, node }) => {
   const classes = useStyles();
   const shouldShowInvalidNodes = useStatusStore(state => state.shouldShowInvalidNodes);
   const problematicNode = useStatusStore(state => state.problematicNodes.find(pN => pN.id === node.id));
+  useEnsureEdgePositions(node);
 
   return (
     <ExtendedNodeContainer node={node}>
