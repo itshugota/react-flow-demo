@@ -9,7 +9,7 @@ import AddIcon from '@material-ui/icons/Add';
 
 import operators from '../../../data/operators.json';
 import Autocomplete from '../../ui/Autocomplete/Autocomplete';
-import { useReactFlowyStore } from 'react-flowy/lib';
+import { useReactFlowyStoreById } from 'react-flowy/lib';
 import CreateEntityDialog from '../../dialogs/CreateEntityDialog';
 import useEntities from '../../../hooks/useEntities';
 
@@ -19,8 +19,8 @@ const useStyles = makeStyles(theme => ({
   },
   lastRow: {
     '& > .MuiTableCell-root': {
-      border: 'none'
-    }
+      border: 'none',
+    },
   },
   orderOrActionCell: {
     padding: '6px 8px 6px 8px !important',
@@ -53,9 +53,9 @@ const useStyles = makeStyles(theme => ({
 
       '& .MuiSvgIcon-root': {
         width: 20,
-        height: 20
-      }
-    }
+        height: 20,
+      },
+    },
   },
   actionCellHidden: {
     visibility: 'hidden',
@@ -70,7 +70,7 @@ const useStyles = makeStyles(theme => ({
     alignItems: 'center',
     '&:hover': {
       background: theme.palette.grey[100],
-    }
+    },
   },
   addIcon: {
     marginRight: theme.spacing(0.5),
@@ -79,10 +79,11 @@ const useStyles = makeStyles(theme => ({
   },
 }));
 
-const ConditionRow = React.memo(({ node, condition, index, isLastRow }) => {
+const ConditionRow = React.memo(({ node, condition, index, isLastRow, storeId }) => {
   const classes = useStyles();
   const { entities, saveEntities } = useEntities();
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
+  const useReactFlowyStore = useReactFlowyStoreById(storeId);
   const upsertNode = useReactFlowyStore(state => state.upsertNode);
   const correspondingEntity = entities.find(entity => entity.id === condition.parameterId);
   const parameterValues = correspondingEntity ? correspondingEntity.values : [];
@@ -148,8 +149,8 @@ const ConditionRow = React.memo(({ node, condition, index, isLastRow }) => {
                 operator: '=',
                 value: entity.values[0],
               }
-            ] 
-        }
+            ], 
+        },
     };
 
     upsertNode(updatedNode);

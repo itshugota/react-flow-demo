@@ -3,13 +3,13 @@ import { makeStyles } from '@material-ui/core/styles';
 
 import Autocomplete from '../../ui/Autocomplete/Autocomplete';
 import workflows from '../../../data/workflows.json';
-import { useReactFlowyStore } from 'react-flowy/lib';
+import { useReactFlowyStoreById } from 'react-flowy/lib';
 
 const useStyles = makeStyles(theme => ({
   main: {
     display: 'flex',
     alignItems: 'center',
-    padding: theme.spacing(2)
+    padding: theme.spacing(2),
   },
   createNewAction: {
     cursor: 'pointer',
@@ -20,7 +20,7 @@ const useStyles = makeStyles(theme => ({
     alignItems: 'center',
     '&:hover': {
       background: theme.palette.grey[100],
-    }
+    },
   },
   addIcon: {
     marginRight: theme.spacing(0.5),
@@ -29,8 +29,9 @@ const useStyles = makeStyles(theme => ({
   },
 }));
 
-const BaseWorkflowNodeBody = ({ node }) => {
+const BaseWorkflowNodeBody = ({ node, storeId }) => {
   const classes = useStyles();
+  const useReactFlowyStore = useReactFlowyStoreById(storeId);
   const upsertNode = useReactFlowyStore(state => state.upsertNode);
 
   const handleActionChange = (newActionId) => {

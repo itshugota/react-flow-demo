@@ -11,14 +11,14 @@ import {
   BackgroundVariant,
   Background,
   getSelectedElement,
-  getOutEdges,
-  useReactFlowyStore,
+  getOutgoingEdges,
+  useReactFlowyStoreById,
   nodesSelector,
   edgesSelector,
   registerGetDockingPointFunction,
   registerIsPointInShapeFunction,
   registerShapeAsTRBLFunction,
-  addMarkerDefinition,
+  addMarkerDefinition
 } from 'react-flowy/lib';
 import StandardEdgeWithContextMenu from './edges/StandardEdgeWithContextMenu';
 import { registerNodeDropValidator } from './sidebar/DraggableBlock';
@@ -30,6 +30,7 @@ import EdgeWithStartIndicatorWithContextMenu from './edges/EdgeWithStartIndicato
 import BaseWorkflowNode from './nodes/BaseWorkflowNode/BaseWorkflowNode';
 import { isNodeInLoop } from '../utils/nodes';
 import '../state/ensureCorrectState';
+import { trackStatus } from '../store/status.store';
 
 const nodeTypes = {
   startNode: StartNode,
@@ -111,16 +112,17 @@ const graphElements = [
       y: 600,
     },
     shapeType: 'circle',
-  },
+  }
 ];
 
 registerGetDockingPointFunction('hexagon')(getDockingPointForHexagon);
 registerIsPointInShapeFunction('hexagon')(isPointInHexagon);
 registerShapeAsTRBLFunction('hexagon')(hexagonAsTRBL);
 
-const Workflow = () => {
+const Workflow = ({ storeId }) => {
   const nodes = useRef([]);
   const edges = useRef([]);
+  const useReactFlowyStore = useReactFlowyStoreById(storeId);
   const unselectAllElements = useReactFlowyStore(state => state.unselectAllElements);
   const deleteElementById = useReactFlowyStore(state => state.deleteElementById);
   const registerNodeValidator = useReactFlowyStore(state => state.registerNodeValidator);
@@ -137,6 +139,7 @@ const Workflow = () => {
   }, []);
 
   useEffect(() => {
+    trackStatus(storeId);
     document.addEventListener('keyup', handleKeyUp);
 
     return () => document.removeEventListener('keyup', handleKeyUp);
@@ -154,7 +157,7 @@ const Workflow = () => {
     }
   }
 
-  const handleLoad = (reactFlowInstance) => {
+  const handleLoad = () => {
     addMarkerDefinition('react-flowy__thinarrow',
       <polyline
         className="react-flowy__thinarrow"
@@ -162,7 +165,7 @@ const Workflow = () => {
         strokeLinejoin="round"
         strokeWidth="1"
         points="-10,-4 0,0 -10,4 -10,-4"
-      />,
+      />
     );
 
     addMarkerDefinition('react-flowy__thinarrow--error',
@@ -172,7 +175,7 @@ const Workflow = () => {
         strokeLinejoin="round"
         strokeWidth="1"
         points="-10,-4 0,0 -10,4 -10,-4"
-      />,
+      />
     );
 
     const savedElements = JSON.parse(localStorage.getItem('elements') || '[]');
@@ -183,14 +186,6 @@ const Workflow = () => {
       if (targetNode.id === sourceNode.id || targetNode.type === 'terminateNode' || targetNode.type === 'startNode')
         return { isValid: false, reason: 'Invalid target node' };
 
-      const outcomingEdges = getOutEdges(sourceNode).filter(edge => edge.target !== targetNode.id);
-      const firstConnectedNode = outcomingEdges.length > 0 ? nodes.current.find(node => node.id === outcomingEdges[0]?.target) : null;
-
-      if (firstConnectedNode && (firstConnectedNode?.type === 'conditionNode' && targetNode.type !== 'conditionNode') ||
-        (firstConnectedNode?.type === 'actionNode')
-      )
-        return { isValid: false, reason: 'There is already a connected edge' };
-
       return { isValid: true };
     });
 
@@ -198,7 +193,7 @@ const Workflow = () => {
       if (targetNode.id === sourceNode.id || targetNode.type === 'terminateNode' || targetNode.type === 'startNode' || targetNode.type === 'intentNode')
         return { isValid: false, reason: 'Invalid target node' };
 
-      const outcomingEdges = getOutEdges(sourceNode);
+      const outcomingEdges = getOutgoingEdges(edges.current)(sourceNode);
 
       const isInLoop = isNodeInLoop(sourceNode);
 
@@ -214,12 +209,8 @@ const Workflow = () => {
     });
 
     registerNodeValidator('actionNode')((sourceNode, targetNode) => {
-      console.log('What hh mTFK');
-      if (targetNode.id === sourceNode.id || targetNode.type === 'startNode' || targetNode.type === 'conditionNode')
+      if (targetNode.id === sourceNode.id || targetNode.type === 'startNode')
         return { isValid: false, reason: 'Invalid target node' };
-
-      if (getOutEdges(sourceNode).length > 1)
-        return { isValid: false, reason: 'There is already a connected edge' };
 
       return { isValid: true };
     });
@@ -234,12 +225,6 @@ const Workflow = () => {
     registerNodeValidator('baseWorkflowNode')((sourceNode, targetNode) => {
       if (targetNode.id === sourceNode.id || targetNode.type === 'startNode')
         return { isValid: false, reason: 'Invalid target node' };
-
-      const outcomingEdges = getOutEdges(sourceNode);
-
-      if (outcomingEdges.length > 1) {
-        return { isValid: false, reason: 'A base workflow node can only have one outcoming edge' };
-      }
 
       return { isValid: true };
     });
@@ -257,7 +242,7 @@ const Workflow = () => {
     });
   };
 
-  const handleBackgroundClick = e => {
+  const handleBackgroundClick = () => {
     unselectAllElements();
   };
 
@@ -268,8 +253,9 @@ const Workflow = () => {
     snapGrid={[8, 8]}
     onLoad={handleLoad}
     onBackgroundClick={handleBackgroundClick}
+    storeId={storeId}
   >
-    <Background color="#aaa" gap={32} variant={BackgroundVariant.Lines} />
+    <Background color="#aaa" gap={32} variant={BackgroundVariant.Lines} storeId={storeId} />
   </DraggableReactFlowy>;
 }
 

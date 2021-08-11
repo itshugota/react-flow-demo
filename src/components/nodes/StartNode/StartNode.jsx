@@ -20,16 +20,16 @@ const useStyles = makeStyles(theme => ({
   selected: {
     boxShadow: '0px 0px 4px var(--selected-color)',
     borderRadius: '50%',
-  }
+  },
 }));
 
-const StartNode = ({ children, ...node }) => {
+const StartNode = ({ children, node, storeId }) => {
   const classes = useStyles();
   const shouldShowInvalidNodes = useStatusStore(state => state.shouldShowInvalidNodes);
   const problematicNode = useStatusStore(state => state.problematicNodes.find(pN => pN.id === node.id));
 
   return (
-    <ExtendedNodeContainer node={node}>
+    <ExtendedNodeContainer node={node} storeId={storeId}>
       <div className={node.isSelected ? classes.selected : ''}>
         <Paper className={classes.container} elevation={4} />
         {shouldShowInvalidNodes && problematicNode && <ProblemPopover status={problematicNode.status} message={problematicNode.message} />}

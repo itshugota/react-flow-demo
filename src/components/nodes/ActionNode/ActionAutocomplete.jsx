@@ -4,7 +4,7 @@ import AddIcon from '@material-ui/icons/Add';
 
 import Autocomplete from '../../ui/Autocomplete/Autocomplete';
 import CreateActionDialog from '../../dialogs/CreateActionDialog';
-import { useReactFlowyStore } from 'react-flowy/lib';
+import { useReactFlowyStoreById } from 'react-flowy/lib';
 import useActions from '../../../hooks/useActions';
 
 const useStyles = makeStyles(theme => ({
@@ -17,7 +17,7 @@ const useStyles = makeStyles(theme => ({
     alignItems: 'center',
     '&:hover': {
       background: theme.palette.grey[100],
-    }
+    },
   },
   addIcon: {
     marginRight: theme.spacing(0.5),
@@ -26,9 +26,10 @@ const useStyles = makeStyles(theme => ({
   },
 }));
 
-const ActionAutocomplete = ({ node, value, onChange }) => {
+const ActionAutocomplete = ({ node, value, onChange, storeId }) => {
   const classes = useStyles();
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
+  const useReactFlowyStore = useReactFlowyStoreById(storeId);
   const upsertNode = useReactFlowyStore(state => state.upsertNode);
   const { actions, saveActions } = useActions();
 

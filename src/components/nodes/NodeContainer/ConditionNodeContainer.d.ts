@@ -4,6 +4,7 @@ export interface ConditionNodeContainerProps {
   node: Node;
   additionalEdgeProps?: Partial<Edge>;
   isHandleDisabled?: boolean;
+  storeId: string;
   children: JSX.Element;
 }
 

@@ -6,7 +6,7 @@ import AddIcon from '@material-ui/icons/Add';
 import QuoteIcon from '@material-ui/icons/FormatQuote';
 
 import Autocomplete from '../../ui/Autocomplete/Autocomplete';
-import { useReactFlowyStore } from 'react-flowy/lib';
+import { useReactFlowyStoreById } from 'react-flowy/lib';
 import CreateIntentDialog from '../../dialogs/CreateIntentDialog';
 import useIntents from '../../../hooks/useIntents';
 
@@ -25,7 +25,7 @@ const useStyles = makeStyles(theme => ({
     alignItems: 'center',
     '&:hover': {
       background: theme.palette.grey[100],
-    }
+    },
   },
   addIcon: {
     marginRight: theme.spacing(0.5),
@@ -51,7 +51,7 @@ const useStyles = makeStyles(theme => ({
     },
     '& .MuiTypography-body1': {
       fontSize: 14,
-    }
+    },
   },
   popoverArrow: {
     position: 'absolute',
@@ -99,9 +99,10 @@ const IntentDescriptionPopover = ({ id }) => {
   );
 };
 
-const IntentNodeBody = ({ node }) => {
+const IntentNodeBody = ({ node, storeId }) => {
   const classes = useStyles();
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
+  const useReactFlowyStore = useReactFlowyStoreById(storeId);
   const upsertNode = useReactFlowyStore(state => state.upsertNode);
   const { intents, saveIntents } = useIntents();
 

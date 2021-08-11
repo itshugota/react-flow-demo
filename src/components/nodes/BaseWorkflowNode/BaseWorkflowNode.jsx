@@ -12,21 +12,21 @@ const useStyles = makeStyles(() => ({
     border: '2px solid #434343',
   },
   selected: {
-    boxShadow: '0px 0px 4px var(--selected-color)'
-  }
+    boxShadow: '0px 0px 4px var(--selected-color)',
+  },
 }));
 
-const BaseWorkflowNode = ({ children, node }) => {
+const BaseWorkflowNode = ({ children, node, storeId }) => {
   const classes = useStyles();
   const shouldShowInvalidNodes = useStatusStore(state => state.shouldShowInvalidNodes);
   const problematicNode = useStatusStore(state => state.problematicNodes.find(pN => pN.id === node.id));
 
   return (
-    <ExtendedNodeContainer node={node}>
+    <ExtendedNodeContainer node={node} storeId={storeId}>
       <Paper className={classes.container} elevation={4}>
         <div className={node.isSelected ? classes.selected : ''}>
-          <BaseWorkflowNodeHeader node={node} />
-          <BaseWorkflowNodeBody node={node} />
+          <BaseWorkflowNodeHeader node={node} storeId={storeId} />
+          <BaseWorkflowNodeBody node={node} storeId={storeId} />
         </div>
         {shouldShowInvalidNodes && problematicNode && <ProblemPopover status={problematicNode.status} message={problematicNode.message} />}
       </Paper>

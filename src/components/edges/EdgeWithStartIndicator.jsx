@@ -5,14 +5,13 @@ import { StandardEdge } from 'react-flowy/lib';
 
 export default React.memo(
   ({
-    waypoints,
-    isInvalid,
+    edge,
     ...rest
   }) => {
     return (
       <>
-        <circle className={clsx('edge__start-indicator', isInvalid ? 'edge__start-indicator--invalid' : '')} cx={waypoints[0].x} cy={waypoints[0].y} r="4" />
-        <StandardEdge waypoints={waypoints} isInvalid={isInvalid} {...rest} />
+        <circle className={clsx('edge__start-indicator', edge.isInvalid ? 'edge__start-indicator--invalid' : '')} cx={edge.waypoints[0].x} cy={edge.waypoints[0].y} r="4" />
+        <StandardEdge edge={edge} {...rest} />
       </>
     );
   }

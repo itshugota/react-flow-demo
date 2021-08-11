@@ -9,7 +9,7 @@ import ConditionNodeBody from './ConditionNodeBody';
 import ConditionNodeContainer from '../NodeContainer/ConditionNodeContainer';
 import ProblemPopover from '../../problemPopover/ProblemPopover';
 import { useStatusStore } from '../../../store/status.store';
-import { eventPointToCanvasCoordinates, getCanvas, isPointInShape, transformSelector, useReactFlowyStore } from 'react-flowy/lib';
+import { eventPointToCanvasCoordinates, getCanvas, isPointInShape, transformSelector, useReactFlowyStoreById } from 'react-flowy/lib';
 import { isNodeInLoop } from '../../../utils/nodes';
 import useEnsureEdgePositions from '../useEnsureEdgePositions';
 
@@ -18,7 +18,7 @@ const useStyles = makeStyles(theme => ({
     boxShadow: '0px 2px 4px 1px rgb(0 0 0 / 20%)',
   },
   selected: {
-    boxShadow: '0px 0px 4px var(--selected-color)'
+    boxShadow: '0px 0px 4px var(--selected-color)',
   },
   leftArrow: {
     position: 'relative',
@@ -36,7 +36,7 @@ const useStyles = makeStyles(theme => ({
       top: 75,
       left: 25,
       boxShadow: '-1px -1px 10px -2px rgba(0, 0, 0, 0.5)',
-    }
+    },
   },
   footer: {
     position: 'absolute',
@@ -53,11 +53,13 @@ const useStyles = makeStyles(theme => ({
   },
 }));
 
-const ConditionNode = ({ children, node }) => {
+const ConditionNode = ({ children, node, storeId }) => {
+  console.log('ConditionNode', node.id, 'is rerendering');
   const classes = useStyles();
   const shouldShowInvalidNodes = useStatusStore(state => state.shouldShowInvalidNodes);
   const shouldShowUnhandledConditions = useStatusStore(state => state.shouldShowUnhandledConditions);
   const problematicNode = useStatusStore(state => state.problematicNodes.find(pN => pN.id === node.id));
+  const useReactFlowyStore = useReactFlowyStoreById(storeId);
   const outcomingEdges = useReactFlowyStore(state => state.edges).filter(edge => edge.source === node.id);
   const isThereOutcomingEdgeWithTrueLabel = outcomingEdges.find(edge => edge.label === 'TRUE');
   const isThereOutcomingEdgeWithFalseLabel = outcomingEdges.find(edge => edge.label === 'FALSE');
@@ -65,7 +67,7 @@ const ConditionNode = ({ children, node }) => {
   const upsertNode = useReactFlowyStore(state => state.upsertNode);
   const deleteElementById = useReactFlowyStore(state => state.deleteElementById);
   const transform = useReactFlowyStore(transformSelector);
-  useEnsureEdgePositions(node);
+  useEnsureEdgePositions(node, storeId);
 
   const addParameter = () => {
     let newConditions = [];
@@ -128,7 +130,7 @@ const ConditionNode = ({ children, node }) => {
   }, [isThereOutcomingEdgeWithFalseLabel, isThereOutcomingEdgeWithTrueLabel]);
 
   return (
-    <ConditionNodeContainer node={node} additionalEdgeProps={additionalEdgeProps}>
+    <ConditionNodeContainer node={node} additionalEdgeProps={additionalEdgeProps} storeId={storeId}>
       <Paper className={classes.container} elevation={0}>
         <svg onMouseDown={handleMouseDown} style={{ position: 'absolute', top: -69, left: 0 }} width="518" height="70" viewBox="0 0 518 70" fill="none" xmlns="http://www.w3.org/2000/svg">
           <path d="M259 0L518 70H0 0Z" fill="#ffffff" fillOpacity="1"/>
@@ -137,8 +139,8 @@ const ConditionNode = ({ children, node }) => {
         <svg onMouseDown={handleMouseDown} style={{ position: 'absolute', bottom: -69, left: 0, filter: 'drop-shadow(rgba(0, 0, 0, 0.2) 0px 4px 2px)' }} width="518" height="70" viewBox="0 0 518 70" fill="none" xmlns="http://www.w3.org/2000/svg">
           <path d="M259 70L0 0L518 0L259 70Z" fill="#ffffff" fillOpacity="1"/>
         </svg>
-        <ConditionNodeHeader node={node} />
-        <ConditionNodeBody node={node} />
+        <ConditionNodeHeader node={node} storeId={storeId} />
+        <ConditionNodeBody node={node} storeId={storeId} />
         <footer className={classes.footer}>
           <Button className={classes.addParameterButton} onClick={addParameter}>
             <AddIcon />
@@ -151,4 +153,8 @@ const ConditionNode = ({ children, node }) => {
   );
 };
 
-export default React.memo(ConditionNode);
+export default React.memo(ConditionNode, (prevProps, nextProps) => {
+  console.log('nextProps', nextProps);
+
+  return true;
+});

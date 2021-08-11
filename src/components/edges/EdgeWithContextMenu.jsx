@@ -1,10 +1,11 @@
 import React, { useState } from 'react';
 import Menu from '@material-ui/core/Menu';
 import MenuItem from '@material-ui/core/MenuItem';
-import { useReactFlowyStore, getSourceAndTargetNodes, connectShapes, getRectangleFromNode } from 'react-flowy/lib';
+import { useReactFlowyStoreById, getSourceAndTargetNodes, connectShapes, getRectangleFromNode } from 'react-flowy/lib';
 
 const EdgeWithContextMenu = React.memo(
   ({ edgeProps, EdgeComponent }) => {
+    const useReactFlowyStore = useReactFlowyStoreById(edgeProps.storeId);
     const setSelectedElementById = useReactFlowyStore(state => state.setSelectedElementById);
     const deleteElementById = useReactFlowyStore(state => state.deleteElementById);
     const upsertEdge = useReactFlowyStore(state => state.upsertEdge);
@@ -34,7 +35,7 @@ const EdgeWithContextMenu = React.memo(
       const targetRectangle = getRectangleFromNode(targetNode);
 
       const resetEdgeWaypoints = connectShapes(sourceRectangle, targetRectangle, 'rectangle', 'rectangle');
-      console.log('edgeProps', edgeProps);
+
       upsertEdge({ ...edgeProps, waypoints: resetEdgeWaypoints });
     };
 

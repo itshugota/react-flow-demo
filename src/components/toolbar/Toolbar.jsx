@@ -10,10 +10,9 @@ import ZoomOutIcon from '@material-ui/icons/ZoomOut';
 import ZoomInIcon from '@material-ui/icons/ZoomIn';
 import FullscreenIcon from '@material-ui/icons/Fullscreen';
 import FullscreenExitIcon from '@material-ui/icons/FullscreenExit';
-import { transformSelector, useReactFlowyStore, initializeUndoRedo, useUndoRedoStore, minZoomSelector, maxZoomSelector } from 'react-flowy/lib';
+import { transformSelector, useReactFlowyStoreById, initializeUndoRedo, useUndoRedoStore, minZoomSelector, maxZoomSelector } from 'react-flowy/lib';
 import StatusIndicator from './StatusIndicator/StatusIndicator';
 import ExportAsPNG from './ExportAsPNG/ExportAsPNG';
-import ScriptGenerator from './ScriptGenerator/ScriptGenerator';
 
 const useStyles = makeStyles(theme => ({
   root: {
@@ -42,7 +41,7 @@ const useStyles = makeStyles(theme => ({
     display: 'inline-block',
     width: 0,
     height: 24,
-    borderRight: '1px solid rgba(0, 0, 0, 60%)'
+    borderRight: '1px solid rgba(0, 0, 0, 60%)',
   },
   zoomInput: {
     textAlign: 'center',
@@ -55,8 +54,8 @@ const useStyles = makeStyles(theme => ({
     outline: 'none',
     fontSize: 14,
     fontWeight: 500,
-    width: 60
-  }
+    width: 60,
+  },
 }));
 
 function getFullscreenElement() {
@@ -118,8 +117,9 @@ const getScaleFromZoomInputValue = zoomInputValue => {
 
 let zoomInputTimeout;
 
-const Toolbar = () => {
+const Toolbar = ({ storeId }) => {
   const classes = useStyles();
+  const useReactFlowyStore = useReactFlowyStoreById(storeId);
   const minZoom = useReactFlowyStore(minZoomSelector);
   const maxZoom = useReactFlowyStore(maxZoomSelector);
   const transform = useReactFlowyStore(transformSelector);
@@ -133,8 +133,8 @@ const Toolbar = () => {
   const { isFullscreen, toggleFullscreen } = useFullscreen();
 
   useEffect(() => {
-    const { undo, redo, undoRedoInstance } = initializeUndoRedo();
-    
+    const { undo, redo, undoRedoInstance } = initializeUndoRedo(storeId);
+
     undoFn.current = undo;
     redoFn.current = redo;
     undoRedoInstanceRef.current = undoRedoInstance;
@@ -228,7 +228,6 @@ const Toolbar = () => {
         </IconButton>
       </Tooltip>
       <ExportAsPNG />
-      <ScriptGenerator />
       {isFullscreen ?
         <Tooltip title="Exit fullscreen">
           <IconButton className={classes.iconButton} onClick={handleExitFullscreen}>

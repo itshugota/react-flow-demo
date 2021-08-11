@@ -6,7 +6,7 @@ import IconButton from '@material-ui/core/IconButton';
 import Typography from '@material-ui/core/Typography';
 import InputIcon from '@material-ui/icons/Input';
 import MoreHorizIcon from '@material-ui/icons/MoreHoriz';
-import { useReactFlowyStore } from 'react-flowy/lib';
+import { useReactFlowyStoreById } from 'react-flowy/lib';
 
 const useStyles = makeStyles(theme => ({
   header: {
@@ -34,8 +34,9 @@ const useStyles = makeStyles(theme => ({
   },
 }));
 
-const IntentNodeHeader = ({ node }) => {
+const IntentNodeHeader = ({ node, storeId }) => {
   const classes = useStyles();
+  const useReactFlowyStore = useReactFlowyStoreById(storeId);
   const deleteElementById = useReactFlowyStore(state => state.deleteElementById);
   const [anchorEl, setAnchorEl] = useState(null);
 

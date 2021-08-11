@@ -1,4 +1,4 @@
-import { Point, Shape } from '../../../react-flowy/lib';
+import { Point, Shape } from 'react-flowy/lib';
 
 export const isPointInTriangle: (point: Point) => (trianglePointA: Point, trianglePointB: Point, trianglePointC: Point) => boolean;
 

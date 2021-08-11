@@ -1,17 +1,31 @@
+/* eslint-disable no-param-reassign */
 import findPathIntersections from 'path-intersection';
 import { getLinePath } from 'react-flowy/lib';
 
 const GAP_THRESHOLD = 12;
 
-export const getDockingPointForHexagon = (point, shape, detailedDockingDirection) => {
+export const getDockingPointForHexagon = (
+  point,
+  shape,
+  detailedDockingDirection
+) => {
   point = { ...point, x: Math.round(point.x), y: Math.round(point.y) };
 
-  const topPeak = { x: shape.x + shape.width / 2, y: shape.y - shape.topPeakHeight };
+  const topPeak = {
+    x: shape.x + shape.width / 2,
+    y: shape.y - shape.topPeakHeight,
+  };
   const topLeftPeak = { x: shape.x, y: shape.y };
   const topRightPeak = { x: shape.x + shape.width, y: shape.y };
-  const bottomPeak = { x: shape.x + shape.width / 2, y: shape.y + shape.height + shape.bottomPeakHeight };
+  const bottomPeak = {
+    x: shape.x + shape.width / 2,
+    y: shape.y + shape.height + shape.bottomPeakHeight,
+  };
   const bottomLeftPeak = { x: shape.x, y: shape.y + shape.height };
-  const bottomRightPeak = { x: shape.x + shape.width, y: shape.y + shape.height };
+  const bottomRightPeak = {
+    x: shape.x + shape.width,
+    y: shape.y + shape.height,
+  };
 
   if (detailedDockingDirection === 't') {
     point = { x: point.x, y: point.y + shape.height / 2 };
@@ -20,11 +34,20 @@ export const getDockingPointForHexagon = (point, shape, detailedDockingDirection
       point.x = topPeak.x;
     }
 
-    const otherPoint = { x: point.x, y: point.y - shape.topPeakHeight * 2 - shape.height * 2 };
-    const intersections = findPathIntersections(getLinePath([point, otherPoint]), getLinePath([topLeftPeak, topPeak, topRightPeak]));
+    const otherPoint = {
+      x: point.x,
+      y: point.y - shape.topPeakHeight * 2 - shape.height * 2,
+    };
+    const intersections = findPathIntersections(
+      getLinePath([point, otherPoint]),
+      getLinePath([topLeftPeak, topPeak, topRightPeak])
+    );
 
     return {
-      dockingPoint: { original: point, ...{ x: intersections[0].x, y: intersections[0].y } },
+      dockingPoint: {
+        original: point,
+        ...{ x: intersections[0].x, y: intersections[0].y },
+      },
       direction: 't',
     };
   }
@@ -44,10 +67,16 @@ export const getDockingPointForHexagon = (point, shape, detailedDockingDirection
         point = { x: point.x, y: topPeak.y + GAP_THRESHOLD };
       }
 
-      const intersections = findPathIntersections(getLinePath([point, otherPoint]), getLinePath([topLeftPeak, topPeak, topRightPeak]));
+      const intersections = findPathIntersections(
+        getLinePath([point, otherPoint]),
+        getLinePath([topLeftPeak, topPeak, topRightPeak])
+      );
 
       return {
-        dockingPoint: { original: point, ...{ x: intersections[0].x, y: intersections[0].y } },
+        dockingPoint: {
+          original: point,
+          ...{ x: intersections[0].x, y: intersections[0].y },
+        },
         direction: 'r',
       };
     }
@@ -57,10 +86,16 @@ export const getDockingPointForHexagon = (point, shape, detailedDockingDirection
         point = { x: point.x, y: bottomPeak.y - GAP_THRESHOLD };
       }
 
-      const intersections = findPathIntersections(getLinePath([point, otherPoint]), getLinePath([bottomLeftPeak, bottomPeak, bottomRightPeak]));
+      const intersections = findPathIntersections(
+        getLinePath([point, otherPoint]),
+        getLinePath([bottomLeftPeak, bottomPeak, bottomRightPeak])
+      );
 
       return {
-        dockingPoint: { original: point, ...{ x: intersections[0].x, y: intersections[0].y } },
+        dockingPoint: {
+          original: point,
+          ...{ x: intersections[0].x, y: intersections[0].y },
+        },
         direction: 'r',
       };
     }
@@ -73,11 +108,20 @@ export const getDockingPointForHexagon = (point, shape, detailedDockingDirection
       point.x = bottomPeak.x;
     }
 
-    const otherPoint = { x: point.x, y: point.y + shape.topPeakHeight * 2 + shape.height * 2 };
-    const intersections = findPathIntersections(getLinePath([point, otherPoint]), getLinePath([bottomLeftPeak, bottomPeak, bottomRightPeak]));
+    const otherPoint = {
+      x: point.x,
+      y: point.y + shape.topPeakHeight * 2 + shape.height * 2,
+    };
+    const intersections = findPathIntersections(
+      getLinePath([point, otherPoint]),
+      getLinePath([bottomLeftPeak, bottomPeak, bottomRightPeak])
+    );
 
     return {
-      dockingPoint: { original: point, ...{ x: intersections[0].x, y: intersections[0].y } },
+      dockingPoint: {
+        original: point,
+        ...{ x: intersections[0].x, y: intersections[0].y },
+      },
       direction: 'b',
     };
   }
@@ -93,23 +137,35 @@ export const getDockingPointForHexagon = (point, shape, detailedDockingDirection
     const otherPoint = { x: point.x - shape.width, y: point.y };
 
     if (point.y < shape.y) {
-      const intersections = findPathIntersections(getLinePath([point, otherPoint]), getLinePath([topLeftPeak, topPeak, topRightPeak]));
+      const intersections = findPathIntersections(
+        getLinePath([point, otherPoint]),
+        getLinePath([topLeftPeak, topPeak, topRightPeak])
+      );
 
       return {
-        dockingPoint: { original: point, ...{ x: intersections[0].x, y: intersections[0].y } },
+        dockingPoint: {
+          original: point,
+          ...{ x: intersections[0].x, y: intersections[0].y },
+        },
         direction: 'l',
       };
     }
 
     if (point.y > shape.y + shape.height) {
-      const intersections = findPathIntersections(getLinePath([point, otherPoint]), getLinePath([bottomLeftPeak, bottomPeak, bottomRightPeak]));
+      const intersections = findPathIntersections(
+        getLinePath([point, otherPoint]),
+        getLinePath([bottomLeftPeak, bottomPeak, bottomRightPeak])
+      );
 
       return {
-        dockingPoint: { original: point, ...{ x: intersections[0].x, y: intersections[0].y } },
+        dockingPoint: {
+          original: point,
+          ...{ x: intersections[0].x, y: intersections[0].y },
+        },
         direction: 'l',
       };
     }
   }
 
-  throw new Error('Unexpected dockingDirection: <' + detailedDockingDirection + '>');
-}
+  throw new Error(`Unexpected dockingDirection: <${detailedDockingDirection}>`);
+};

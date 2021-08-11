@@ -8,16 +8,17 @@ import HelpIcon from '@material-ui/icons/Help';
 import ForumIcon from '@material-ui/icons/Forum';
 import ExitToAppIcon from '@material-ui/icons/ExitToApp';
 import { makeStyles } from '@material-ui/core/styles';
+
 import CircleIcon from '../icons/Circle';
 import DoubleCircleIcon from '../icons/DoubleCircle';
 import FilterAltIcon from '../icons/FilterAlt';
 import DraggableBlock from './DraggableBlock';
 import StartNodeShell from '../nodes/StartNode/StartNodeShell';
-import IntentNodeShell from '../nodes/IntentNode/IntentNodeShell';
-import ConditionNodeShell from '../nodes/ConditionNode/ConditionNodeShell';
-import ActionNodeShell from '../nodes/ActionNode/ActionNodeShell';
-import TerminateNodeShell from '../nodes/TerminateNode/TerminateNodeShell';
-import BaseWorkflowNodeShell from '../nodes/BaseWorkflowNode/BaseWorkflowNodeShell';
+import IntentNodeShell from '../nodes/IntentNode/IntentNodeShell/IntentNodeShell';
+import ConditionNodeShell from '../nodes/ConditionNode/ConditionNodeShell/ConditionNodeShell';
+import ActionNodeShell from '../nodes/ActionNode/ActionNodeShell/ActionNodeShell';
+import GlobalTerminateNodeShell from '../nodes/TerminateNode/TerminateNodeShell';
+import SubWorkflowNodeShell from '../nodes/BaseWorkflowNode/BaseWorkflowNodeShell/BaseWorkflowNodeShell'
 
 const SIDEBAR_WIDTH = 280;
 
@@ -26,25 +27,25 @@ const useStyles = makeStyles(theme => ({
     width: SIDEBAR_WIDTH,
     [theme.breakpoints.down('md')]: {
       display: 'none',
-    }
+    },
   },
   drawerPaper: {
     width: SIDEBAR_WIDTH,
     border: 'none',
     boxShadow: theme.shadows[6],
-    padding: theme.spacing(2)
+    padding: theme.spacing(2),
   },
   mainBlockTitle: {
     fontSize: 20,
     color: 'var(--black)',
     marginTop: theme.spacing(3.5),
-    fontWeight: 500
+    fontWeight: 500,
   },
   otherBlockTitle: {
     fontSize: 20,
     color: 'var(--black)',
     marginTop: 0,
-    fontWeight: 500
+    fontWeight: 500,
   },
   draggableMainBlocks: {
     marginTop: theme.spacing(3),
@@ -64,7 +65,6 @@ const useStyles = makeStyles(theme => ({
     border: 'none',
     background: 'none',
     cursor: 'pointer',
-    color: theme.palette.primary.main,
     fontSize: 14,
     fontWeight: 500,
     transition: 'color 0.3s ease-in',
@@ -77,14 +77,14 @@ const useStyles = makeStyles(theme => ({
       color: theme.palette.primary.dark,
       '& .MuiSvgIcon-root': {
         color: theme.palette.grey[800],
-      }
-    }
+      },
+    },
   },
   exitButton: {
     '& .MuiSvgIcon-root': {
-      marginRight: theme.spacing(0.75)
-    }
-  }
+      marginRight: theme.spacing(0.75),
+    },
+  },
 }));
 
 const draggableMainBlocks = [
@@ -117,53 +117,92 @@ const draggableMainBlocks = [
     DragShell: ActionNodeShell,
   },
   {
-    name: 'Terminate',
-    description: 'The point where the workflow terminates',
+    name: 'Global Terminate',
+    description: 'The point where all the workflows terminate',
     nodeType: 'terminateNode',
     Icon: DoubleCircleIcon,
-    DragShell: TerminateNodeShell,
+    DragShell: GlobalTerminateNodeShell,
   }
 ];
 
 const draggableOtherBlocks = [
   {
-    name: 'Sub workflow',
+    name: 'Sub Workflow',
     description: 'A sub workflow (or a child workflow)',
-    nodeType: 'baseWorkflowNode',
+    nodeType: 'subWorkflowNode',
     Icon: ForumIcon,
-    DragShell: BaseWorkflowNodeShell,
-  },
+    DragShell: SubWorkflowNodeShell,
+  }
 ];
 
-const Sidebar = () => {
+const Sidebar = ({ handleClose, storeId }) => {
   const classes = useStyles();
 
   return (
     <>
-      <Drawer className={classes.drawer} variant="permanent" anchor="left" classes={{ paper: classes.drawerPaper }}>
-        <img src="/assets/WorkflowLogo.png" width="193" height="auto" style={{ userSelect: 'none', pointerEvents: 'none' }} />
-        <Typography className={classes.mainBlockTitle} variant="h5" align="left">
+      <Drawer
+        className={classes.drawer}
+        variant="permanent"
+        anchor="left"
+        classes={{ paper: classes.drawerPaper }}
+      >
+        <img
+          src="/static/img/workflow-logo.png"
+          width="193"
+          height="auto"
+          style={{ userSelect: 'none', pointerEvents: 'none' }}
+          alt="Workflow Logo"
+        />
+        <Typography
+          className={classes.mainBlockTitle}
+          variant="h5"
+          align="left"
+        >
           Main blocks
         </Typography>
         <section className={classes.draggableMainBlocks}>
-          {draggableMainBlocks.map(({ name, description, nodeType, Icon, DragShell }) => (
-            <DraggableBlock key={name} Icon={Icon} DragShell={DragShell} name={name} description={description} nodeType={nodeType} />
-          ))}
+          {draggableMainBlocks.map(
+            ({ name, description, nodeType, Icon, DragShell }) => (
+              <DraggableBlock
+                key={name}
+                Icon={Icon}
+                DragShell={DragShell}
+                name={name}
+                description={description}
+                nodeType={nodeType}
+                storeId={storeId}
+              />
+            )
+          )}
         </section>
-        <Typography className={classes.otherBlockTitle} variant="h5" align="left">
+        <Typography
+          className={classes.otherBlockTitle}
+          variant="h5"
+          align="left"
+        >
           Others
         </Typography>
         <section className={classes.draggableOtherBlocks}>
-          {draggableOtherBlocks.map(({ name, description, nodeType, Icon, DragShell }) => (
-            <DraggableBlock key={name} Icon={Icon} DragShell={DragShell} name={name} description={description} nodeType={nodeType} />
-          ))}
+          {draggableOtherBlocks.map(
+            ({ name, description, nodeType, Icon, DragShell }) => (
+              <DraggableBlock
+                key={name}
+                Icon={Icon}
+                DragShell={DragShell}
+                name={name}
+                description={description}
+                nodeType={nodeType}
+                storeId={storeId}
+              />
+            )
+          )}
         </section>
         <footer className={classes.footer}>
-          <button className={classes.userGuideButton}>
+          <button className={classes.userGuideButton} type="button">
             <HelpIcon />
             User Guide
           </button>
-          <Button color="primary" className={classes.exitButton}>
+          <Button className={classes.exitButton} onClick={handleClose}>
             <ExitToAppIcon />
             Exit
           </Button>

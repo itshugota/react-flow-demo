@@ -1,36 +1,53 @@
 import { isPointInRect } from 'react-flowy/lib';
 
-const sign = (pointA, pointB, pointC) => {
-  return (pointA.x - pointC.x) * (pointB.y - pointC.y) - (pointB.x - pointC.x) * (pointA.y - pointC.y);
-}
+const sign = (pointA, pointB, pointC) =>
+  (pointA.x - pointC.x) * (pointB.y - pointC.y) -
+  (pointB.x - pointC.x) * (pointA.y - pointC.y);
 
-export const isPointInTriangle = point => (trianglePointA, trianglePointB, trianglePointC) => {
-    const d1 = sign(point, trianglePointA, trianglePointB);
-    const d2 = sign(point, trianglePointB, trianglePointC);
-    const d3 = sign(point, trianglePointC, trianglePointA);
+export const isPointInTriangle = point => (
+  trianglePointA,
+  trianglePointB,
+  trianglePointC
+) => {
+  const d1 = sign(point, trianglePointA, trianglePointB);
+  const d2 = sign(point, trianglePointB, trianglePointC);
+  const d3 = sign(point, trianglePointC, trianglePointA);
 
-    const has_neg = (d1 < 0) || (d2 < 0) || (d3 < 0);
-    const has_pos = (d1 > 0) || (d2 > 0) || (d3 > 0);
+  const hasNegative = d1 < 0 || d2 < 0 || d3 < 0;
+  const hasPositive = d1 > 0 || d2 > 0 || d3 > 0;
 
-    return !(has_neg && has_pos);
-}
+  return !(hasNegative && hasPositive);
+};
 
 export const isPointInHexagon = (point, shape) => {
   const isPointInHexagonRect = isPointInRect(point, shape);
 
   if (isPointInHexagonRect) return true;
 
-  const topPeak = { x: shape.x + shape.width / 2, y: shape.y - shape.topPeakHeight };
+  const topPeak = {
+    x: shape.x + shape.width / 2,
+    y: shape.y - shape.topPeakHeight,
+  };
   const topLeftPeak = { x: shape.x, y: shape.y };
   const topRightPeak = { x: shape.x + shape.width, y: shape.y };
 
-  const isPointInTopTriangle = isPointInTriangle(point)(topLeftPeak, topPeak, topRightPeak);
+  const isPointInTopTriangle = isPointInTriangle(point)(
+    topLeftPeak,
+    topPeak,
+    topRightPeak
+  );
 
   if (isPointInTopTriangle) return true;
 
-  const bottomPeak = { x: shape.x + shape.width / 2, y: shape.y + shape.height + shape.bottomPeakHeight };
+  const bottomPeak = {
+    x: shape.x + shape.width / 2,
+    y: shape.y + shape.height + shape.bottomPeakHeight,
+  };
   const bottomLeftPeak = { x: shape.x, y: shape.y + shape.height };
-  const bottomRightPeak = { x: shape.x + shape.width, y: shape.y + shape.height };
+  const bottomRightPeak = {
+    x: shape.x + shape.width,
+    y: shape.y + shape.height,
+  };
 
   return isPointInTriangle(point)(bottomLeftPeak, bottomPeak, bottomRightPeak);
 };

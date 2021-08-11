@@ -29,16 +29,16 @@ const useStyles = makeStyles(theme => ({
   selected: {
     boxShadow: '0px 0px 4px var(--selected-color)',
     borderRadius: '50%',
-  }
+  },
 }));
 
-const TerminateNode = ({ children, ...node }) => {
+const TerminateNode = ({ children, node, storeId }) => {
   const classes = useStyles();
   const shouldShowInvalidNodes = useStatusStore(state => state.shouldShowInvalidNodes);
   const problematicNode = useStatusStore(state => state.problematicNodes.find(pN => pN.id === node.id));
 
   return (
-    <ExtendedNodeContainer node={node} isHandleDisabled>
+    <ExtendedNodeContainer node={node} isHandleDisabled storeId={storeId}>
       <div className={node.isSelected ? classes.selected : ''}>
         <Paper className={classes.container} elevation={4}>
           <Paper className={classes.child} elevation={0} />

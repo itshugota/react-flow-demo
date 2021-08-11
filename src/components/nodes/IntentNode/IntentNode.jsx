@@ -9,24 +9,24 @@ import { useStatusStore } from '../../../store/status.store';
 
 const useStyles = makeStyles(() => ({
   container: {
-    position: 'relative'
+    position: 'relative',
   },
   selected: {
-    boxShadow: '0px 0px 4px var(--selected-color)'
-  }
+    boxShadow: '0px 0px 4px var(--selected-color)',
+  },
 }));
 
-const IntentNode = ({ children, node }) => {
+const IntentNode = ({ children, node, storeId }) => {
   const classes = useStyles();
   const shouldShowInvalidNodes = useStatusStore(state => state.shouldShowInvalidNodes);
   const problematicNode = useStatusStore(state => state.problematicNodes.find(pN => pN.id === node.id));
 
   return (
-    <ExtendedNodeContainer node={node}>
+    <ExtendedNodeContainer node={node} storeId={storeId}>
       <Paper className={classes.container} elevation={4}>
         <div className={node.isSelected ? classes.selected : ''}>
-          <IntentNodeHeader node={node} />
-          <IntentNodeBody node={node} />
+          <IntentNodeHeader node={node} storeId={storeId} />
+          <IntentNodeBody node={node} storeId={storeId} />
         </div>
         {shouldShowInvalidNodes && problematicNode && <ProblemPopover status={problematicNode.status} message={problematicNode.message} />}
       </Paper>

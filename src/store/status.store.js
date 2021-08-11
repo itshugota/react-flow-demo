@@ -1,5 +1,5 @@
 import create from 'zustand';
-import { isNode, subscribeToFinalElementChanges } from 'react-flowy/lib';
+import { isEdge, isNode, subscribeToFinalElementChanges } from 'react-flowy/lib';
 import { detectInvalidStatus, detectWarningStatus } from './status.store.actions';
 
 export const WorkflowStatus = {
@@ -33,28 +33,33 @@ export const useStatusStore = create(set => ({
 
   setShouldShowUnhandledConditions: shouldShowUnhandledConditions => {
     set(state => ({ ...state, shouldShowUnhandledConditions }));
-  }
+  },
 }));
 
-let batchUpdateTimeout;
+export const trackStatus = storeId => {
+  let batchUpdateTimeout;
 
-subscribeToFinalElementChanges(elements => {
-  if (batchUpdateTimeout) clearTimeout(batchUpdateTimeout);
+  subscribeToFinalElementChanges(storeId)(elements => {
+    if (batchUpdateTimeout) clearTimeout(batchUpdateTimeout);
+  
+    batchUpdateTimeout = window.setTimeout(() => {
+      localStorage.setItem('elements', JSON.stringify(elements));
+  
+      const nodes = elements.filter(element => isNode(element));
+      const edges = elements.filter(element => isEdge(element));
+  
+      const isInvalidStatusDetected = detectInvalidStatus(nodes, edges);
+  
+      if (isInvalidStatusDetected) return;
+  
+      const isWarningStatusDetected = detectWarningStatus(nodes, edges);
+  
+      if (isWarningStatusDetected) return;
+  
+      useStatusStore.getState().setProblematicNodes([]);
+      useStatusStore.getState().changeStatus(WorkflowStatus.VALID);
+    }, 100);
+  });
+  
+}
 
-  batchUpdateTimeout = window.setTimeout(() => {
-    localStorage.setItem('elements', JSON.stringify(elements));
-
-    const nodes = elements.filter(element => isNode(element));
-
-    const isInvalidStatusDetected = detectInvalidStatus(nodes);
-
-    if (isInvalidStatusDetected) return;
-
-    const isWarningStatusDetected = detectWarningStatus(nodes);
-
-    if (isWarningStatusDetected) return;
-
-    useStatusStore.getState().setProblematicNodes([]);
-    useStatusStore.getState().changeStatus(WorkflowStatus.VALID);
-  }, 100);
-});

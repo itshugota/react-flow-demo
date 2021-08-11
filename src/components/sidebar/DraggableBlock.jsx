@@ -1,11 +1,20 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { useSnackbar } from 'notistack';
 import { makeStyles } from '@material-ui/core/styles';
 import Typography from '@material-ui/core/Typography';
 import DragIndicatorIcon from '@material-ui/icons/DragIndicator';
 
-import { useReactFlowyStore, eventPointToCanvasCoordinates, getCanvas, getReactFlowyElement, isPointInRect, transformSelector, snapPointToGrid, snapGridSelector, nodesSelector } from 'react-flowy/lib';
-import { useRef } from 'react';
+import {
+  useReactFlowyStoreById,
+  eventPointToCanvasCoordinates,
+  getCanvas,
+  getReactFlowyElement,
+  isPointInRect,
+  transformSelector,
+  snapPointToGrid,
+  snapGridSelector,
+  nodesSelector
+} from 'react-flowy/lib';
 
 const useStyles = makeStyles(theme => ({
   root: {
@@ -36,19 +45,19 @@ const useStyles = makeStyles(theme => ({
     display: 'flex',
     flexDirection: 'column',
     justifyContent: 'center',
-    margin: 0
+    margin: 0,
   },
   name: {
     color: 'var(--black)',
     fontSize: 16,
-    lineHeight: '18.75px'
+    lineHeight: '18.75px',
   },
   description: {
     marginTop: theme.spacing(0.5),
     color: '#828282',
     fontSize: 14,
     lineHeight: '16px',
-  }
+  },
 }));
 
 export const nodeDropValidators = {};
@@ -57,10 +66,18 @@ export const registerNodeDropValidator = nodeType => nodeDropValidator => {
   nodeDropValidators[nodeType] = nodeDropValidator;
 };
 
-const DraggableBlock = ({ Icon, DragShell, name, description, nodeType }) => {
+const DraggableBlock = ({
+  Icon,
+  DragShell,
+  name,
+  description,
+  nodeType,
+  storeId,
+}) => {
   const classes = useStyles();
   const { enqueueSnackbar } = useSnackbar();
   const nodes = useRef([]);
+  const useReactFlowyStore = useReactFlowyStoreById(storeId);
   const transform = useReactFlowyStore(transformSelector);
   const snapGrid = useReactFlowyStore(snapGridSelector);
   const upsertNode = useReactFlowyStore(state => state.upsertNode);
@@ -73,20 +90,6 @@ const DraggableBlock = ({ Icon, DragShell, name, description, nodeType }) => {
       nodes.current = nodesFromStore;
     }, nodesSelector);
   }, []);
-
-  useEffect(() => {
-    if (!isGrabbing) return;
-
-    document.addEventListener('mousemove', handleDrag);
-    document.addEventListener('mouseup', handleDragStop);
-    document.body.style.cursor = 'grabbing';
-
-    return () => {
-      document.removeEventListener('mousemove', handleDrag);
-      document.removeEventListener('mouseup', handleDragStop);
-      document.body.style.cursor = 'auto';
-    };
-  }, [isGrabbing, transform]);
 
   const handleDrag = event => {
     setDragX(event.clientX);
@@ -104,7 +107,10 @@ const DraggableBlock = ({ Icon, DragShell, name, description, nodeType }) => {
 
     const canvas = getCanvas(transform);
 
-    const cursorCoordinates = snapPointToGrid(eventPointToCanvasCoordinates(event)(canvas), snapGrid);
+    const cursorCoordinates = snapPointToGrid(
+      eventPointToCanvasCoordinates(event)(canvas),
+      snapGrid
+    );
 
     const newNode = {
       id: `x${cursorPosition.x}y${cursorPosition.y}`,
@@ -121,13 +127,20 @@ const DraggableBlock = ({ Icon, DragShell, name, description, nodeType }) => {
       newNode.data = { conditions: [] };
       newNode.shapeType = 'hexagon';
       newNode.shapeData = { topPeakHeight: 69, bottomPeakHeight: 69 };
-    } else if (nodeType === 'startNode' || nodeType === 'terminateNode') {
-      newNode.shapeType = 'circle'
-    } else if (nodeType === 'baseWorkflowNode') {
+    } else if (
+      nodeType === 'startNode' ||
+      nodeType === 'localTerminateNode' ||
+      nodeType === 'globalTerminateNode'
+    ) {
+      newNode.shapeType = 'circle';
+    } else if (nodeType === 'subWorkflowNode') {
       newNode.data = { workflow: '' };
     }
 
-    if (typeof nodeDropValidators[nodeType] === 'function' && !nodeDropValidators[nodeType](nodes.current, newNode)) {
+    if (
+      typeof nodeDropValidators[nodeType] === 'function' &&
+      !nodeDropValidators[nodeType](nodes.current, newNode)
+    ) {
       return enqueueSnackbar('Failed to insert node', { variant: 'error' });
     }
 
@@ -140,6 +153,23 @@ const DraggableBlock = ({ Icon, DragShell, name, description, nodeType }) => {
     setDragY(event.clientY);
   };
 
+  useEffect(
+    () => {
+      if (!isGrabbing) return;
+
+      document.addEventListener('mousemove', handleDrag);
+      document.addEventListener('mouseup', handleDragStop);
+      document.body.style.cursor = 'grabbing';
+
+      return () => {
+        document.removeEventListener('mousemove', handleDrag);
+        document.removeEventListener('mouseup', handleDragStop);
+        document.body.style.cursor = 'auto';
+      };
+    },
+    [isGrabbing, transform]
+  );
+
   return (
     <div className={classes.root} onMouseDown={handleDragStart}>
       <span className={classes.iconGroup}>
@@ -149,23 +179,33 @@ const DraggableBlock = ({ Icon, DragShell, name, description, nodeType }) => {
         </span>
       </span>
       <div className={classes.textContainer}>
-        <Typography className={classes.name} variant="h6" align="left">{name}</Typography>
-        <Typography className={classes.description} variant="body2" align="left">{description}</Typography>
+        <Typography className={classes.name} variant="h6" align="left">
+          {name}
+        </Typography>
+        <Typography
+          className={classes.description}
+          variant="body2"
+          align="left"
+        >
+          {description}
+        </Typography>
       </div>
-      {isGrabbing &&
-        <div style={{
-          position: 'fixed',
-          top: dragY,
-          left: dragX,
-          opacity: 0.7,
-          transform: `scale(${transform[2]})`,
-          transformOrigin: 'top left'
-        }}>
+      {isGrabbing && (
+        <div
+          style={{
+            position: 'fixed',
+            top: dragY,
+            left: dragX,
+            opacity: 0.7,
+            transform: `scale(${transform[2]})`,
+            transformOrigin: 'top left',
+          }}
+        >
           <DragShell />
         </div>
-      }
+      )}
     </div>
-  )
-}
+  );
+};
 
 export default React.memo(DraggableBlock);

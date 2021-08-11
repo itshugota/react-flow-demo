@@ -19,20 +19,28 @@ export const exportAsPNG = async ({ margin = 16, qualityLevel = 1 }) => {
   const heightScale = (height - margin * 2) / (bottom - top);
   const scale = Math.min(widthScale, heightScale);
 
-  const reactFlowyNodesElement = reactFlowyElementClone.querySelector('.react-flowy__nodes');
-  const reactFlowyEdgesTransformerElement = reactFlowyElementClone.querySelector('.react-flowy__edges__transformer');
+  const reactFlowyNodesElement = reactFlowyElementClone.querySelector(
+    '.react-flowy__nodes',
+  );
+  const reactFlowyEdgesTransformerElement = reactFlowyElementClone.querySelector(
+    '.react-flowy__edges__transformer',
+  );
 
   const translateX = -(left - margin) * scale;
   const translateY = -(top - margin) * scale;
 
-  reactFlowyElementClone.style.width = `${(right - left + margin * 2) * scale}px`;
-  reactFlowyElementClone.style.height = `${(bottom - top + margin * 2) * scale}px`;
+  reactFlowyElementClone.style.width = `${(right - left + margin * 2) *
+    scale}px`;
+  reactFlowyElementClone.style.height = `${(bottom - top + margin * 2) *
+    scale}px`;
   reactFlowyNodesElement.style.transform = `translate(${translateX}px, ${translateY}px) scale(${scale})`;
   reactFlowyEdgesTransformerElement.style.transform = `translate(${translateX}px, ${translateY}px) scale(${scale})`;
 
   reactFlowyElement.parentElement.appendChild(reactFlowyElementClone);
 
-  const dataURL = await toPng(reactFlowyElementClone, { pixelRatio: qualityLevel });
+  const dataURL = await toPng(reactFlowyElementClone, {
+    pixelRatio: qualityLevel,
+  });
 
   reactFlowyElement.style.display = '';
   reactFlowyElementClone.parentElement.removeChild(reactFlowyElementClone);

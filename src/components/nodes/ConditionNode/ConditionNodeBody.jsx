@@ -13,25 +13,25 @@ import ConditionRow from './ConditionRow';
 import { isNodeInLoop } from '../../../utils/nodes';
 import FilledInput from '../../ui/FilledInput/FilledInput';
 import Autocomplete from '../../ui/Autocomplete/Autocomplete';
-import { useReactFlowyStore } from 'react-flowy/lib';
+import { useReactFlowyStoreById } from 'react-flowy/lib';
 
 const useStyles = makeStyles(theme => ({
   main: {
     display: 'flex',
     alignItems: 'center',
     padding: theme.spacing(2),
-    flexDirection: 'column'
+    flexDirection: 'column',
   },
   table: {
     borderCollapse: 'inherit',
     border: '1px solid #e9e9ef',
     borderRadius: 4,
     '& > .MuiTableCell-root': {
-      color: '#253134'
+      color: '#253134',
     },
     '& .MuiTableCell-root': {
       padding: theme.spacing(0.75, 1.5, 0.75, 1),
-    }
+    },
   },
   header: {
     marginBottom: theme.spacing(1),
@@ -57,10 +57,10 @@ const useStyles = makeStyles(theme => ({
   headerItemContainer: {
     display: 'flex',
     alignItems: 'center',
-  }
+  },
 }));
 
-const ConditionTable = React.memo(({ node }) => {
+const ConditionTable = React.memo(({ node, storeId }) => {
   const classes = useStyles();
   const conditions = node.data && Array.isArray(node.data.conditions) ? node.data.conditions : [];
 
@@ -78,7 +78,7 @@ const ConditionTable = React.memo(({ node }) => {
         <TableBody>
           {conditions.length > 0 ?
             conditions.map((condition, index) => (
-              <ConditionRow key={condition.parameter} node={node} condition={condition} index={index} isLastRow={index === conditions.length - 1} />
+              <ConditionRow key={condition.parameter} node={node} condition={condition} index={index} isLastRow={index === conditions.length - 1} storeId={storeId} />
             )) :
             <TableRow>
               <TableCell colSpan={4} style={{ textAlign: 'center', width: 484 }}>There is no condition</TableCell>
@@ -92,9 +92,10 @@ const ConditionTable = React.memo(({ node }) => {
 
 const conditionModes = ['AND', 'OR'];
 
-const ConditionNodeBody = ({ node }) => {
+const ConditionNodeBody = ({ node, storeId }) => {
   const classes = useStyles();
   const isInLoop = useMemo(() => isNodeInLoop(node), [node]);
+  const useReactFlowyStore = useReactFlowyStoreById(storeId);
   const upsertNode = useReactFlowyStore(state => state.upsertNode);
 
   const handleLoopCountChange = event => {
@@ -159,7 +160,7 @@ const ConditionNodeBody = ({ node }) => {
           }
         </header>
       }
-      <ConditionTable node={node} />
+      <ConditionTable node={node} storeId={storeId} />
     </main>
   )
 };

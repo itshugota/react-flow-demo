@@ -2,7 +2,7 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 
 import ActionAutocomplete from './ActionAutocomplete';
-import { useReactFlowyStore } from 'react-flowy/lib';
+import { useReactFlowyStoreById } from 'react-flowy/lib';
 
 const useStyles = makeStyles(theme => ({
   main: {
@@ -10,7 +10,7 @@ const useStyles = makeStyles(theme => ({
     alignItems: 'flex-start',
     justifyContent: 'center',
     flexDirection: 'column',
-    padding: theme.spacing(2)
+    padding: theme.spacing(2),
   },
   createNewAction: {
     cursor: 'pointer',
@@ -21,7 +21,7 @@ const useStyles = makeStyles(theme => ({
     alignItems: 'center',
     '&:hover': {
       background: theme.palette.grey[100],
-    }
+    },
   },
   addIcon: {
     marginRight: theme.spacing(0.5),
@@ -30,8 +30,9 @@ const useStyles = makeStyles(theme => ({
   },
 }));
 
-const ActionNodeBody = ({ node }) => {
+const ActionNodeBody = ({ node, storeId }) => {
   const classes = useStyles();
+  const useReactFlowyStore = useReactFlowyStoreById(storeId);
   const upsertNode = useReactFlowyStore(state => state.upsertNode);
 
   const handleActionChange = (newActionId) => {
@@ -45,7 +46,7 @@ const ActionNodeBody = ({ node }) => {
   return (
     <>
       <main className={classes.main}>
-        <ActionAutocomplete node={node} value={node.data.action} onChange={handleActionChange} />
+        <ActionAutocomplete node={node} value={node.data.action} onChange={handleActionChange} storeId={storeId} />
       </main>
     </>
   )

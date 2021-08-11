@@ -1,15 +1,15 @@
-import { getInEdges, getOutEdges } from 'react-flowy/lib';
+import { getIncomingEdges, getOutgoingEdges } from 'react-flowy/lib';
 import { useStatusStore, WorkflowStatus } from './status.store';
 
-export const detectInvalidStatus = nodes => {
+export const detectInvalidStatus = (nodes, edges) => {
   const nodesWithNoOutgoingEdges = nodes.filter(node => {
-    const outgoingEdges = getOutEdges(node);
+    const outgoingEdges = getOutgoingEdges(edges)(node);
 
     return node.type !== 'terminateNode' && outgoingEdges.length === 0;
   });
 
   const nodesWithNoIncomingEdges = nodes.filter(node => {
-    const incomingEdges = getInEdges(node);
+    const incomingEdges = getIncomingEdges(edges)(node);
 
     return node.type !== 'startNode' && incomingEdges.length === 0;
   });
@@ -20,13 +20,13 @@ export const detectInvalidStatus = nodes => {
         ...nodesWithNoOutgoingEdges.map(({ id }) => ({
           id,
           status: WorkflowStatus.INVALID,
-          message: 'This node has no outgoing edge.'
+          message: 'This node has no outgoing edge.',
         })),
         ...nodesWithNoIncomingEdges.map(({ id }) => ({
           id,
           status: WorkflowStatus.INVALID,
-          message: 'This node has no incoming edge.'
-        })),
+          message: 'This node has no incoming edge.',
+        }))
       ];
 
     useStatusStore.getState().setProblematicNodes(problematicNodes);
@@ -40,12 +40,12 @@ export const detectInvalidStatus = nodes => {
   return false;
 };
 
-export const detectWarningStatus = nodes => {
+export const detectWarningStatus = (nodes, edges) => {
   const conditionNodes = nodes.filter(node => node.type === 'conditionNode');
   const nodesWithWarning = [];
 
   conditionNodes.forEach(conditionNode => {
-    const outcomingEdges = getOutEdges(conditionNode);
+    const outcomingEdges = getOutgoingEdges(edges)(conditionNode);
 
     let doesTrueEdgeExist = false;
     let doesFalseEdgeExist = false;

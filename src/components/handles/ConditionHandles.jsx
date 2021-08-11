@@ -25,34 +25,35 @@ const ConditionHandles = React.memo(({
   RightHandleIndicator = React.Fragment,
   BottomHandleIndicator = React.Fragment,
   LeftHandleIndicator = React.Fragment,
+  storeId,
 }) => {
   const classes = useStyles();
   const className = clsx('react-flowy__standard-handles__arrow', !shouldShowHandles ? 'react-flowy__standard-handles__arrow--hidden' : '');
 
   return (
     <>
-      <Handle node={node} shouldShowHandle={shouldShowHandles} additionalEdgeProps={additionalEdgeProps}>
+      <Handle node={node} shouldShowHandle={shouldShowHandles} additionalEdgeProps={additionalEdgeProps} storeId={storeId}>
         <div className={clsx(className, classes.upArrow)}>
           <TopHandleIndicator>
             <UpArrow />
           </TopHandleIndicator>
         </div>
       </Handle>
-      <Handle node={node} shouldShowHandle={shouldShowHandles} additionalEdgeProps={additionalEdgeProps}>
+      <Handle node={node} shouldShowHandle={shouldShowHandles} additionalEdgeProps={additionalEdgeProps} storeId={storeId}>
         <div className={clsx(className, 'react-flowy__standard-handles__arrow--right')}>
           <RightHandleIndicator>
             <RightArrow />
           </RightHandleIndicator>
         </div>
       </Handle>
-      <Handle node={node} shouldShowHandle={shouldShowHandles} additionalEdgeProps={additionalEdgeProps}>
+      <Handle node={node} shouldShowHandle={shouldShowHandles} additionalEdgeProps={additionalEdgeProps} storeId={storeId}>
         <div className={clsx(className, classes.downArrow)}>
           <BottomHandleIndicator>
             <DownArrow />
           </BottomHandleIndicator>
         </div>
       </Handle>
-      <Handle node={node} shouldShowHandle={shouldShowHandles} additionalEdgeProps={additionalEdgeProps}>
+      <Handle node={node} shouldShowHandle={shouldShowHandles} additionalEdgeProps={additionalEdgeProps} storeId={storeId}>
         <div className={clsx(className, 'react-flowy__standard-handles__arrow--left')}>
           <LeftHandleIndicator>
             <LeftArrow />

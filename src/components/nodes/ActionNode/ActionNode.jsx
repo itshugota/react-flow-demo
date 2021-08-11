@@ -11,22 +11,22 @@ import useEnsureEdgePositions from '../useEnsureEdgePositions';
 const useStyles = makeStyles(() => ({
   container: {},
   selected: {
-    boxShadow: '0px 0px 4px var(--selected-color)'
-  }
+    boxShadow: '0px 0px 4px var(--selected-color)',
+  },
 }));
 
-const ActionNode = ({ children, node }) => {
+const ActionNode = ({ children, node, storeId }) => {
   const classes = useStyles();
   const shouldShowInvalidNodes = useStatusStore(state => state.shouldShowInvalidNodes);
   const problematicNode = useStatusStore(state => state.problematicNodes.find(pN => pN.id === node.id));
-  useEnsureEdgePositions(node);
+  useEnsureEdgePositions(node, storeId);
 
   return (
-    <ExtendedNodeContainer node={node}>
+    <ExtendedNodeContainer node={node} storeId={storeId}>
       <Paper className={classes.container} elevation={4}>
         <div className={node.isSelected ? classes.selected : ''}>
-          <ActionNodeHeader node={node} />
-          <ActionNodeBody node={node} />
+          <ActionNodeHeader node={node} storeId={storeId} />
+          <ActionNodeBody node={node} storeId={storeId} />
         </div>
         {shouldShowInvalidNodes && problematicNode && <ProblemPopover status={problematicNode.status} message={problematicNode.message} />}
       </Paper>

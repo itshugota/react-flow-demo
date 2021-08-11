@@ -2,7 +2,7 @@ import React from 'react';
 import Tooltip from '@material-ui/core/Tooltip';
 import { NodeContainer } from 'react-flowy/lib';
 
-const ExtendedNodeContainer = React.memo(({ children, node, isHandleDisabled, additionalEdgeProps }) => {
+const ExtendedNodeContainer = React.memo(({ children, node, isHandleDisabled, additionalEdgeProps, storeId }) => {
   return (
     <NodeContainer
       node={node}
@@ -12,6 +12,7 @@ const ExtendedNodeContainer = React.memo(({ children, node, isHandleDisabled, ad
       RightHandleIndicator={HandleIndicator}
       BottomHandleIndicator={HandleIndicator}
       LeftHandleIndicator={HandleIndicator}
+      storeId={storeId}
     >
       {children}
     </NodeContainer>

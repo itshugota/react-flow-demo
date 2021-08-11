@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   BrowserRouter as Router,
   Switch,
@@ -11,6 +11,7 @@ import './App.css'
 import Sidebar from './components/sidebar/Sidebar';
 import Workflow from './components/Workflow';
 import Toolbar from './components/toolbar/Toolbar';
+import { initializeReactFlowyStore } from 'react-flowy/lib';
 
 const theme = createMuiTheme({
   palette: {
@@ -21,11 +22,19 @@ const theme = createMuiTheme({
     },
     text: {
       primary: '#000034',
-    }
-  }
+    },
+  },
 });
 
 function App() {
+  const [storeId, setStoreId] = useState();
+
+  useEffect(() => {
+    const id = initializeReactFlowyStore();
+
+    setStoreId(id);
+  }, []);
+
   return (
     <ThemeProvider theme={theme}>
       <SnackbarProvider maxSnack={3}>
@@ -33,9 +42,13 @@ function App() {
           <div className="App">
             <Switch>
               <Route path="/">
-                <Sidebar />
-                <Toolbar />
-                <Workflow />
+                {storeId &&
+                  <>
+                    <Sidebar storeId={storeId} />
+                    <Toolbar storeId={storeId} />
+                    <Workflow storeId={storeId} />
+                  </>
+                }
               </Route>
             </Switch>
           </div>

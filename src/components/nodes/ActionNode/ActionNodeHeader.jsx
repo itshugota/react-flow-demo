@@ -6,36 +6,37 @@ import Menu from '@material-ui/core/Menu';
 import MenuItem from '@material-ui/core/MenuItem';
 import FlashOnIcon from '@material-ui/icons/FlashOn';
 import MoreHorizIcon from '@material-ui/icons/MoreHoriz';
-import { useReactFlowyStore } from 'react-flowy/lib';
+import { useReactFlowyStoreById } from 'react-flowy/lib';
 
 const useStyles = makeStyles(theme => ({
   header: {
     display: 'flex',
     alignItems: 'center',
     padding: theme.spacing(1.5, 2),
-    background: 'rgba(255, 203, 17, 0.1)'
+    background: 'rgba(255, 203, 17, 0.1)',
   },
   leadingIcon: {
     color: '#ffcb11',
-    marginRight: theme.spacing(1)
+    marginRight: theme.spacing(1),
   },
   title: {
     color: '#253134',
     fontSize: 16,
     fontWeight: 500,
     flexGrow: 1,
-    textAlign: 'left'
+    textAlign: 'left',
   },
   moreOptionsButton: {
     width: 36,
     height: 36,
     position: 'absolute',
-    right: 8
-  }
+    right: 8,
+  },
 }));
 
-const ActionNodeHeader = ({ node }) => {
+const ActionNodeHeader = ({ node, storeId }) => {
   const classes = useStyles();
+  const useReactFlowyStore = useReactFlowyStoreById(storeId);
   const deleteElementById = useReactFlowyStore(state => state.deleteElementById);
   const [anchorEl, setAnchorEl] = useState(null);
 

@@ -1,19 +1,31 @@
-import { getOutEdges, getTargetNode } from 'react-flowy/lib';
+import {
+  getIncomingEdges,
+  getOutgoingEdges,
+  getSourceNode,
+  getTargetNode
+} from 'react-flowy/lib';
 
-export const isNodeInLoop = (firstNode, node) => {
+export const isNodeInLoop = (nodes, edges) => (firstNode, node) => {
   if (!node) {
+    /* eslint-disable no-param-reassign */
     node = { ...firstNode };
   } else if (node.id === firstNode.id) {
     return true;
   }
 
-  const outcomingEdges = getOutEdges(node).filter(edge => !edge.isForming);
+  const outgoingEdges = getOutgoingEdges(edges)(node).filter(edge => !edge.isForming);
 
-  if (!outcomingEdges.length) return false;
+  if (!outgoingEdges.length) return false;
 
-  return outcomingEdges.some(outcomingEdge => {
-    const targetNode = getTargetNode(outcomingEdge);
+  return outgoingEdges.some(outcomingEdge => {
+    const targetNode = getTargetNode(nodes)(outcomingEdge);
 
-    return isNodeInLoop(firstNode, targetNode);
+    return isNodeInLoop(nodes, edges)(firstNode, targetNode);
   });
+};
+
+export const getParentsOfNode = (nodes, edges) => node => {
+  const incomingEdges = getIncomingEdges(edges)(node);
+
+  return incomingEdges.map(incomingEdge => getSourceNode(nodes)(incomingEdge));
 };
