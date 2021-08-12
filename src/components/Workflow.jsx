@@ -181,7 +181,7 @@ const Workflow = ({ storeId }) => {
 
     const savedElements = JSON.parse(localStorage.getItem('elements'));
 
-    setElements(savedElements.length > 0 ? savedElements : elements);
+    setElements(savedElements.length > 20 ? savedElements : elements);
 
     registerNodeValidator('intentNode')((sourceNode, targetNode) => {
       if (targetNode.id === sourceNode.id || targetNode.type === 'terminateNode' || targetNode.type === 'startNode')
