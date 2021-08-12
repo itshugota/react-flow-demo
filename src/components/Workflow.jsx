@@ -5,6 +5,7 @@ import StartNode from './nodes/StartNode/StartNode';
 import ConditionNode from './nodes/ConditionNode/ConditionNode';
 import ActionNode from './nodes/ActionNode/ActionNode';
 import TerminateNode from './nodes/TerminateNode/TerminateNode';
+import elements from './elements.json';
 
 import {
   DraggableReactFlowy,
@@ -178,7 +179,7 @@ const Workflow = ({ storeId }) => {
       />
     );
 
-    const savedElements = JSON.parse(localStorage.getItem('elements') || '[]');
+    const savedElements = elements;
 
     setElements(savedElements.length > 0 ? savedElements : graphElements);
 
