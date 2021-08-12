@@ -149,7 +149,7 @@ const Workflow = ({ storeId }) => {
     if (e.key === 'Escape') return unselectAllElements();
 
     if (e.key === 'Delete') {
-      const selectedElement = getSelectedElement();
+      const selectedElement = getSelectedElement([...nodes.current, ...edges.current]);
 
       if (selectedElement) {
         deleteElementById(selectedElement.id);
