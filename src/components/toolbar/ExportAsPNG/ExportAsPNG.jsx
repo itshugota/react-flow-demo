@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import clsx from 'clsx';
 import { makeStyles } from '@material-ui/core/styles';
-import Tooltip from '@material-ui/core/Tooltip';
 import IconButton from '@material-ui/core/IconButton';
 import PhotoIcon from '@material-ui/icons/Photo';
 import ExportDialog from './ExportDialog';
@@ -30,11 +29,9 @@ const ExportAsPNG = () => {
 
   return (
     <>
-      <Tooltip title="Export as PNG">
-        <IconButton className={clsx(classes.iconButton, classes.mR)} onClick={handleExportAsPNG}>
-          <PhotoIcon />
-        </IconButton>
-      </Tooltip>
+      <IconButton className={clsx(classes.iconButton, classes.mR)} onClick={handleExportAsPNG}>
+        <PhotoIcon />
+      </IconButton>
       <ExportDialog isOpen={isExportDialogOpen} onClose={handleCloseExportDialog} />
     </>
   );

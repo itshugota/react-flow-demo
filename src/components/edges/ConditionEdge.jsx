@@ -1,5 +1,4 @@
 import React, { useMemo } from 'react';
-import Tooltip from '@material-ui/core/Tooltip';
 
 import { getRectangleFromNode, getSourceNode, isPointInShape, nodesSelector, StandardEdge, useReactFlowyStoreById } from 'react-flowy/lib';
 import EdgeWithStartIndicator from './EdgeWithStartIndicator';

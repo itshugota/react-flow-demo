@@ -7,11 +7,10 @@ import {
 import { SnackbarProvider } from 'notistack';
 import { createMuiTheme, ThemeProvider } from '@material-ui/core/styles';
 
-import './App.css'
-import Sidebar from './components/sidebar/Sidebar';
 import Workflow from './components/Workflow';
 import Toolbar from './components/toolbar/Toolbar';
 import { initializeReactFlowyStore } from 'react-flowy/lib';
+import './App.css'
 
 const theme = createMuiTheme({
   palette: {
@@ -44,7 +43,6 @@ function App() {
               <Route path="/">
                 {storeId &&
                   <>
-                    <Sidebar storeId={storeId} />
                     <Toolbar storeId={storeId} />
                     <Workflow storeId={storeId} />
                   </>

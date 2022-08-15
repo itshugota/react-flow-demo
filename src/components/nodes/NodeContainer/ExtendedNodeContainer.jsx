@@ -1,5 +1,4 @@
 import React from 'react';
-import Tooltip from '@material-ui/core/Tooltip';
 import { NodeContainer } from 'react-flowy/lib';
 
 const ExtendedNodeContainer = React.memo(({ children, node, isHandleDisabled, additionalEdgeProps, storeId }) => {
@@ -21,9 +20,7 @@ const ExtendedNodeContainer = React.memo(({ children, node, isHandleDisabled, ad
 
 const HandleIndicator = ({ children }) => {
   return (
-    <Tooltip title="Click and drag to connect">
-      <div>{children}</div>
-    </Tooltip>
+    <div>{children}</div>
   );
 }
 

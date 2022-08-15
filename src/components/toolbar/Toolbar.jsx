@@ -3,7 +3,6 @@ import clsx from 'clsx';
 import { makeStyles } from '@material-ui/core/styles';
 import Paper from '@material-ui/core/Paper';
 import IconButton from '@material-ui/core/IconButton';
-import Tooltip from '@material-ui/core/Tooltip';
 import UndoIcon from '@material-ui/icons/Undo';
 import RedoIcon from '@material-ui/icons/Redo';
 import ZoomOutIcon from '@material-ui/icons/ZoomOut';
@@ -206,39 +205,27 @@ const Toolbar = ({ storeId }) => {
 
   return (
     <Paper className={classes.root} elevation={4}>
-      <Tooltip title="Undo">
-        <IconButton className={clsx(classes.iconButton, classes.mR)} onClick={handleUndo} disabled={!isUndoable}>
-          <UndoIcon />
-        </IconButton>
-      </Tooltip>
-      <Tooltip title="Redo">
-        <IconButton className={clsx(classes.iconButton, classes.mR)} onClick={handleRedo} disabled={!isRedoable}>
-          <RedoIcon />
-        </IconButton>
-      </Tooltip>
-      <Tooltip title="Zoom out">
-        <IconButton className={classes.iconButton} onClick={handleZoomOut} disabled={transform[2] === minZoom}>
-          <ZoomOutIcon />
-        </IconButton>
-      </Tooltip>
+      <IconButton className={clsx(classes.iconButton, classes.mR)} onClick={handleUndo} disabled={!isUndoable}>
+        <UndoIcon />
+      </IconButton>
+      <IconButton className={clsx(classes.iconButton, classes.mR)} onClick={handleRedo} disabled={!isRedoable}>
+        <RedoIcon />
+      </IconButton>
+      <IconButton className={classes.iconButton} onClick={handleZoomOut} disabled={transform[2] === minZoom}>
+        <ZoomOutIcon />
+      </IconButton>
       <input className={classes.zoomInput} value={zoomInputValue} onChange={handleZoomInputChange} />
-      <Tooltip title="Zoom in">
-        <IconButton className={clsx(classes.iconButton, classes.mR)} onClick={handleZoomIn} disabled={transform[2] === maxZoom}>
-          <ZoomInIcon />
-        </IconButton>
-      </Tooltip>
+      <IconButton className={clsx(classes.iconButton, classes.mR)} onClick={handleZoomIn} disabled={transform[2] === maxZoom}>
+        <ZoomInIcon />
+      </IconButton>
       <ExportAsPNG />
       {isFullscreen ?
-        <Tooltip title="Exit fullscreen">
-          <IconButton className={classes.iconButton} onClick={handleExitFullscreen}>
-            <FullscreenExitIcon />
-          </IconButton>
-        </Tooltip> :
-        <Tooltip title="Enter fullscreen">
-          <IconButton className={classes.iconButton} onClick={handleEnterFullscreen}>
-            <FullscreenIcon />
-          </IconButton>
-        </Tooltip>
+        <IconButton className={classes.iconButton} onClick={handleExitFullscreen}>
+          <FullscreenExitIcon />
+        </IconButton> :
+        <IconButton className={classes.iconButton} onClick={handleEnterFullscreen}>
+          <FullscreenIcon />
+        </IconButton>
       }
       <div className={clsx(classes.separator, classes.mLSmall, classes.mRSmall)} />
       <StatusIndicator />
