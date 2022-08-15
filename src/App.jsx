@@ -8,7 +8,6 @@ import { SnackbarProvider } from 'notistack';
 import { createMuiTheme, ThemeProvider } from '@material-ui/core/styles';
 
 import Workflow from './components/Workflow';
-import Toolbar from './components/toolbar/Toolbar';
 import { initializeReactFlowyStore } from 'react-flowy/lib';
 import './App.css'
 
@@ -43,7 +42,6 @@ function App() {
               <Route path="/">
                 {storeId &&
                   <>
-                    <Toolbar storeId={storeId} />
                     <Workflow storeId={storeId} />
                   </>
                 }
